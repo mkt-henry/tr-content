@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Pretendard Variable", monospace;
+
+  /* 웜 브론즈 액센트 (참고 이미지 톤) */
+  --color-brass-300: #e8c9a0;
+  --color-brass-400: #d9ad78;
+  --color-brass-500: #c08d52;
+  --color-brass-600: #9a6c3a;
+
+  /* 잉크 (배경 차콜) */
+  --color-ink-850: #17161a;
+  --color-ink-900: #111013;
+  --color-ink-950: #0a090b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-ink-950);
+  color: #e9e6e1;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection {
+  background: rgba(216, 173, 120, 0.35);
+}
+
+/* 미세 노이즈 그레인 오버레이 */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+}
+
+/* 스크롤바 (데모 내부) */
+.demo-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.demo-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.demo-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 스트리밍 캐럿 */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.stream-caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+/* 생성 중 시머 */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* 생각 중 점 3개 */
+@keyframes thinking-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+.thinking-dot {
+  animation: thinking-dot 1.2s ease-in-out infinite;
+}
+.thinking-dot:nth-child(2) { animation-delay: 0.15s; }
+.thinking-dot:nth-child(3) { animation-delay: 0.3s; }
