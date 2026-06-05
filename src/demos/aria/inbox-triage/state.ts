@@ -60,11 +60,14 @@ export const useInbox = create<InboxState>((set, get) => ({
     set({ phase: 'sorted', scannedIds: EMAILS.map((e) => e.id) });
   },
 
-  selectEmail: (selectedId) => set({ selectedId, hoveredId: null, extracting: false, extractedCount: 0, pipelineAdded: false }),
+  selectEmail: (selectedId) => {
+    runId++;
+    set({ selectedId, hoveredId: null, extracting: false, extractedCount: 0, pipelineAdded: false });
+  },
 
   extract: () => {
-    const { selectedId, extracting } = get();
-    if (extracting || selectedId !== EXTRACTION.emailId) return;
+    const { phase, selectedId, extracting } = get();
+    if (phase === 'scanning' || extracting || selectedId !== EXTRACTION.emailId) return;
     const id = ++runId;
     set({ extracting: true, extractedCount: 0 });
     void (async () => {
