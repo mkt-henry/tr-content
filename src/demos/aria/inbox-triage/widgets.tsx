@@ -77,7 +77,7 @@ export function EmailList({ compact }: { compact?: boolean }) {
   const lastScanned = scannedIds[scannedIds.length - 1];
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="demo-scroll min-h-0 flex-1 overflow-y-auto">
       {emails.map((e) => {
         const analyzed = scannedIds.includes(e.id);
         const scanningNow = phase === 'scanning' && lastScanned === e.id;
@@ -153,7 +153,7 @@ export function DetailPane({ compact }: { compact?: boolean }) {
   const allExtracted = extractedCount === EXTRACTION.fields.length;
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
+    <div className="demo-scroll relative flex min-h-0 flex-1 flex-col overflow-y-auto">
       <div className={cn('border-b border-white/[0.06] px-5 py-4', compact && 'px-4 py-3')}>
         <p className="text-[14px] font-semibold text-zinc-100">{pick(email.subject, lang)}</p>
         <p className="mt-1 text-[11.5px] text-zinc-500">
