@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { DeviceMode } from '../registry/types';
 
 interface ShellState {
+  /** 갤러리에서 선택된 프로젝트 탭 */
+  projectId: string;
   /** null이면 갤러리 화면 */
   featureId: string | null;
   variantId: string | null;
@@ -10,6 +12,7 @@ interface ShellState {
   phoneFrame: boolean;
   /** 브라우저 프레임 표시 여부 */
   browserChrome: boolean;
+  setProject: (projectId: string) => void;
   open: (featureId: string, variantId: string) => void;
   setVariant: (variantId: string) => void;
   backToGallery: () => void;
@@ -20,11 +23,13 @@ interface ShellState {
 }
 
 export const useShellStore = create<ShellState>((set) => ({
+  projectId: 'aria',
   featureId: null,
   variantId: null,
   device: 'desktop',
   phoneFrame: true,
   browserChrome: true,
+  setProject: (projectId) => set({ projectId }),
   open: (featureId, variantId) => set({ featureId, variantId }),
   setVariant: (variantId) => set({ variantId }),
   backToGallery: () => set({ featureId: null, variantId: null }),
