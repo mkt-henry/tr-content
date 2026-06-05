@@ -36,6 +36,7 @@ export const useWarroom = create<WarroomState>((set, get) => ({
 
   triggerEvent: () => {
     if (get().phase !== 'idle') return;
+    runId++;
     set({ phase: 'alert' });
   },
 
@@ -57,7 +58,7 @@ export const useWarroom = create<WarroomState>((set, get) => ({
 
   seedAssessed: () => {
     runId++;
-    set({ phase: 'assessed', revealedIds: EXPOSURES.map((e) => e.id) });
+    set({ phase: 'assessed', revealedIds: EXPOSURES.map((e) => e.id), drafting: false, draftedCount: 0, sent: false });
   },
 
   draftAlerts: () => {
