@@ -66,7 +66,7 @@ export function WarroomMap({ phase, revealedIds }: { phase: Phase; revealedIds: 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: [0, 1, 0.55], scale: 1 }}
             transition={{ duration: 1.6, delay: 1.2 }}
-            style={{ transformOrigin: `${landfall.x}px ${landfall.y}px` }}
+            style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
           />
 
           {/* 태풍 경로 */}
@@ -91,7 +91,7 @@ export function WarroomMap({ phase, revealedIds }: { phase: Phase; revealedIds: 
             <motion.g
               animate={{ rotate: 360 }}
               transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
-              style={{ transformOrigin: `${landfall.x}px ${landfall.y}px` }}
+              style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
             >
               <circle cx={landfall.x} cy={landfall.y} r="11" fill="none" stroke="#fb7185" strokeWidth="2.5" strokeDasharray="14 9" />
             </motion.g>
@@ -102,7 +102,12 @@ export function WarroomMap({ phase, revealedIds }: { phase: Phase; revealedIds: 
 
       {/* 노출 마커 — 점등 순서대로 */}
       {EXPOSURES.filter((e) => revealedIds.includes(e.id)).map((e) => (
-        <motion.g key={e.id} initial={{ opacity: 0, scale: 0.4 }} animate={{ opacity: 1, scale: 1 }}>
+        <motion.g
+          key={e.id}
+          initial={{ opacity: 0, scale: 0.4 }}
+          animate={{ opacity: 1, scale: 1 }}
+          style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
+        >
           <motion.circle
             cx={e.pos.x}
             cy={e.pos.y}
@@ -113,7 +118,7 @@ export function WarroomMap({ phase, revealedIds }: { phase: Phase; revealedIds: 
             initial={{ opacity: 0.8, scale: 0.5 }}
             animate={{ opacity: 0, scale: 1.8 }}
             transition={{ duration: 1.4, repeat: Infinity, ease: 'easeOut' }}
-            style={{ transformOrigin: `${e.pos.x}px ${e.pos.y}px` }}
+            style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
           />
           <circle cx={e.pos.x} cy={e.pos.y} r="4.5" fill={SEVERITY_META[e.severity].dot} stroke="#0c1014" strokeWidth="1.5" />
         </motion.g>
