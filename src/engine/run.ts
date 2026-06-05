@@ -1,5 +1,10 @@
-import type { Scenario } from './types';
+import type { Scenario, StepText } from './types';
 import { usePlaybackStore } from './playbackStore';
+
+/** 스텝 텍스트 평가 — 함수면 실행 시점(언어 등 런타임 상태)에 풀어낸다 */
+function resolveText(text: StepText): string {
+  return typeof text === 'function' ? text() : text;
+}
 
 /** abort 시 즉시 resolve되는 지연 */
 function delay(ms: number, signal: AbortSignal): Promise<void> {
@@ -24,6 +29,8 @@ function jitter(base: number) {
 async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
   const el = document.querySelector(`[data-demo-id="${target}"]`);
   if (!el) return;
+  // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
+  el.scrollIntoView({ block: 'nearest' });
   const r = el.getBoundingClientRect();
   usePlaybackStore.getState().setCursor({
     x: r.left + r.width / 2,
@@ -65,7 +72,7 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         }
         const interval = 1000 / (step.cps ?? 16);
         let acc = '';
-        for (const ch of step.text) {
+        for (const ch of resolveText(step.text)) {
           if (signal.aborted) return;
           acc += ch;
           step.set(acc);
@@ -74,12 +81,13 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         break;
       }
       case 'stream': {
+        const text = resolveText(step.text);
         const interval = 1000 / (step.cps ?? 40);
         let i = 0;
-        while (i < step.text.length) {
+        while (i < text.length) {
           if (signal.aborted) return;
           const size = 2 + Math.floor(Math.random() * 3);
-          const chunk = step.text.slice(i, i + size);
+          const chunk = text.slice(i, i + size);
           i += size;
           step.append(chunk);
           await delay(interval * chunk.length, signal);
