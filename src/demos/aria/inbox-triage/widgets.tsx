@@ -110,7 +110,7 @@ export function EmailList({ compact }: { compact?: boolean }) {
                 <Paperclip className="h-3 w-3" /> {e.attachment}
               </span>
             )}
-            <AnimatePresence>{analyzed && <BadgeRow email={e} />}</AnimatePresence>
+            <AnimatePresence>{analyzed && <BadgeRow key={e.id} email={e} />}</AnimatePresence>
             <AnimatePresence>
               {hoveredId === e.id && analyzed && (
                 <motion.div
@@ -186,9 +186,9 @@ export function DetailPane({ compact }: { compact?: boolean }) {
               )}
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              {EXTRACTION.fields.slice(0, extractedCount).map((f, i) => (
+              {EXTRACTION.fields.slice(0, extractedCount).map((f) => (
                 <motion.div
-                  key={i}
+                  key={f.label.en}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-2"
