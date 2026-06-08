@@ -35,7 +35,7 @@ export function Mobile(_: DemoComponentProps) {
       </div>
 
       {/* 피드 */}
-      <div className="demo-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3.5">
+      <div className="demo-scroll demo-scroll-follow flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3.5">
         <EventCard />
         <ExposureList />
         <SummaryCard />

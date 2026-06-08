@@ -37,7 +37,7 @@ export function Desktop(_: DemoComponentProps) {
           <AlertBanner />
           <WarroomMap phase={phase} revealedIds={revealedIds} />
         </main>
-        <aside className="demo-scroll flex w-[320px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-white/[0.06] bg-[#0c1014] p-3.5">
+        <aside className="demo-scroll demo-scroll-follow flex w-[320px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-white/[0.06] bg-[#0c1014] p-3.5">
           <EventCard />
           <ExposureList />
           <SummaryCard />

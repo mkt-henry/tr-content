@@ -51,7 +51,7 @@ export function Desktop(_: DemoComponentProps) {
           </div>
           <FindingsSummary />
         </div>
-        <aside className="demo-scroll w-[300px] shrink-0 overflow-y-auto border-l border-white/[0.06] bg-[#0c0a12] p-3.5">
+        <aside className="demo-scroll demo-scroll-follow w-[300px] shrink-0 overflow-y-auto border-l border-white/[0.06] bg-[#0c0a12] p-3.5">
           <FindingsPanel />
         </aside>
       </div>

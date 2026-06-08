@@ -42,7 +42,7 @@ export function Mobile(_: DemoComponentProps) {
       </div>
 
       {/* 파인딩 리스트 — 하단 인라인 */}
-      <div className="demo-scroll min-h-0 flex-[2] overflow-y-auto p-3.5">
+      <div className="demo-scroll demo-scroll-follow min-h-0 flex-[2] overflow-y-auto p-3.5">
         <FindingsPanel />
       </div>
     </div>

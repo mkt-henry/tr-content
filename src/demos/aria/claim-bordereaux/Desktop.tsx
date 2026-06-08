@@ -44,7 +44,7 @@ export function Desktop(_: DemoComponentProps) {
           <BordereauxGrid />
           <ValidationSummary />
         </div>
-        <aside className="demo-scroll w-[320px] shrink-0 overflow-y-auto bg-[#0b0c14] p-3.5">
+        <aside className="demo-scroll demo-scroll-follow w-[320px] shrink-0 overflow-y-auto bg-[#0b0c14] p-3.5">
           <SidePanel />
         </aside>
       </div>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { Scenario } from './types';
 import { runScenario } from './run';
+import { startAutoFollow } from './autoScroll';
 import { usePlaybackStore } from './playbackStore';
 
 /**
@@ -28,6 +29,7 @@ export function usePlayback() {
       const s = usePlaybackStore.getState();
       s.setStatus('playing');
       s.setCursor({ x: window.innerWidth / 2, y: window.innerHeight * 0.7, visible: true, pressed: false });
+      startAutoFollow(ctrl.signal);
       await runScenario(scenario, ctrl.signal);
       if (!ctrl.signal.aborted) {
         const st = usePlaybackStore.getState();
