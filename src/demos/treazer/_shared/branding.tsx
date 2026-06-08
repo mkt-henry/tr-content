@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import type { ProjectBranding } from '../../../branding/types';
-import { Coin, TZ_BACKGROUND } from './ui';
+import { TZ_BACKGROUND } from './ui';
 
 /** 다크 배경용 Treazer 워드마크 (ui.tsx Wordmark는 다크 텍스트라 별도) */
 function DarkWordmark({ className }: { className?: string }) {
@@ -36,24 +36,16 @@ function TreazerIntro() {
         className="flex flex-col items-center text-center"
       >
         <motion.div
-          initial={{ scale: 0.4, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 16 }}
-        >
-          <Coin className="h-16 w-16 text-[32px]" />
-        </motion.div>
-        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.5 }}
-          className="mt-5"
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
           <DarkWordmark className="text-[44px]" />
         </motion.div>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.5 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
           className="mt-2 text-[13px] font-medium tracking-[0.15em] text-amber-300/80"
         >
           LEARN &amp; EARN GOLD
@@ -63,7 +55,7 @@ function TreazerIntro() {
   );
 }
 
-/** 아웃트로(~3s): 시세 라인 배경 + 코인·로고·태그 + treazer.app CTA */
+/** 아웃트로(~3s): 시세 라인 배경 + 로고·태그 + treazer.app CTA */
 function TreazerOutro({ portrait = false }: { portrait?: boolean }) {
   const line = portrait ? LINE_PORTRAIT : LINE_LANDSCAPE;
   return (
@@ -88,10 +80,7 @@ function TreazerOutro({ portrait = false }: { portrait?: boolean }) {
         transition={{ delay: 0.3, duration: 0.6 }}
         className="relative z-10 flex flex-col items-center text-center"
       >
-        <Coin className="h-16 w-16 text-[32px]" />
-        <div className="mt-4">
-          <DarkWordmark className="text-[44px]" />
-        </div>
+        <DarkWordmark className="text-[44px]" />
         <p className="mt-2 text-[13px] font-medium tracking-[0.15em] text-amber-300/80">LEARN &amp; EARN GOLD</p>
         <motion.span
           initial={{ opacity: 0, scale: 0.9 }}
