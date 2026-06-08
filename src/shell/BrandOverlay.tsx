@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 /**
  * 풀스테이지 브랜딩 오버레이. 주어진 phase 컴포넌트를 렌더하고
  * durationMs 타이머 만료 또는 클릭 시 onDone을 정확히 1회 호출한다.
- * z-40 — ControlBar(z-50)보다 아래라 재생 중에도 컨트롤은 클릭 가능.
+ * z-40 — ControlBar(z-50)보다 아래라 데모 재생 단계에서 컨트롤이 가려지지 않는다.
+ * 인트로/아웃트로 단계에서는 오버레이 클릭으로 스킵, Space로 정지할 수 있다.
  */
 export function BrandOverlay({
   Phase,
