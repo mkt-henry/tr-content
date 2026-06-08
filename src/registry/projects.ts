@@ -15,6 +15,8 @@ export interface ProjectDefinition {
   description: string;
   /** 지원 언어 — 있으면 갤러리/스테이지에 언어 전환기가 노출된다. 첫 항목이 기본값 */
   languages?: ProjectLanguage[];
+  /** true면 모바일 UI만 제공 — 데스크탑 전환 불가 (모바일 서비스용) */
+  mobileOnly?: boolean;
 }
 
 export const projects: ProjectDefinition[] = [
@@ -47,6 +49,7 @@ export const projects: ProjectDefinition[] = [
       { id: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
       { id: 'th', label: 'ไทย', flag: '🇹🇭' },
     ],
+    mobileOnly: true,
   },
   {
     id: 'findle',
