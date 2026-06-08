@@ -17,7 +17,6 @@ interface ShellState {
   setProject: (projectId: string) => void;
   setProjectLang: (projectId: string, lang: string) => void;
   open: (featureId: string, variantId: string) => void;
-  setVariant: (variantId: string) => void;
   backToGallery: () => void;
   setDevice: (device: DeviceMode) => void;
   toggleDevice: () => void;
@@ -37,7 +36,6 @@ export const useShellStore = create<ShellState>((set) => ({
   setProjectLang: (projectId, lang) =>
     set((s) => ({ projectLang: { ...s.projectLang, [projectId]: lang } })),
   open: (featureId, variantId) => set({ featureId, variantId }),
-  setVariant: (variantId) => set({ variantId }),
   backToGallery: () => set({ featureId: null, variantId: null }),
   setDevice: (device) => set({ device }),
   toggleDevice: () => set((s) => ({ device: s.device === 'desktop' ? 'mobile' : 'desktop' })),

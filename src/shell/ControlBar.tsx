@@ -27,7 +27,7 @@ interface ControlBarProps {
 
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
 export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen }: ControlBarProps) {
-  const { device, phoneFrame, browserChrome, setVariant, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
+  const { device, phoneFrame, browserChrome, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
   const setProjectLang = useShellStore((s) => s.setProjectLang);
@@ -58,18 +58,14 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
         <Divider />
 
         <div className="flex items-center gap-2 px-2">
-          <span className="max-w-36 truncate text-[12px] font-medium text-zinc-300">{feature.title}</span>
-          <select
-            value={variant.id}
-            onChange={(e) => setVariant(e.target.value)}
-            className="h-8 max-w-44 cursor-pointer truncate rounded-lg border border-white/10 bg-white/[0.06] px-2 text-[12px] text-zinc-200 outline-none hover:bg-white/[0.1]"
-          >
-            {feature.variants.map((v) => (
-              <option key={v.id} value={v.id} className="bg-zinc-900">
-                {v.label}
-              </option>
-            ))}
-          </select>
+          {/* 변형은 갤러리에서 독립 카드로 선택 — 여기선 현재 기능·변형을 정적으로 표시 */}
+          <span className="max-w-72 truncate text-[12px] text-zinc-300">
+            <span className="font-medium" style={{ color: feature.accent }}>
+              {feature.title}
+            </span>
+            <span className="mx-1.5 text-zinc-600">·</span>
+            {variant.label}
+          </span>
 
           {languages && projectId && (
             <select

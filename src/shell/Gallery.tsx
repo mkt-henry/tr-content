@@ -5,7 +5,7 @@ import { projects, getFeaturesByProject } from '../registry';
 import { getAssetsByProject } from '../registry/assets';
 import { useShellStore } from '../store/shellStore';
 import { cn } from '../lib/cn';
-import { FeatureCard } from './FeatureCard';
+import { VariantCard } from './FeatureCard';
 
 /** 런처: 프로젝트 탭 → 기능 카드 그리드 → 버전/소구점 선택 → 스테이지 진입 */
 export function Gallery() {
@@ -19,6 +19,8 @@ export function Gallery() {
 
   const project = projects.find((p) => p.id === projectId) ?? projects[0];
   const features = getFeaturesByProject(project.id);
+  // 변형(version × 소구점)마다 독립 카드 — 기능 안에 드롭다운으로 묶지 않고 평탄화
+  const cards = features.flatMap((f) => f.variants.map((variant) => ({ feature: f, variant })));
   const assets = getAssetsByProject(project.id);
   const lang = projectLang[project.id] ?? project.languages?.[0]?.id;
 
@@ -110,8 +112,8 @@ export function Gallery() {
         </motion.header>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => (
-            <FeatureCard key={f.id} feature={f} index={i} />
+          {cards.map((c, i) => (
+            <VariantCard key={`${c.feature.id}:${c.variant.id}`} feature={c.feature} variant={c.variant} index={i} />
           ))}
 
           {features.length === 0 && (
@@ -178,7 +180,7 @@ export function Gallery() {
 └─ data.ts       # 한국어 더미 데이터`}
             </pre>
             <p className="mt-3 text-xs text-zinc-500">
-              버전·소구점 변형은 variants 배열에 추가하면 컨트롤 바에서 전환할 수 있습니다. 참고
+              버전·소구점 변형은 variants 배열에 추가하면 각각 별도 카드로 갤러리에 표시됩니다. 참고
               에셋 이미지는 <code className="rounded bg-white/[0.07] px-1.5 py-0.5 text-brass-300">src/assets/{project.id}/</code>에
               넣으면 자동으로 등록됩니다.
             </p>
