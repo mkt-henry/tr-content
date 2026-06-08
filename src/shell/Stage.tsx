@@ -101,12 +101,15 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
 
   const handleRecord = useCallback(() => {
     if (runningRef.current) return; // 진행 중 시퀀스가 있으면 빈 녹화 방지
+    const [targetWidth, targetHeight] = device === 'mobile' ? [1080, 1920] : [1920, 1080];
     void recordSequence({
       stageEl: stageRef.current,
       filename: recFilename,
       runSequence: () => handlePlay(),
+      targetWidth,
+      targetHeight,
     });
-  }, [recordSequence, recFilename, handlePlay]);
+  }, [recordSequence, recFilename, handlePlay, device]);
 
   // 변형/디바이스/언어 전환 시 정지 + 리셋
   useEffect(() => {
