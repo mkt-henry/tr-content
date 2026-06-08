@@ -98,6 +98,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   }, [cancelSequence, stop, feature]);
 
   const handleRecord = useCallback(() => {
+    if (runningRef.current) return; // 진행 중 시퀀스가 있으면 빈 녹화 방지
     void recordSequence({
       stageEl: stageRef.current,
       filename: recFilename,
