@@ -3,16 +3,20 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
 import { fmt, pick, useLang } from '../_shared/i18n';
-import { CATEGORIES, CURRENCY, GOLD_GRAMS_PER_UNIT, STR, money, type StoreProduct } from './data';
-import { priceInGold, useGoldStore, visibleProducts } from './state';
+import { CATEGORIES, CURRENCY, INITIAL_GOLD_PRICE, STR, money, spotPerGram, type StoreProduct } from './data';
+import { priceInGold, useGoldStore, valuation, visibleProducts } from './state';
+import { GoldPriceScreen } from './GoldPriceScreen';
 
-/** 실시간 금 시세 미니 티커 — ₩/g 숫자가 틱마다 미세 변동 + 상승/하락 화살표 */
+/** 실시간 금 시세 미니 티커 — 언어별 통화/g 숫자가 틱마다 미세 변동 + 상승/하락 화살표 */
 function PriceTicker() {
   const { goldPrice, trend, tick } = useGoldStore();
+  const lang = useLang();
+  const cur = CURRENCY[lang];
   const up = trend === 'up';
   const down = trend === 'down';
   const Arrow = up ? ArrowUpRight : down ? ArrowDownRight : Minus;
   const color = up ? 'text-emerald-400' : down ? 'text-red-400' : 'text-zinc-400';
+  const spot = spotPerGram(cur) * (goldPrice / INITIAL_GOLD_PRICE);
 
   return (
     <div data-demo-id="price-ticker" className="flex items-center gap-1.5">
@@ -24,26 +28,28 @@ function PriceTicker() {
         transition={{ duration: 0.3 }}
         className={cn('text-[12px] font-bold tabular-nums', color)}
       >
-        ₩{goldPrice.toLocaleString('en-US')}/g
+        {money(Math.round(spot), cur)}/g
       </motion.span>
       <Arrow className={cn('h-3.5 w-3.5', color)} strokeWidth={2.5} />
     </div>
   );
 }
 
-/** 다크 카드 — My Gold Points: 골드 수량 + ₫ 환산 + 그램 환산 + 미니 티커 */
+/** 다크 카드 — My Gold Points: 골드 수량 + 시세 연동 환산값 + 수익률 미리보기 + 미니 티커. 탭하면 Gold Price 화면 진입 */
 function GoldCard() {
-  const { gold, goldFlash } = useGoldStore();
+  const { gold, goldFlash, goldPrice, avgCost, openPrice } = useGoldStore();
   const lang = useLang();
   const cur = CURRENCY[lang];
-  const grams = gold * GOLD_GRAMS_PER_UNIT;
+  const v = valuation(gold, goldPrice, avgCost, cur);
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       data-demo-id="gold-card"
+      onClick={openPrice}
       animate={goldFlash ? { scale: [1, 1.015, 1] } : { scale: 1 }}
       transition={{ duration: 0.45 }}
-      className="rounded-2xl bg-zinc-900 p-4 text-white"
+      className="w-full rounded-2xl bg-zinc-900 p-4 text-left text-white"
     >
       <div className="flex items-center justify-between">
         <span className="text-[12px] font-medium text-zinc-300">{pick(STR.myGoldPoints, lang)}</span>
@@ -60,12 +66,16 @@ function GoldCard() {
           {gold.toLocaleString('en-US')}
         </motion.span>
       </div>
-      {/* ₫ 환산 + 그램 환산 — 시나리오 v1에서 커서로 강조하는 핵심 영역 */}
-      <p data-demo-id="gold-converted" className="mt-1 text-[12px] text-zinc-400">
-        = {money(gold * cur.perGold, cur)}{' '}
-        <span className="text-amber-400/90">({grams.toFixed(8)} g)</span>
+      {/* 시세 연동 환산값 + 모은 시점 대비 수익률 미리보기 */}
+      <p data-demo-id="gold-converted" className="mt-1 flex items-center gap-2 text-[12px] text-zinc-400">
+        = {money(v.value, cur)}{' '}
+        <span className="text-amber-400/90">({v.grams.toFixed(8)} g)</span>
+        <span className="ml-auto flex items-center gap-0.5 font-semibold text-emerald-400">
+          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+          +{(v.ret * 100).toFixed(1)}%
+        </span>
       </p>
-    </motion.div>
+    </motion.button>
   );
 }
 
@@ -290,7 +300,8 @@ export function StoreScreen() {
   );
 }
 
-/** 화면 래퍼 — Mobile/Desktop 공용 (스토어는 단일 화면 + 시트/오버레이) */
+/** 화면 래퍼 — view에 따라 스토어/시세 화면 전환 */
 export function AppScreens() {
-  return <StoreScreen />;
+  const view = useGoldStore((s) => s.view);
+  return view === 'price' ? <GoldPriceScreen /> : <StoreScreen />;
 }
