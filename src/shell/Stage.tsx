@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
 import { useShellStore } from '../store/shellStore';
 import { usePlayback } from '../engine/usePlayback';
@@ -10,6 +10,9 @@ import { ControlBar } from './ControlBar';
 import { FakeCursor } from './FakeCursor';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { cn } from '../lib/cn';
+import { getProjectIdOfFeature } from '../registry';
+import { getBranding } from '../branding';
+import { BrandOverlay } from './BrandOverlay';
 
 /** 시연 무대: 배경 → 디바이스/브라우저 프레임 → 데모 → 컨트롤 바 → 가짜 커서 */
 export function Stage({ feature, variant }: { feature: FeatureDefinition; variant: DemoVariant }) {
@@ -18,23 +21,81 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const projectLang = useShellStore((s) => s.projectLang);
   const { play, stop } = usePlayback();
   const status = usePlaybackStore((s) => s.status);
+  const includeBranding = useShellStore((s) => s.includeBranding);
+  const projectId = getProjectIdOfFeature(feature.id);
+  const branding = getBranding(projectId);
+
+  // 인트로/아웃트로 시퀀스 상태
+  const [seqPhase, setSeqPhase] = useState<'intro' | 'outro' | null>(null);
+  const phaseResolve = useRef<(() => void) | null>(null);
+  const runningRef = useRef(false);
+
+  /** seqPhase를 설정하고 BrandOverlay onDone에서 resolve되는 Promise */
+  const phase = useCallback(
+    (p: 'intro' | 'outro') =>
+      new Promise<void>((resolve) => {
+        phaseResolve.current = resolve;
+        setSeqPhase(p);
+      }),
+    [],
+  );
+
+  const onPhaseDone = useCallback(() => {
+    setSeqPhase(null);
+    const r = phaseResolve.current;
+    phaseResolve.current = null;
+    r?.();
+  }, []);
+
+  /** 진행 중 시퀀스 취소 — pending phase resolver 정리 + 오버레이 제거 */
+  const cancelSequence = useCallback(() => {
+    runningRef.current = false;
+    if (phaseResolve.current) {
+      const r = phaseResolve.current;
+      phaseResolve.current = null;
+      r();
+    }
+    setSeqPhase(null);
+  }, []);
   // 언어 전환도 변형 전환처럼 정지+리셋 트리거 (문자열 객체라 JSON으로 비교)
   const langKey = JSON.stringify(projectLang);
 
-  const handlePlay = useCallback(() => {
-    void play(variant.scenario, feature.resetState);
-  }, [play, variant, feature]);
+  const handlePlay = useCallback(async () => {
+    if (runningRef.current) return; // 시퀀스 진행 중 재진입 방지
+    runningRef.current = true;
+    const useBranding = includeBranding && !!branding;
+    try {
+      if (useBranding && branding) {
+        await phase('intro');
+        if (!runningRef.current) return; // 중단됨
+      }
+      await play(variant.scenario, feature.resetState);
+      if (!runningRef.current) return; // 데모 중 중단됨
+      if (useBranding && branding) {
+        await phase('outro');
+      }
+    } finally {
+      runningRef.current = false;
+    }
+  }, [play, variant, feature, includeBranding, branding, phase]);
+
+  const handleStop = useCallback(() => {
+    cancelSequence();
+    stop();
+  }, [cancelSequence, stop]);
 
   const handleReset = useCallback(() => {
+    cancelSequence();
     stop();
     feature.resetState();
-  }, [stop, feature]);
+  }, [cancelSequence, stop, feature]);
 
   // 변형/디바이스/언어 전환 시 정지 + 리셋
   useEffect(() => {
+    cancelSequence();
     stop();
     feature.resetState();
-  }, [variant.id, device, langKey, stop, feature]);
+  }, [variant.id, device, langKey, cancelSequence, stop, feature]);
 
   // 키보드 단축키 (입력 필드 포커스 시 무시)
   useEffect(() => {
@@ -45,7 +106,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
       switch (e.key) {
         case ' ':
           e.preventDefault();
-          if (usePlaybackStore.getState().status === 'playing') stop();
+          if (runningRef.current || usePlaybackStore.getState().status === 'playing') handleStop();
           else handlePlay();
           break;
         case 'r':
@@ -72,7 +133,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handlePlay, handleReset, stop]);
+  }, [handlePlay, handleReset, handleStop]);
 
   // 재생 중 사용자가 데모를 직접 조작하면 자동 재생 중단 → 그 상태 그대로 수동 전환
   const intervene = useCallback(() => {
@@ -144,10 +205,21 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
         variant={variant}
         status={status}
         onPlay={handlePlay}
-        onStop={stop}
+        onStop={handleStop}
         onReset={handleReset}
         onFullscreen={() => stageRef.current && toggleFullscreen(stageRef.current)}
       />
+
+      <AnimatePresence>
+        {seqPhase && branding && (
+          <BrandOverlay
+            key={seqPhase}
+            Phase={seqPhase === 'intro' ? branding.Intro : branding.Outro}
+            durationMs={seqPhase === 'intro' ? branding.introMs : branding.outroMs}
+            onDone={onPhaseDone}
+          />
+        )}
+      </AnimatePresence>
 
       <FakeCursor />
     </div>
