@@ -2,32 +2,45 @@ import { ChevronLeft, Newspaper, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
-import { GENERATED_QUIZZES, LANGS, TODAY_ARTICLE, type Lang } from './data';
+import { fmt, pick, type Lang } from '../_shared/i18n';
+import { GENERATED_QUIZZES, LANGS, STR, TODAY_ARTICLE } from './data';
 import { useAiDailyQuiz } from './state';
 
-/** 오늘의 뉴스 기사 카드 — AI 퀴즈의 소스 (한국어 콘텐츠) */
-function ArticleCard() {
+/** 오늘의 뉴스 기사 카드 — AI 퀴즈의 소스. 현재 데모 언어로 표시 */
+function ArticleCard({ lang }: { lang: Lang }) {
   return (
     <div data-demo-id="article-card" className="rounded-2xl bg-white p-4 shadow-sm">
       <div className="flex items-center gap-2 text-orange-500">
         <Newspaper className="h-4 w-4" />
-        <span className="text-[11px] font-bold uppercase tracking-wide">Today&apos;s News</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide">{pick(STR.todaysNews, lang)}</span>
       </div>
-      <h3 className="mt-2.5 text-[15px] font-bold leading-snug text-zinc-900">
-        {TODAY_ARTICLE.headline}
-      </h3>
-      <p className="mt-1.5 text-[12.5px] leading-relaxed text-zinc-600">{TODAY_ARTICLE.summary}</p>
-      <div className="mt-3 flex items-center gap-2 text-[10.5px] text-zinc-400">
-        <span className="font-semibold text-zinc-500">{TODAY_ARTICLE.source}</span>
-        <span>·</span>
-        <span>{TODAY_ARTICLE.time}</span>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={lang}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.22 }}
+        >
+          <h3 className="mt-2.5 text-[15px] font-bold leading-snug text-zinc-900">
+            {pick(TODAY_ARTICLE.headline, lang)}
+          </h3>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-zinc-600">
+            {pick(TODAY_ARTICLE.summary, lang)}
+          </p>
+          <div className="mt-3 flex items-center gap-2 text-[10.5px] text-zinc-400">
+            <span className="font-semibold text-zinc-500">{TODAY_ARTICLE.source}</span>
+            <span>·</span>
+            <span>{pick(TODAY_ARTICLE.time, lang)}</span>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
 
 /** AI 분석 중 상태 — shimmer 스켈레톤 + thinking dot */
-function AnalyzingCard() {
+function AnalyzingCard({ lang }: { lang: Lang }) {
   return (
     <motion.div
       data-demo-id="analyzing-card"
@@ -38,7 +51,7 @@ function AnalyzingCard() {
     >
       <div className="flex items-center gap-2 text-orange-600">
         <Sparkles className="h-4 w-4" />
-        <span className="text-[13px] font-bold">AI가 오늘 기사를 퀴즈로 변환 중</span>
+        <span className="text-[13px] font-bold">{pick(STR.analyzing, lang)}</span>
         <span className="flex gap-1 pl-0.5">
           <span className="thinking-dot h-1.5 w-1.5 rounded-full bg-orange-500" />
           <span className="thinking-dot h-1.5 w-1.5 rounded-full bg-orange-500" />
@@ -71,7 +84,7 @@ function QuizCard({ index, lang }: { index: number; lang: Lang }) {
           <Sparkles className="h-3.5 w-3.5" /> AI Quiz
         </span>
         <span className="flex items-center gap-1 text-[11px] font-bold text-amber-500">
-          <Coin className="h-3.5 w-3.5 text-[8px]" /> up to {q.reward} G
+          <Coin className="h-3.5 w-3.5 text-[8px]" /> {fmt(pick(STR.upTo, lang), { n: q.reward })}
         </span>
       </div>
       {/* 언어 전환 시 텍스트가 부드럽게 교체되도록 key에 lang 포함 */}
@@ -84,10 +97,10 @@ function QuizCard({ index, lang }: { index: number; lang: Lang }) {
           transition={{ duration: 0.22 }}
         >
           <p className="mt-2.5 text-[14px] font-bold leading-snug text-zinc-900">
-            {q.question[lang]}
+            {pick(q.question, lang)}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            {q.options[lang].map((opt, i) => (
+            {pick(q.options, lang).map((opt, i) => (
               <div
                 key={i}
                 className="rounded-lg border-2 border-zinc-100 bg-zinc-100 px-3 py-2 text-[12px] font-medium text-zinc-600"
@@ -102,16 +115,12 @@ function QuizCard({ index, lang }: { index: number; lang: Lang }) {
   );
 }
 
-/** 언어 칩 행 — KO/EN/TH/VN */
+/** 언어 칩 행 — EN/JA/VI/TH (글로벌 i18n과 동일) */
 function LangChips() {
   const { lang, setLang } = useAiDailyQuiz();
-  const all: { id: Lang; label: string; flag: string }[] = [
-    { id: 'KO', label: 'KO', flag: '🇰🇷' },
-    ...LANGS,
-  ];
   return (
     <div className="flex items-center gap-2">
-      {all.map(({ id, label, flag }) => {
+      {LANGS.map(({ id, label, flag }) => {
         const active = id === lang;
         return (
           <button
@@ -150,12 +159,12 @@ export function DailyQuizScreen() {
 
       <div className="demo-scroll flex-1 overflow-y-auto px-4 pb-4">
         <div className="px-1 pb-2 pt-1">
-          <h1 className="text-[20px] font-bold text-zinc-900">Daily Quiz</h1>
-          <p className="text-[12px] text-zinc-500">AI turns today&apos;s news into today&apos;s quiz.</p>
+          <h1 className="text-[20px] font-bold text-zinc-900">{pick(STR.dailyQuizTitle, lang)}</h1>
+          <p className="text-[12px] text-zinc-500">{pick(STR.dailyQuizSubtitle, lang)}</p>
         </div>
 
         {/* 1) 오늘의 뉴스 기사 카드 */}
-        <ArticleCard />
+        <ArticleCard lang={lang} />
 
         {/* 2) idle — 생성 버튼 / analyzing — shimmer */}
         <div className="mt-4">
@@ -172,10 +181,10 @@ export function DailyQuizScreen() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 py-3.5 text-[14px] font-bold text-white"
               >
                 <Sparkles className="h-4 w-4" />
-                Generate Today&apos;s Quiz
+                {pick(STR.generateQuiz, lang)}
               </motion.button>
             )}
-            {phase === 'analyzing' && <AnalyzingCard key="analyzing" />}
+            {phase === 'analyzing' && <AnalyzingCard key="analyzing" lang={lang} />}
           </AnimatePresence>
         </div>
 
@@ -183,7 +192,7 @@ export function DailyQuizScreen() {
         {phase === 'done' && (
           <div className="mt-4">
             <div className="mb-3 flex items-center justify-between px-1">
-              <span className="text-[12px] font-bold text-zinc-700">Choose language</span>
+              <span className="text-[12px] font-bold text-zinc-700">{pick(STR.chooseLanguage, lang)}</span>
             </div>
             <LangChips />
 

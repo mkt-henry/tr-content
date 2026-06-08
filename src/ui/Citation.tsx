@@ -85,10 +85,13 @@ export function CitationPopover({
   citation,
   onClose,
   className,
+  title = '원문 인용',
 }: {
   citation: CitationContent | null;
   onClose: () => void;
   className?: string;
+  /** 헤더 라벨 — 데모의 현재 언어에 맞게 전달 */
+  title?: string;
 }) {
   return (
     <AnimatePresence>
@@ -105,7 +108,7 @@ export function CitationPopover({
         >
           <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
             <FileText className="h-3.5 w-3.5 text-brass-400" />
-            <span className="text-[12px] font-medium text-zinc-200">원문 인용</span>
+            <span className="text-[12px] font-medium text-zinc-200">{title}</span>
             <button onClick={onClose} className="ml-auto text-zinc-500 hover:text-zinc-200">
               <X className="h-4 w-4" />
             </button>

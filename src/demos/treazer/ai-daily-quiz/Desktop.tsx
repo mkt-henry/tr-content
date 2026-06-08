@@ -30,7 +30,7 @@ export function Desktop(_: DemoComponentProps) {
           {[
             { icon: Newspaper, label: '오늘 소스 기사', value: '1' },
             { icon: Sparkles, label: 'AI 생성 퀴즈', value: `${generated}/${GENERATED_QUIZZES.length}` },
-            { icon: Globe, label: '지원 언어', value: 'KO · EN · TH · VN' },
+            { icon: Globe, label: '지원 언어', value: 'EN · JA · VI · TH' },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4">
               <div className="flex items-center gap-2 text-zinc-500">

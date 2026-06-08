@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getLang } from '../_shared/i18n';
 import { SUMMARY_ITEMS } from './data';
 
 export type CardStatus = 'pending' | 'streaming' | 'done';
@@ -33,6 +34,8 @@ export const useSummary = create<SummaryState>((set, get) => ({
     void (async () => {
       set({ phase: 'generating', cardText: {}, cardStatus: initialStatus(), highlightedClauseId: null });
       await sleep(600);
+      // 생성 시점의 프로젝트 언어로 요약 출력 결정
+      const lang = getLang();
       for (const item of SUMMARY_ITEMS) {
         if (id !== runId) return;
         // 카드 스트리밍 시작 + 대응 원문 구절 동기 하이라이트
@@ -41,7 +44,7 @@ export const useSummary = create<SummaryState>((set, get) => ({
           highlightedClauseId: item.clauseId,
         }));
         let acc = '';
-        for (const ch of item.fullText) {
+        for (const ch of item.fullText[lang]) {
           if (id !== runId) return;
           acc += ch;
           set((s) => ({ cardText: { ...s.cardText, [item.id]: acc } }));

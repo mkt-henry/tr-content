@@ -2,10 +2,13 @@ import { useEffect, useRef } from 'react';
 import { Handshake } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useMatch } from './state';
+import { pick, useLang } from '../_shared/i18n';
+import { STR } from './data';
 import { RiskCard, CandidateList, EmailPanel } from './widgets';
 
 export function Mobile(_: DemoComponentProps) {
   const selectedId = useMatch((s) => s.selectedId);
+  const lang = useLang();
   const scrollRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLDivElement>(null);
 
@@ -20,13 +23,13 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-brass-500/90 text-ink-950">
           <Handshake className="h-3.5 w-3.5" />
         </div>
-        <h2 className="text-[13px] font-semibold text-zinc-100">재보험사 매칭</h2>
+        <h2 className="text-[13px] font-semibold text-zinc-100">{pick(STR.appTitle, lang)}</h2>
       </header>
 
       <div ref={scrollRef} className="demo-scroll min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         <RiskCard compact />
         <div>
-          <p className="mb-2.5 text-[11px] font-medium text-zinc-500">재보험사 후보 · 적합도 순</p>
+          <p className="mb-2.5 text-[11px] font-medium text-zinc-500">{pick(STR.candidatesHeader, lang)}</p>
           <CandidateList compact />
         </div>
         {selectedId && (

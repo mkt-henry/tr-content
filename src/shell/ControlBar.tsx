@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
 import type { PlaybackStatus } from '../engine/playbackStore';
+import { getProjectIdOfFeature, getProject } from '../registry';
 import { useShellStore } from '../store/shellStore';
 import { cn } from '../lib/cn';
 
@@ -28,7 +29,14 @@ interface ControlBarProps {
 export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen }: ControlBarProps) {
   const { device, phoneFrame, browserChrome, setVariant, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
+  const projectLang = useShellStore((s) => s.projectLang);
+  const setProjectLang = useShellStore((s) => s.setProjectLang);
   const playing = status === 'playing';
+
+  // 프로젝트 단위 언어 전환 — 지원 프로젝트(Treazer 등)의 데모에서만 노출
+  const projectId = getProjectIdOfFeature(feature.id);
+  const languages = projectId ? getProject(projectId)?.languages : undefined;
+  const lang = projectId ? (projectLang[projectId] ?? languages?.[0]?.id) : undefined;
 
   return (
     <div
@@ -62,6 +70,21 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
               </option>
             ))}
           </select>
+
+          {languages && projectId && (
+            <select
+              value={lang}
+              onChange={(e) => setProjectLang(projectId, e.target.value)}
+              title="데모 언어"
+              className="h-8 cursor-pointer rounded-lg border border-white/10 bg-white/[0.06] px-2 text-[12px] text-zinc-200 outline-none hover:bg-white/[0.1]"
+            >
+              {languages.map((l) => (
+                <option key={l.id} value={l.id} className="bg-zinc-900">
+                  {l.flag} {l.id.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <Divider />
@@ -89,9 +112,11 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
             <Frame className="h-4 w-4" />
           </BarButton>
         )}
-        <BarButton onClick={toggleBrowserChrome} label="브라우저 프레임 (B)" active={browserChrome}>
-          <PanelTop className="h-4 w-4" />
-        </BarButton>
+        {device === 'desktop' && (
+          <BarButton onClick={toggleBrowserChrome} label="브라우저 프레임 (B)" active={browserChrome}>
+            <PanelTop className="h-4 w-4" />
+          </BarButton>
+        )}
         <BarButton onClick={onFullscreen} label="전체 화면 (F)">
           <Maximize className="h-4 w-4" />
         </BarButton>

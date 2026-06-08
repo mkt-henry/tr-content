@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { ANSWERS, FALLBACK, type Evidence } from './data';
+import { getLang } from '../_shared/i18n';
+import { FALLBACK, QA, type Evidence } from './data';
 
 export interface ChatMessage {
   id: number;
@@ -40,7 +41,9 @@ export const useChat = create<ChatState>((set, get) => ({
     void (async () => {
       await sleep(1100);
       if (id !== runId) return;
-      const answer = ANSWERS[question] ?? FALLBACK;
+      const lang = getLang();
+      const item = QA.find((qa) => qa.question[lang] === question);
+      const answer = item ? item.answer[lang] : FALLBACK[lang];
       const assistantId = ++msgId;
       set((s) => ({
         thinking: false,

@@ -2,7 +2,8 @@ import { Check, ChevronLeft, Gift, Lock, Play } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
-import { AD_DURATION_SEC, DAILY_MISSIONS, TIMED_MISSIONS } from './data';
+import { fmt, pick, useLang } from '../_shared/i18n';
+import { AD_DURATION_SEC, DAILY_MISSIONS, STR, TIMED_MISSIONS } from './data';
 import { DAILY_PROGRESS_STEPS, useMissionEngine } from './state';
 
 /** 자정 기준 분 → "11:58 AM" 표기 */
@@ -44,6 +45,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 
 /** 데일리 미션 카드 — 아이콘 + 제목 + 보상 + 진행도 + (완료 시) 보상 받기 */
 function DailyCard({ id }: { id: string }) {
+  const lang = useLang();
   const def = DAILY_MISSIONS.find((m) => m.id === id)!;
   const rt = useMissionEngine((s) => s.daily[id]);
   const claimDaily = useMissionEngine((s) => s.claimDaily);
@@ -56,7 +58,7 @@ function DailyCard({ id }: { id: string }) {
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100">
           <Icon className="h-5 w-5 text-orange-500" />
         </div>
-        <p className="flex-1 text-[13.5px] font-bold leading-snug text-zinc-900">{def.title}</p>
+        <p className="flex-1 text-[13.5px] font-bold leading-snug text-zinc-900">{pick(def.title, lang)}</p>
         <RewardPill amount={def.reward} />
       </div>
       <ProgressBar current={rt.progress} total={DAILY_PROGRESS_STEPS} />
@@ -76,12 +78,12 @@ function DailyCard({ id }: { id: string }) {
       >
         {rt.claimed ? (
           <span className="flex items-center justify-center gap-1.5">
-            <Check className="h-4 w-4" strokeWidth={3} /> Claimed
+            <Check className="h-4 w-4" strokeWidth={3} /> {pick(STR.claimed, lang)}
           </span>
         ) : complete ? (
-          'Claim Reward'
+          pick(STR.claimReward, lang)
         ) : (
-          'In Progress'
+          pick(STR.inProgress, lang)
         )}
       </button>
     </div>
@@ -90,6 +92,7 @@ function DailyCard({ id }: { id: string }) {
 
 /** 시간제 미션 카드 — locked(자물쇠/회색) / open(주황 활성) / progress / done */
 function TimedCard({ id }: { id: string }) {
+  const lang = useLang();
   const def = TIMED_MISSIONS.find((m) => m.id === id)!;
   const rt = useMissionEngine((s) => s.timed[id]);
   const enterTimed = useMissionEngine((s) => s.enterTimed);
@@ -128,16 +131,16 @@ function TimedCard({ id }: { id: string }) {
       </div>
 
       <p className={cn('mt-2.5 text-[16px] font-bold', locked ? 'text-zinc-400' : 'text-zinc-900')}>
-        {def.title}
+        {pick(def.title, lang)}
       </p>
-      <p className="text-[12px] text-zinc-400">Complete 1 unit · 5 questions</p>
+      <p className="text-[12px] text-zinc-400">{pick(STR.unitDesc, lang)}</p>
 
       {progress && <ProgressBar current={rt.progress} total={5} />}
 
       {/* 상태별 CTA */}
       {locked && (
         <div className="mt-3 w-full rounded-xl bg-zinc-100 py-3 text-center text-[13px] font-bold text-zinc-400">
-          Opens Soon
+          {pick(STR.opensSoon, lang)}
         </div>
       )}
       {open && (
@@ -147,7 +150,7 @@ function TimedCard({ id }: { id: string }) {
           onClick={() => enterTimed(id)}
           className="mt-3 w-full rounded-xl bg-orange-500 py-3 text-[13px] font-bold text-white"
         >
-          OPEN · Start Now
+          {pick(STR.openStartNow, lang)}
         </button>
       )}
       {progress && (
@@ -161,12 +164,12 @@ function TimedCard({ id }: { id: string }) {
             filled ? 'bg-orange-500' : 'bg-zinc-300',
           )}
         >
-          <Gift className="h-4 w-4" /> Claim Reward
+          <Gift className="h-4 w-4" /> {pick(STR.claimReward, lang)}
         </button>
       )}
       {done && (
         <div className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-50 py-3 text-[13px] font-bold text-emerald-600">
-          <Check className="h-4 w-4" strokeWidth={3} /> Completed
+          <Check className="h-4 w-4" strokeWidth={3} /> {pick(STR.completed, lang)}
         </div>
       )}
     </motion.div>
@@ -174,6 +177,7 @@ function TimedCard({ id }: { id: string }) {
 }
 
 export function MissionScreen() {
+  const lang = useLang();
   const gold = useMissionEngine((s) => s.gold);
   const goldFlash = useMissionEngine((s) => s.goldFlash);
   const clockMin = useMissionEngine((s) => s.clockMin);
@@ -188,7 +192,9 @@ export function MissionScreen() {
       <div className="demo-scroll flex-1 overflow-y-auto px-4 pb-4">
         {/* 타이틀 + 가짜 시계 */}
         <div className="flex items-end justify-between px-1">
-          <h1 className="text-[28px] font-extrabold tracking-tight text-zinc-900">Mission</h1>
+          <h1 className="text-[28px] font-extrabold tracking-tight text-zinc-900">
+            {pick(STR.missionTitle, lang)}
+          </h1>
           <motion.div
             data-demo-id="clock"
             key={clockMin}
@@ -204,7 +210,9 @@ export function MissionScreen() {
         </div>
 
         {/* Daily Mission */}
-        <h2 className="mb-2.5 mt-5 px-1 text-[17px] font-bold text-zinc-900">Daily Mission</h2>
+        <h2 className="mb-2.5 mt-5 px-1 text-[17px] font-bold text-zinc-900">
+          {pick(STR.dailyMission, lang)}
+        </h2>
         <div className="space-y-3">
           {DAILY_MISSIONS.map((m) => (
             <DailyCard key={m.id} id={m.id} />
@@ -212,7 +220,9 @@ export function MissionScreen() {
         </div>
 
         {/* Timed Mission */}
-        <h2 className="mb-2.5 mt-6 px-1 text-[17px] font-bold text-zinc-900">Timed Mission</h2>
+        <h2 className="mb-2.5 mt-6 px-1 text-[17px] font-bold text-zinc-900">
+          {pick(STR.timedMission, lang)}
+        </h2>
         <div className="space-y-3">
           {TIMED_MISSIONS.map((m) => (
             <TimedCard key={m.id} id={m.id} />
@@ -255,6 +265,7 @@ function CountdownRing({ remaining }: { remaining: number }) {
 
 /** 리워디드 광고 시청 화면 — 30초(압축) 카운트다운 후 보상 지급 */
 export function AdScreen() {
+  const lang = useLang();
   const adRemaining = useMissionEngine((s) => s.adRemaining);
   const adReward = useMissionEngine((s) => s.adReward);
 
@@ -262,7 +273,7 @@ export function AdScreen() {
     <div className="flex h-full flex-col bg-zinc-950 text-white">
       <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-600" />
-        <span className="text-[14px] font-semibold text-zinc-400">Rewarded Ad</span>
+        <span className="text-[14px] font-semibold text-zinc-400">{pick(STR.rewardedAd, lang)}</span>
       </header>
 
       <div className="flex flex-1 flex-col items-center justify-center px-8">
@@ -270,7 +281,7 @@ export function AdScreen() {
         <div className="flex h-40 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-600/10 ring-1 ring-white/10">
           <div className="flex flex-col items-center gap-2 text-zinc-400">
             <Play className="h-9 w-9 text-orange-400" fill="currentColor" />
-            <span className="text-[12px] font-medium">Sponsored Video</span>
+            <span className="text-[12px] font-medium">{pick(STR.sponsoredVideo, lang)}</span>
           </div>
         </div>
 
@@ -279,10 +290,10 @@ export function AdScreen() {
         </div>
 
         <p className="mt-6 text-center text-[13px] text-zinc-400">
-          Watch to earn your reward
+          {pick(STR.watchToEarn, lang)}
           <br />
           <span className="inline-flex items-center gap-1.5 text-[15px] font-bold text-orange-400">
-            <Coin className="h-4 w-4 text-[8px]" /> +{adReward} Gold
+            <Coin className="h-4 w-4 text-[8px]" /> {fmt(pick(STR.plusGold, lang), { n: adReward })}
           </span>
         </p>
       </div>

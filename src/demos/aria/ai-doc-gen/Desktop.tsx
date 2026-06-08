@@ -17,12 +17,14 @@ import {
 } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useDocGen } from './state';
-import { ATTACHED_FILE, TEMPLATES, MATRIX_NAME, DRAFT_TAB, SLIDES } from './data';
+import { ATTACHED_FILE, TEMPLATES, MATRIX_NAME, DRAFT_TAB, SLIDES, STR } from './data';
 import { SlideCard, SlidePlaceholder } from './slides';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function Desktop(_: DemoComponentProps) {
   const s = useDocGen();
+  const lang = useLang();
   const generating = s.phase === 'outline' || s.phase === 'slides';
 
   return (
@@ -46,7 +48,7 @@ export function Desktop(_: DemoComponentProps) {
       {/* 초안 만들기 패널 */}
       <section className="flex w-72 shrink-0 flex-col border-r border-white/[0.06]">
         <header className="border-b border-white/[0.06] px-5 py-4">
-          <h2 className="text-[14px] font-semibold text-zinc-100">초안 만들기</h2>
+          <h2 className="text-[14px] font-semibold text-zinc-100">{pick(STR.draftPanelTitle, lang)}</h2>
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 demo-scroll">
@@ -57,14 +59,14 @@ export function Desktop(_: DemoComponentProps) {
               active={s.docType === 'document'}
               onClick={() => s.setDocType('document')}
               icon={FileText}
-              label="문서"
+              label={pick(STR.typeDocument, lang)}
             />
             <SegBtn
               id="doc-type-presentation"
               active={s.docType === 'presentation'}
               onClick={() => s.setDocType('presentation')}
               icon={Presentation}
-              label="프레젠테이션"
+              label={pick(STR.typePresentation, lang)}
             />
           </div>
 
@@ -76,7 +78,7 @@ export function Desktop(_: DemoComponentProps) {
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 text-[11px] text-zinc-300"
               >
                 <FilePlus2 className="h-3 w-3 text-brass-400" />
-                {ATTACHED_FILE}
+                {pick(ATTACHED_FILE, lang)}
                 <X className="h-3 w-3 text-zinc-500" />
               </div>
               <div className="mt-2.5 flex items-end gap-1 opacity-50">
@@ -89,14 +91,14 @@ export function Desktop(_: DemoComponentProps) {
               data-demo-id="prompt-input"
               value={s.prompt}
               onChange={(e) => s.setPrompt(e.target.value)}
-              placeholder="예시 슬라이드를 어떻게 수정할까요?"
+              placeholder={pick(STR.promptPlaceholder, lang)}
               className="h-28 w-full resize-none bg-transparent px-4 pb-4 text-[13px] leading-relaxed text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
             />
           </div>
 
           {/* 템플릿 */}
           <div>
-            <p className="mb-2 text-[12px] font-medium text-zinc-400">템플릿</p>
+            <p className="mb-2 text-[12px] font-medium text-zinc-400">{pick(STR.templatesLabel, lang)}</p>
             <div className="flex flex-col">
               {TEMPLATES.map((t) => (
                 <button
@@ -109,7 +111,7 @@ export function Desktop(_: DemoComponentProps) {
                   )}
                 >
                   <Table2 className={cn('h-4 w-4', s.templateId === t.id ? 'text-brass-400' : 'text-zinc-500')} />
-                  {t.name}
+                  {pick(t.name, lang)}
                   {s.templateId === t.id && <CheckCircle2 className="ml-auto h-3.5 w-3.5 text-brass-400" />}
                 </button>
               ))}
@@ -131,7 +133,7 @@ export function Desktop(_: DemoComponentProps) {
             )}
           >
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {generating ? '생성 중…' : '슬라이드 개요 생성'}
+            {generating ? pick(STR.generating, lang) : pick(STR.generateOutline, lang)}
           </button>
         </div>
       </section>
@@ -142,11 +144,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3">
           <div className="flex items-center gap-1.5 text-[12px] text-zinc-400">
             <Table2 className="h-3.5 w-3.5" />
-            {MATRIX_NAME}
+            {pick(MATRIX_NAME, lang)}
           </div>
           <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1.5 text-[12px] text-zinc-200">
             <FileText className="h-3.5 w-3.5 text-brass-400" />
-            {DRAFT_TAB}
+            {pick(DRAFT_TAB, lang)}
           </div>
           <Plus className="h-4 w-4 text-zinc-600" />
           <div className="ml-auto">
@@ -157,7 +159,7 @@ export function Desktop(_: DemoComponentProps) {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-medium text-emerald-400"
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> 초안 완성
+                  <CheckCircle2 className="h-3.5 w-3.5" /> {pick(STR.draftDone, lang)}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -165,12 +167,14 @@ export function Desktop(_: DemoComponentProps) {
         </div>
 
         {/* 콘텐츠 */}
-        <div className="demo-scroll min-h-0 flex-1 overflow-y-auto">
+        <div className="demo-scroll demo-scroll-follow min-h-0 flex-1 overflow-y-auto">
           {s.phase === 'idle' ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <h3 className="text-[22px] font-semibold text-zinc-300">초안이 여기에 표시됩니다</h3>
+              <h3 className="text-[22px] font-semibold text-zinc-300">{pick(STR.emptyTitle, lang)}</h3>
               <p className="text-[13px] text-zinc-500">
-                ARIA가 &ldquo;{MATRIX_NAME}&rdquo; 계약 데이터를 기반으로 초안을 생성합니다
+                {pick(STR.emptySubtitlePrefix, lang)}
+                {pick(MATRIX_NAME, lang)}
+                {pick(STR.emptySubtitleSuffix, lang)}
               </p>
             </div>
           ) : (
@@ -205,7 +209,7 @@ export function Desktop(_: DemoComponentProps) {
               {(s.phase === 'slides' || s.phase === 'done') && (
                 <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 xl:grid-cols-3">
                   {SLIDES.slice(0, s.slideCount).map((sl, i) => (
-                    <SlideCard key={i} index={i} title={sl.title} sub={sl.sub} kind={sl.kind} />
+                    <SlideCard key={i} index={i} title={pick(sl.title, lang)} sub={pick(sl.sub, lang)} kind={sl.kind} />
                   ))}
                   {s.phase === 'slides' &&
                     Array.from({ length: SLIDES.length - s.slideCount }).map((_, i) => <SlidePlaceholder key={`p${i}`} />)}

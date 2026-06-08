@@ -38,26 +38,26 @@ export const newsToQuizScenario: Scenario = {
   ],
 };
 
-/** v2 — 글로벌 소구: 생성 완료 상태에서 시작 → EN → TH → VN 순으로 현지화 전환 */
+/** v2 — 글로벌 소구: 생성 완료 상태에서 시작 → JA → TH → VI 순으로 현지화 전환 */
 export const localizeScenario: Scenario = {
   id: 'ai-daily-quiz-localize',
   steps: [
-    // 생성 단계는 건너뛰고 완료 상태로 세팅 (한국어 노출 중)
+    // 생성 단계는 건너뛰고 완료 상태로 세팅 (글로벌 언어로 노출 중)
     { kind: 'do', run: () => st().presetDone() },
     { kind: 'wait', ms: 1400 },
     { kind: 'cursor', target: 'quiz-card-0', ms: 700 },
     { kind: 'wait', ms: 1200 },
 
-    // EN으로 현지화
-    { kind: 'click', target: 'lang-chip-EN', run: () => st().setLang('EN') },
+    // 일본어로 현지화
+    { kind: 'click', target: 'lang-chip-ja', run: () => st().setLang('ja') },
     { kind: 'wait', ms: 2400 },
 
-    // TH (실제 태국 문자)
-    { kind: 'click', target: 'lang-chip-TH', run: () => st().setLang('TH') },
+    // 태국어 (실제 태국 문자)
+    { kind: 'click', target: 'lang-chip-th', run: () => st().setLang('th') },
     { kind: 'wait', ms: 2400 },
 
-    // VN (실제 성조 문자)
-    { kind: 'click', target: 'lang-chip-VN', run: () => st().setLang('VN') },
+    // 베트남어 (실제 성조 문자)
+    { kind: 'click', target: 'lang-chip-vi', run: () => st().setLang('vi') },
     { kind: 'wait', ms: 2600 },
   ],
 };

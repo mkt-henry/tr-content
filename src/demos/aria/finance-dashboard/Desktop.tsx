@@ -1,12 +1,14 @@
 import { Bell, ChevronDown, Download, LayoutDashboard, LineChart, PieChart, Search, Wallet } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useDash } from './state';
-import { KPIS } from './data';
+import { KPIS, STR } from './data';
 import { KpiCard, RevenueChart, SegmentBars, EventsList, PipelineWidget } from './widgets';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function Desktop(_: DemoComponentProps) {
   const { loaded, period, setPeriod, load } = useDash();
+  const lang = useLang();
 
   return (
     <div className="flex h-full bg-[#0e1117] text-zinc-200">
@@ -21,15 +23,15 @@ export function Desktop(_: DemoComponentProps) {
           </span>
         </div>
         <nav className="space-y-0.5 px-2.5">
-          <NavItem icon={LayoutDashboard} label="포캐스트" active />
-          <NavItem icon={LineChart} label="갱신 파이프라인" />
-          <NavItem icon={PieChart} label="LoB 현황" />
-          <NavItem icon={Wallet} label="정산 관리" />
+          <NavItem icon={LayoutDashboard} label={pick(STR.navForecast, lang)} active />
+          <NavItem icon={LineChart} label={pick(STR.navPipeline, lang)} />
+          <NavItem icon={PieChart} label={pick(STR.navLob, lang)} />
+          <NavItem icon={Wallet} label={pick(STR.navSettlement, lang)} />
         </nav>
         <div className="mt-auto px-4">
           <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] p-3 text-[11px] leading-relaxed text-zinc-500">
-            1/1 갱신 시즌 파이프라인이 반영되었습니다.
-            <span className="mt-1 block font-medium text-emerald-400">2026 갱신 시즌 · 50건 추적 중</span>
+            {pick(STR.sidebarNote, lang)}
+            <span className="mt-1 block font-medium text-emerald-400">{pick(STR.sidebarHighlight, lang)}</span>
           </div>
         </div>
       </aside>
@@ -39,20 +41,20 @@ export function Desktop(_: DemoComponentProps) {
         {/* 헤더 */}
         <header className="flex items-center gap-3 border-b border-white/[0.06] px-6 py-3.5">
           <div>
-            <h2 className="text-[15px] font-semibold text-zinc-100">수재 매출 포캐스트</h2>
-            <p className="text-[11px] text-zinc-500">2026 갱신 시즌 · 수재/출재 · 포캐스트 포함</p>
+            <h2 className="text-[15px] font-semibold text-zinc-100">{pick(STR.pageTitle, lang)}</h2>
+            <p className="text-[11px] text-zinc-500">{pick(STR.pageSubtitle, lang)}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
             {/* 기간 토글 */}
             <div className="flex rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
-              <PeriodBtn id="period-quarter" active={period === 'quarter'} onClick={() => setPeriod('quarter')} label="분기" />
-              <PeriodBtn id="period-year" active={period === 'year'} onClick={() => setPeriod('year')} label="연간" />
+              <PeriodBtn id="period-quarter" active={period === 'quarter'} onClick={() => setPeriod('quarter')} label={pick(STR.periodQuarter, lang)} />
+              <PeriodBtn id="period-year" active={period === 'year'} onClick={() => setPeriod('year')} label={pick(STR.periodYear, lang)} />
             </div>
             <button
               data-demo-id="export-btn"
               className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] text-zinc-300 hover:bg-white/[0.08]"
             >
-              <Download className="h-3.5 w-3.5" /> 리포트
+              <Download className="h-3.5 w-3.5" /> {pick(STR.report, lang)}
             </button>
             <Search className="ml-1 h-4 w-4 text-zinc-600" />
             <Bell className="h-4 w-4 text-zinc-600" />
@@ -71,7 +73,7 @@ export function Desktop(_: DemoComponentProps) {
               onClick={load}
               className="mx-auto mt-24 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3 text-[13px] font-medium text-emerald-300 hover:bg-emerald-500/20"
             >
-              <LayoutDashboard className="h-4 w-4" /> 갱신 시즌 데이터 불러오기
+              <LayoutDashboard className="h-4 w-4" /> {pick(STR.loadData, lang)}
             </button>
           )}
           <div className={cn(!loaded && 'pointer-events-none')}>

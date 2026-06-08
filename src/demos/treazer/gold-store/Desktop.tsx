@@ -1,13 +1,16 @@
 import { ArrowDownRight, ArrowUpRight, Coins, LineChart, Wallet } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { Coin } from '../_shared/ui';
-import { DONG_PER_GOLD } from './data';
+import { useLang } from '../_shared/i18n';
+import { CURRENCY, money } from './data';
 import { useGoldStore } from './state';
 import { AppScreens } from './screens';
 
 /** 데스크탑 = 브랜드 패널 + 폰 컬럼 쇼케이스 (Treazer는 모바일 앱) */
 export function Desktop(_: DemoComponentProps) {
   const { gold, goldPrice, trend } = useGoldStore();
+  const lang = useLang();
+  const cur = CURRENCY[lang];
   const Arrow = trend === 'down' ? ArrowDownRight : ArrowUpRight;
   const arrowColor = trend === 'down' ? 'text-red-400' : 'text-emerald-400';
 
@@ -31,7 +34,7 @@ export function Desktop(_: DemoComponentProps) {
         <div className="mt-10 flex gap-3">
           {[
             { icon: Coins, label: 'My Gold', value: gold.toLocaleString('en-US'), coin: true },
-            { icon: Wallet, label: '₫ 환산', value: `₫${Math.round(gold * DONG_PER_GOLD).toLocaleString('en-US')}`, coin: false },
+            { icon: Wallet, label: `${cur.symbol} 환산`, value: money(gold * cur.perGold, cur), coin: false },
           ].map(({ icon: Icon, label, value, coin }) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4">
               <div className="flex items-center gap-2 text-zinc-500">

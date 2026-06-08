@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { OUTLINE, SLIDES } from './data';
+import { getLang, fmt } from '../_shared/i18n';
+import { OUTLINE, SLIDES, STR, STATUS_SLIDES_PROGRESS } from './data';
 
 export type DocType = 'document' | 'presentation';
 export type GenPhase = 'idle' | 'outline' | 'slides' | 'done';
@@ -43,24 +44,28 @@ export const useDocGen = create<DocGenState>((set, get) => ({
   generate: () => {
     if (get().phase !== 'idle' && get().phase !== 'done') return;
     const id = ++runId;
+    const lang = getLang();
     void (async () => {
-      set({ phase: 'outline', outline: [], slideCount: 0, statusText: '문서 구조 분석 중…' });
+      set({ phase: 'outline', outline: [], slideCount: 0, statusText: STR.statusAnalyzing[lang] });
       await sleep(700);
-      for (const line of OUTLINE) {
+      for (const line of OUTLINE[lang]) {
         if (id !== runId) return;
         set((s) => ({ outline: [...s.outline, line] }));
         await sleep(240);
       }
       if (id !== runId) return;
-      set({ phase: 'slides', statusText: '슬라이드 생성 중…' });
+      set({ phase: 'slides', statusText: STR.statusSlides[lang] });
       await sleep(500);
       for (let i = 1; i <= SLIDES.length; i++) {
         if (id !== runId) return;
-        set({ slideCount: i, statusText: `슬라이드 생성 중… ${i}/${SLIDES.length}` });
+        set({
+          slideCount: i,
+          statusText: fmt(STATUS_SLIDES_PROGRESS[lang], { n: i, total: SLIDES.length }),
+        });
         await sleep(380);
       }
       if (id !== runId) return;
-      set({ phase: 'done', statusText: '초안 완성' });
+      set({ phase: 'done', statusText: STR.draftDone[lang] });
     })();
   },
   reset: () => {

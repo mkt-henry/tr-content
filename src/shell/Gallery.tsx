@@ -14,10 +14,13 @@ export function Gallery() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const projectId = useShellStore((s) => s.projectId);
   const setProject = useShellStore((s) => s.setProject);
+  const projectLang = useShellStore((s) => s.projectLang);
+  const setProjectLang = useShellStore((s) => s.setProjectLang);
 
   const project = projects.find((p) => p.id === projectId) ?? projects[0];
   const features = getFeaturesByProject(project.id);
   const assets = getAssetsByProject(project.id);
+  const lang = projectLang[project.id] ?? project.languages?.[0]?.id;
 
   return (
     <div
@@ -66,19 +69,43 @@ export function Gallery() {
             <p className="max-w-xl text-[15px] leading-relaxed text-zinc-400">
               {project.description}
             </p>
-            {assets.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowAssets(true)}
-                className="flex shrink-0 items-center gap-2 rounded-xl border border-brass-500/25 bg-brass-500/[0.08] px-4 py-2.5 text-[13px] font-medium text-brass-300 transition-colors hover:border-brass-500/50 hover:bg-brass-500/15"
-              >
-                <Images className="h-4 w-4" />
-                참고 에셋 보기
-                <span className="rounded-md bg-brass-500/20 px-1.5 py-0.5 text-[11px] font-bold tabular-nums">
-                  {assets.length}
-                </span>
-              </button>
-            )}
+            <div className="flex shrink-0 items-center gap-3">
+              {/* 프로젝트 언어 전환 — 모든 데모 콘텐츠가 선택 언어로 표시된다 */}
+              {project.languages && (
+                <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
+                  {project.languages.map((l) => (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => setProjectLang(project.id, l.id)}
+                      title={l.label}
+                      className={cn(
+                        'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors',
+                        l.id === lang
+                          ? 'bg-brass-500/20 text-brass-200'
+                          : 'text-zinc-500 hover:text-zinc-300',
+                      )}
+                    >
+                      <span>{l.flag}</span>
+                      <span className="uppercase">{l.id}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {assets.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAssets(true)}
+                  className="flex shrink-0 items-center gap-2 rounded-xl border border-brass-500/25 bg-brass-500/[0.08] px-4 py-2.5 text-[13px] font-medium text-brass-300 transition-colors hover:border-brass-500/50 hover:bg-brass-500/15"
+                >
+                  <Images className="h-4 w-4" />
+                  참고 에셋 보기
+                  <span className="rounded-md bg-brass-500/20 px-1.5 py-0.5 text-[11px] font-bold tabular-nums">
+                    {assets.length}
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
         </motion.header>
 

@@ -2,11 +2,13 @@ import { CalendarCheck, Check, ChevronLeft, ChevronRight, Newspaper, TrendingUp 
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
-import { QUESTIONS } from './data';
+import { fmt, pick, useLang } from '../_shared/i18n';
+import { PREVIEW_QUESTIONS, QUESTIONS, STR } from './data';
 import { useQuizGold } from './state';
 
 /** 7일 출석 스트릭 — Day 4·7은 x2 부스트 */
 function StreakRow({ streak }: { streak: number }) {
+  const lang = useLang();
   return (
     <div className="mt-4 flex justify-between">
       {Array.from({ length: 7 }, (_, i) => {
@@ -24,7 +26,7 @@ function StreakRow({ streak }: { streak: number }) {
             >
               {boost && !done ? 'x2' : <Check className="h-4 w-4" strokeWidth={3} />}
             </motion.div>
-            <span className="text-[10px] text-zinc-500">Day {day}</span>
+            <span className="text-[10px] text-zinc-500">{fmt(pick(STR.day, lang), { n: day })}</span>
           </div>
         );
       })}
@@ -34,6 +36,7 @@ function StreakRow({ streak }: { streak: number }) {
 
 export function HomeScreen() {
   const { gold, goldFlash, streak, checkedToday, startQuiz } = useQuizGold();
+  const lang = useLang();
 
   return (
     <div className="flex h-full flex-col bg-[#f4f4f6]">
@@ -48,8 +51,10 @@ export function HomeScreen() {
           <div className="flex items-center gap-3">
             <CalendarCheck className="h-8 w-8 text-orange-500" />
             <div>
-              <p className="text-[15px] font-bold text-zinc-900">{streak} Day Streak</p>
-              <p className="text-[12px] text-zinc-500">Check in daily to earn gold</p>
+              <p className="text-[15px] font-bold text-zinc-900">
+                {fmt(pick(STR.streakTitle, lang), { n: streak })}
+              </p>
+              <p className="text-[12px] text-zinc-500">{pick(STR.checkInDaily, lang)}</p>
             </div>
           </div>
           <StreakRow streak={streak} />
@@ -62,30 +67,27 @@ export function HomeScreen() {
               checkedToday ? 'bg-amber-400' : 'bg-orange-500',
             )}
           >
-            {checkedToday ? 'Earn More Gold' : "Today's Check-In Quiz"}
+            {checkedToday ? pick(STR.earnMore, lang) : pick(STR.todaysQuiz, lang)}
           </button>
-          <p className="mt-2 text-center text-[10.5px] text-zinc-400">
-            Completing the Daily Quiz automatically checks you in.
-          </p>
+          <p className="mt-2 text-center text-[10.5px] text-zinc-400">{pick(STR.autoCheckIn, lang)}</p>
         </div>
 
         {/* 경제 퀴즈 미리보기 */}
         <div className="mt-5 flex items-center justify-between px-1">
-          <h2 className="text-[15px] font-bold text-zinc-900">Economic Quiz</h2>
+          <h2 className="text-[15px] font-bold text-zinc-900">{pick(STR.econQuiz, lang)}</h2>
           <ChevronRight className="h-4 w-4 text-zinc-400" />
         </div>
         <div className="mt-2 space-y-2">
-          {[
-            { icon: TrendingUp, text: '환율이 오르면 수출 기업에 유리할까요?', reward: 'up to 50' },
-            { icon: Newspaper, text: 'ETF와 펀드의 가장 큰 차이는 무엇일까요?', reward: 'up to 50' },
-          ].map(({ icon: Icon, text, reward }) => (
-            <div key={text} className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm">
+          {[TrendingUp, Newspaper].map((Icon, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-100">
                 <Icon className="h-4.5 w-4.5 text-orange-500" />
               </div>
-              <p className="flex-1 text-[12.5px] font-medium leading-snug text-zinc-700">{text}</p>
+              <p className="flex-1 text-[12.5px] font-medium leading-snug text-zinc-700">
+                {pick(PREVIEW_QUESTIONS[i], lang)}
+              </p>
               <span className="flex items-center gap-1 text-[11px] font-bold text-amber-500">
-                <Coin className="h-3.5 w-3.5 text-[8px]" /> {reward}
+                <Coin className="h-3.5 w-3.5 text-[8px]" /> {fmt(pick(STR.upTo, lang), { n: 50 })}
               </span>
             </div>
           ))}
@@ -99,13 +101,15 @@ export function HomeScreen() {
 
 export function QuizScreen() {
   const { earned, qIndex, selected, revealed, selectOption, submit, next } = useQuizGold();
+  const lang = useLang();
   const q = QUESTIONS[qIndex];
+  const options = pick(q.options, lang);
 
   return (
     <div className="flex h-full flex-col bg-white">
       <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-700" />
-        <span className="text-[16px] font-semibold text-zinc-900">Quiz</span>
+        <span className="text-[16px] font-semibold text-zinc-900">{pick(STR.quiz, lang)}</span>
       </header>
 
       <div className="demo-scroll flex-1 overflow-y-auto px-5">
@@ -119,10 +123,10 @@ export function QuizScreen() {
           </span>
         </div>
 
-        <h2 className="mt-3 text-[20px] font-bold leading-snug text-zinc-900">{q.question}</h2>
+        <h2 className="mt-3 text-[20px] font-bold leading-snug text-zinc-900">{pick(q.question, lang)}</h2>
 
         <div className="mt-5 space-y-2.5">
-          {q.options.map((opt, i) => {
+          {options.map((opt, i) => {
             const isAnswer = i === q.answer;
             const isSelected = i === selected;
             return (
@@ -156,10 +160,10 @@ export function QuizScreen() {
               className="mt-5 rounded-xl bg-zinc-100 p-4"
             >
               <p className="text-[15px] font-bold text-orange-500">
-                The correct answer is {q.answer + 1}.
+                {fmt(pick(STR.correctAnswerIs, lang), { n: q.answer + 1 })}
               </p>
-              <p className="mt-1.5 text-[12px] font-semibold text-zinc-500">Explanation</p>
-              <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{q.explanation}</p>
+              <p className="mt-1.5 text-[12px] font-semibold text-zinc-500">{pick(STR.explanation, lang)}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{pick(q.explanation, lang)}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -173,7 +177,7 @@ export function QuizScreen() {
             onClick={next}
             className="w-full rounded-xl bg-orange-500 py-3.5 text-[15px] font-bold text-white"
           >
-            {qIndex + 1 < QUESTIONS.length ? 'Next' : 'Done'}
+            {qIndex + 1 < QUESTIONS.length ? pick(STR.next, lang) : pick(STR.done, lang)}
           </button>
         ) : (
           <button
@@ -186,7 +190,7 @@ export function QuizScreen() {
               selected === null ? 'bg-zinc-300' : 'bg-orange-500',
             )}
           >
-            Submit Answer
+            {pick(STR.submit, lang)}
           </button>
         )}
       </div>

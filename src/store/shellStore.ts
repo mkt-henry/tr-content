@@ -4,6 +4,8 @@ import type { DeviceMode } from '../registry/types';
 interface ShellState {
   /** 갤러리에서 선택된 프로젝트 탭 */
   projectId: string;
+  /** 프로젝트별 선택 언어 — 미설정 시 프로젝트 languages의 첫 항목 */
+  projectLang: Record<string, string>;
   /** null이면 갤러리 화면 */
   featureId: string | null;
   variantId: string | null;
@@ -13,6 +15,7 @@ interface ShellState {
   /** 브라우저 프레임 표시 여부 */
   browserChrome: boolean;
   setProject: (projectId: string) => void;
+  setProjectLang: (projectId: string, lang: string) => void;
   open: (featureId: string, variantId: string) => void;
   setVariant: (variantId: string) => void;
   backToGallery: () => void;
@@ -24,12 +27,15 @@ interface ShellState {
 
 export const useShellStore = create<ShellState>((set) => ({
   projectId: 'aria',
+  projectLang: {},
   featureId: null,
   variantId: null,
   device: 'desktop',
   phoneFrame: true,
   browserChrome: true,
   setProject: (projectId) => set({ projectId }),
+  setProjectLang: (projectId, lang) =>
+    set((s) => ({ projectLang: { ...s.projectLang, [projectId]: lang } })),
   open: (featureId, variantId) => set({ featureId, variantId }),
   setVariant: (variantId) => set({ variantId }),
   backToGallery: () => set({ featureId: null, variantId: null }),

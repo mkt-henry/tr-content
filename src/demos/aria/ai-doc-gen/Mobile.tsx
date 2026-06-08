@@ -11,12 +11,14 @@ import {
 } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useDocGen } from './state';
-import { ATTACHED_FILE, MATRIX_NAME, SLIDES } from './data';
+import { ATTACHED_FILE, MATRIX_NAME, SLIDES, STR } from './data';
 import { SlideCard, SlidePlaceholder } from './slides';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function Mobile(_: DemoComponentProps) {
   const s = useDocGen();
+  const lang = useLang();
   const generating = s.phase === 'outline' || s.phase === 'slides';
 
   return (
@@ -25,15 +27,15 @@ export function Mobile(_: DemoComponentProps) {
       <header className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-3">
         <Menu className="h-4.5 w-4.5 text-zinc-500" />
         <div>
-          <h2 className="text-[13px] font-semibold text-zinc-100">초안 만들기</h2>
-          <p className="text-[10px] text-zinc-500">{MATRIX_NAME}</p>
+          <h2 className="text-[13px] font-semibold text-zinc-100">{pick(STR.draftPanelTitle, lang)}</h2>
+          <p className="text-[10px] text-zinc-500">{pick(MATRIX_NAME, lang)}</p>
         </div>
         <div className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500/90 text-[12px] font-bold text-ink-950">
           A
         </div>
       </header>
 
-      <div className="demo-scroll min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="demo-scroll demo-scroll-follow min-h-0 flex-1 overflow-y-auto p-4">
         {s.phase === 'idle' || s.phase === 'outline' ? (
           <div className="flex flex-col gap-4">
             {/* 문서 / 프레젠테이션 토글 */}
@@ -43,14 +45,14 @@ export function Mobile(_: DemoComponentProps) {
                 active={s.docType === 'document'}
                 onClick={() => s.setDocType('document')}
                 icon={FileText}
-                label="문서"
+                label={pick(STR.typeDocument, lang)}
               />
               <SegBtn
                 id="doc-type-presentation"
                 active={s.docType === 'presentation'}
                 onClick={() => s.setDocType('presentation')}
                 icon={Presentation}
-                label="프레젠테이션"
+                label={pick(STR.typePresentation, lang)}
               />
             </div>
 
@@ -61,7 +63,7 @@ export function Mobile(_: DemoComponentProps) {
                   className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] text-zinc-300"
                 >
                   <FilePlus2 className="h-3 w-3 text-brass-400" />
-                  {ATTACHED_FILE}
+                  {pick(ATTACHED_FILE, lang)}
                   <X className="h-3 w-3 text-zinc-500" />
                 </div>
               </div>
@@ -69,7 +71,7 @@ export function Mobile(_: DemoComponentProps) {
                 data-demo-id="prompt-input"
                 value={s.prompt}
                 onChange={(e) => s.setPrompt(e.target.value)}
-                placeholder="예시 슬라이드를 어떻게 수정할까요?"
+                placeholder={pick(STR.promptPlaceholder, lang)}
                 className="h-24 w-full resize-none bg-transparent px-3.5 pb-3.5 text-[13px] leading-relaxed text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
               />
             </div>
@@ -109,7 +111,7 @@ export function Mobile(_: DemoComponentProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {SLIDES.slice(0, s.slideCount).map((sl, i) => (
-                <SlideCard key={i} index={i} title={sl.title} sub={sl.sub} kind={sl.kind} />
+                <SlideCard key={i} index={i} title={pick(sl.title, lang)} sub={pick(sl.sub, lang)} kind={sl.kind} />
               ))}
               {s.phase === 'slides' &&
                 Array.from({ length: SLIDES.length - s.slideCount }).map((_, i) => <SlidePlaceholder key={`p${i}`} />)}
@@ -133,7 +135,7 @@ export function Mobile(_: DemoComponentProps) {
             )}
           >
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {generating ? '생성 중…' : '슬라이드 개요 생성'}
+            {generating ? pick(STR.generating, lang) : pick(STR.generateOutline, lang)}
           </button>
         </div>
       )}
@@ -147,7 +149,7 @@ export function Mobile(_: DemoComponentProps) {
             className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2"
           >
             <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-4 py-2 text-[12px] font-medium text-emerald-400 backdrop-blur">
-              <CheckCircle2 className="h-4 w-4" /> 초안 완성
+              <CheckCircle2 className="h-4 w-4" /> {pick(STR.draftDone, lang)}
             </span>
           </motion.div>
         )}

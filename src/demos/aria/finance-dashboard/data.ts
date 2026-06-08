@@ -1,19 +1,54 @@
+import type { L, Lang } from '../_shared/i18n';
+
 export interface Kpi {
   id: string;
-  label: string;
+  /** KPI 라벨 — 언어별 */
+  label: L;
   value: number;
-  unit: string;
+  unit: L;
   prefix?: string;
   decimals?: number;
-  delta: string;
+  /** 증감 표시 — 언어별 (YoY 등) */
+  delta: L;
   positive: boolean;
 }
 
 export const KPIS: Kpi[] = [
-  { id: 'revenue', label: '수재보험료 (Assumed)', value: 1840, unit: '억', prefix: '₩', delta: '+9.2% YoY', positive: true },
-  { id: 'op', label: '출재보험료 (Ceded)', value: 620, unit: '억', prefix: '₩', delta: '+4.1% YoY', positive: true },
-  { id: 'opm', label: '갱신 적중률', value: 87, unit: '%', delta: '+3%p YoY', positive: true },
-  { id: 'cash', label: '순보유 (Net Retained)', value: 1220, unit: '억', prefix: '₩', delta: '+12.0% YoY', positive: true },
+  {
+    id: 'revenue',
+    label: { ko: '수재보험료 (Assumed)', en: 'Assumed premium' },
+    value: 1840,
+    unit: { ko: '억', en: ' ×100M' },
+    prefix: '₩',
+    delta: { ko: '+9.2% YoY', en: '+9.2% YoY' },
+    positive: true,
+  },
+  {
+    id: 'op',
+    label: { ko: '출재보험료 (Ceded)', en: 'Ceded premium' },
+    value: 620,
+    unit: { ko: '억', en: ' ×100M' },
+    prefix: '₩',
+    delta: { ko: '+4.1% YoY', en: '+4.1% YoY' },
+    positive: true,
+  },
+  {
+    id: 'opm',
+    label: { ko: '갱신 적중률', en: 'Renewal hit ratio' },
+    value: 87,
+    unit: { ko: '%', en: '%' },
+    delta: { ko: '+3%p YoY', en: '+3pp YoY' },
+    positive: true,
+  },
+  {
+    id: 'cash',
+    label: { ko: '순보유 (Net Retained)', en: 'Net retained' },
+    value: 1220,
+    unit: { ko: '억', en: ' ×100M' },
+    prefix: '₩',
+    delta: { ko: '+12.0% YoY', en: '+12.0% YoY' },
+    positive: true,
+  },
 ];
 
 /** 분기별 수재(value) vs 출재(op) 보험료 — Q4 갱신 시즌 피크 (단위: 억원) */
@@ -39,32 +74,82 @@ export const REVENUE_YEARLY = [
 
 export interface Segment {
   id: string;
-  name: string;
+  /** LoB 이름 — 영문 고유명사라 양 언어 공통이지만 L<>로 일관성 유지 */
+  name: L;
   value: number;
   share: number;
-  delta: string;
+  delta: L;
   color: string;
 }
 
 /** Line of Business별 수재보험료 */
 export const SEGMENTS: Segment[] = [
-  { id: 'property', name: 'Property Cat', value: 620, share: 34, delta: '+14% YoY', color: '#34d399' },
-  { id: 'marine', name: 'Marine', value: 410, share: 22, delta: '+7% YoY', color: '#38bdf8' },
-  { id: 'casualty', name: 'Casualty', value: 330, share: 18, delta: '+5% YoY', color: '#d9ad78' },
-  { id: 'engineering', name: 'Engineering', value: 280, share: 15, delta: '+11% YoY', color: '#a78bfa' },
-  { id: 'aviation', name: 'Aviation', value: 200, share: 11, delta: '+3% YoY', color: '#f472b6' },
+  { id: 'property', name: { ko: 'Property Cat', en: 'Property Cat' }, value: 620, share: 34, delta: { ko: '+14% YoY', en: '+14% YoY' }, color: '#34d399' },
+  { id: 'marine', name: { ko: 'Marine', en: 'Marine' }, value: 410, share: 22, delta: { ko: '+7% YoY', en: '+7% YoY' }, color: '#38bdf8' },
+  { id: 'casualty', name: { ko: 'Casualty', en: 'Casualty' }, value: 330, share: 18, delta: { ko: '+5% YoY', en: '+5% YoY' }, color: '#d9ad78' },
+  { id: 'engineering', name: { ko: 'Engineering', en: 'Engineering' }, value: 280, share: 15, delta: { ko: '+11% YoY', en: '+11% YoY' }, color: '#a78bfa' },
+  { id: 'aviation', name: { ko: 'Aviation', en: 'Aviation' }, value: 200, share: 11, delta: { ko: '+3% YoY', en: '+3% YoY' }, color: '#f472b6' },
 ];
+
+export interface PipelineStage {
+  id: string;
+  label: L;
+  count: number;
+  color: string;
+}
 
 /** 갱신 파이프라인 단계별 건수 */
-export const PIPELINE = [
-  { id: 'nego', label: '협의중', count: 14, color: '#38bdf8' },
-  { id: 'quote', label: '견적발송', count: 9, color: '#d9ad78' },
-  { id: 'binding', label: '바인딩대기', count: 5, color: '#fbbf24' },
-  { id: 'done', label: '완료', count: 22, color: '#34d399' },
+export const PIPELINE: PipelineStage[] = [
+  { id: 'nego', label: { ko: '협의중', en: 'Negotiating' }, count: 14, color: '#38bdf8' },
+  { id: 'quote', label: { ko: '견적발송', en: 'Quoted' }, count: 9, color: '#d9ad78' },
+  { id: 'binding', label: { ko: '바인딩대기', en: 'Awaiting bind' }, count: 5, color: '#fbbf24' },
+  { id: 'done', label: { ko: '완료', en: 'Bound' }, count: 22, color: '#34d399' },
 ];
 
-export const EVENTS = [
-  { date: '12.15', title: 'KB Marine Hull Treaty 견적 마감', tag: 'D-12' },
-  { date: '12.20', title: 'Korean Re Property Cat 조건 협의', tag: 'D-17' },
-  { date: '01.01', title: '1/1 갱신 일괄 발효 (28건)', tag: '갱신' },
+export interface DashEvent {
+  date: string;
+  title: L;
+  tag: L;
+}
+
+export const EVENTS: DashEvent[] = [
+  { date: '12.15', title: { ko: 'KB Marine Hull Treaty 견적 마감', en: 'KB Marine Hull Treaty quote deadline' }, tag: { ko: 'D-12', en: 'D-12' } },
+  { date: '12.20', title: { ko: 'Korean Re Property Cat 조건 협의', en: 'Korean Re Property Cat terms negotiation' }, tag: { ko: 'D-17', en: 'D-17' } },
+  { date: '01.01', title: { ko: '1/1 갱신 일괄 발효 (28건)', en: '1/1 renewals go live (28 treaties)' }, tag: { ko: '갱신', en: 'Renewal' } },
 ];
+
+/** 대시보드 UI 문자열 */
+export const STR = {
+  // 사이드 내비
+  navForecast: { ko: '포캐스트', en: 'Forecast' },
+  navPipeline: { ko: '갱신 파이프라인', en: 'Renewal pipeline' },
+  navLob: { ko: 'LoB 현황', en: 'Line of business' },
+  navSettlement: { ko: '정산 관리', en: 'Settlements' },
+  sidebarNote: { ko: '1/1 갱신 시즌 파이프라인이 반영되었습니다.', en: 'The 1/1 renewal season pipeline is loaded.' },
+  sidebarHighlight: { ko: '2026 갱신 시즌 · 50건 추적 중', en: '2026 renewal season · tracking 50 treaties' },
+  // 헤더
+  pageTitle: { ko: '수재 매출 포캐스트', en: 'Assumed premium forecast' },
+  pageSubtitle: { ko: '2026 갱신 시즌 · 수재/출재 · 포캐스트 포함', en: '2026 renewal season · assumed/ceded · forecast included' },
+  mobileSubtitle: { ko: 'ARIA · 2026 갱신 시즌', en: 'ARIA · 2026 renewal season' },
+  periodQuarter: { ko: '분기', en: 'Quarterly' },
+  periodYear: { ko: '연간', en: 'Annual' },
+  report: { ko: '리포트', en: 'Report' },
+  loadData: { ko: '갱신 시즌 데이터 불러오기', en: 'Load renewal season data' },
+  // 매출 차트
+  revenueTitle: { ko: '수재 vs 출재 보험료 추이', en: 'Assumed vs ceded premium trend' },
+  revenueNote: { ko: '단위: 억원 · 점선 = 출재', en: 'Unit: ₩100M · dashed = ceded' },
+  seriesAssumed: { ko: '수재', en: 'Assumed' },
+  seriesCeded: { ko: '출재', en: 'Ceded' },
+  // 부문 바
+  segmentTitle: { ko: 'Line of Business별 수재보험료', en: 'Assumed premium by line of business' },
+  segmentHint: { ko: 'LoB를 클릭하면 해당 부문만 강조됩니다', en: 'Click a line of business to focus on it' },
+  // 파이프라인
+  pipelineTitle: { ko: '갱신 파이프라인', en: 'Renewal pipeline' },
+  // 이벤트
+  eventsTitle: { ko: '다가오는 갱신 일정', en: 'Upcoming renewals' },
+} satisfies Record<string, L>;
+
+/** '총 {n}건' 형태의 카운트 표기 */
+export function pipelineTotal(n: number, lang: Lang): string {
+  return lang === 'ko' ? `총 ${n}건` : `${n} total`;
+}

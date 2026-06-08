@@ -1,16 +1,19 @@
 import { Layers, Trophy, Vote } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { Coin } from '../_shared/ui';
-import { BRACKET } from './data';
+import { pick as pickL, useLang } from '../_shared/i18n';
+import { BRACKET, ROUND_LABEL, STR } from './data';
 import { useFavoritePick } from './state';
 import { AppScreens } from './screens';
 
 /** 데스크탑 = 브랜드 패널 + 폰 컬럼 쇼케이스 (Treazer는 모바일 앱) */
 export function Desktop(_: DemoComponentProps) {
   const { gold, matchIndex, screen } = useFavoritePick();
+  const lang = useLang();
 
-  // 라이브 스탯 — 현재 라운드 / 누적 투표 수 / 획득 골드
-  const currentRound = screen === 'result' ? 'Champion' : BRACKET[matchIndex].round;
+  // 라이브 스탯 — 현재 라운드 / 누적 투표 수 / 획득 골드 (라운드 라벨은 현재 언어로)
+  const currentRound =
+    screen === 'result' ? pickL(STR.champion, lang) : pickL(ROUND_LABEL[BRACKET[matchIndex].round], lang);
   // 누적 투표 수: 진행한 매치마다 +1, 데모 분위기용 베이스라인 가산
   const votes = (12840 + matchIndex * 137).toLocaleString('en-US');
   const earned = screen === 'result' ? '+20' : '+0';

@@ -2,11 +2,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useRenewals } from './state';
-import { RENEWALS, STAGES } from './data';
+import { RENEWALS, STAGES, STR } from './data';
+import { fmt, pick, useLang } from '../_shared/i18n';
 import { RenewalCardItem, BriefingPanel } from './widgets';
 
 export function Desktop(_: DemoComponentProps) {
   const selectedCardId = useRenewals((s) => s.selectedCardId);
+  const lang = useLang();
 
   return (
     <div className="flex h-full flex-col bg-[#111014] text-zinc-200">
@@ -15,9 +17,9 @@ export function Desktop(_: DemoComponentProps) {
           <CalendarClock className="h-4 w-4" />
         </div>
         <h2 className="text-[13.5px] font-semibold text-zinc-100">
-          갱신 파이프라인 <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
+          {pick(STR.appTitle, lang)} <span className="ml-1 text-[10px] font-normal text-zinc-500">{pick(STR.poweredBy, lang)}</span>
         </h2>
-        <span className="ml-auto font-mono text-[10.5px] text-zinc-600">2026 1/1 갱신 시즌 · {RENEWALS.length}건 추적 중</span>
+        <span className="ml-auto font-mono text-[10.5px] text-zinc-600">{fmt(pick(STR.seasonDesktop, lang), { n: RENEWALS.length })}</span>
       </header>
 
       <div className="flex min-h-0 flex-1">
@@ -29,7 +31,7 @@ export function Desktop(_: DemoComponentProps) {
               return (
                 <div key={stage.id} className="flex min-h-0 flex-col rounded-xl bg-white/[0.02] p-2.5">
                   <div className="mb-2.5 flex items-center justify-between px-1">
-                    <span className="text-[11px] font-medium text-zinc-400">{stage.label}</span>
+                    <span className="text-[11px] font-medium text-zinc-400">{pick(stage.label, lang)}</span>
                     <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9.5px] text-zinc-500">
                       {cards.length}
                     </span>

@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, FileBarChart2 } from 'lucide-react';
 import { useChat, type ChatMessage } from './state';
-import { SUGGESTED } from './data';
+import { pick, useLang } from '../_shared/i18n';
+import { STR, suggested } from './data';
 import { cn } from '../../../lib/cn';
 
 /** 메시지 목록 + 추천 질문 (데스크탑/모바일 공용) */
 export function Messages({ compact }: { compact?: boolean }) {
   const { messages, thinking, send } = useChat();
+  const lang = useLang();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 새 콘텐츠가 생기면 맨 아래로
@@ -25,12 +27,12 @@ export function Messages({ compact }: { compact?: boolean }) {
           </div>
           <div className="text-center">
             <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[16px]' : 'text-[20px]')}>
-              계약·클레임 문서에 물어보세요
+              {pick(STR.emptyTitle, lang)}
             </h3>
-            <p className="mt-1.5 text-[12px] text-zinc-500">Korean Re Property Cat XoL Slip 기준으로 답변합니다</p>
+            <p className="mt-1.5 text-[12px] text-zinc-500">{pick(STR.emptySubtitle, lang)}</p>
           </div>
           <div className={cn('flex w-full max-w-md flex-col gap-2', compact && 'max-w-none')}>
-            {SUGGESTED.map((q, i) => (
+            {suggested(lang).map((q, i) => (
               <button
                 key={i}
                 data-demo-id={`suggest-${i}`}
@@ -72,6 +74,7 @@ function Avatar() {
 }
 
 function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?: boolean }) {
+  const lang = useLang();
   if (m.role === 'user') {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
@@ -105,7 +108,7 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
           >
             <div className="flex items-center gap-2 border-b border-teal-500/15 px-3.5 py-2 text-[11px] font-medium text-teal-300">
               <FileBarChart2 className="h-3.5 w-3.5" />
-              원문 근거
+              {pick(STR.evidenceHeader, lang)}
               {m.source && <span className="ml-auto font-normal text-teal-400/60">{m.source}</span>}
             </div>
             <div className={cn('grid', compact ? 'grid-cols-1' : 'grid-cols-2')}>

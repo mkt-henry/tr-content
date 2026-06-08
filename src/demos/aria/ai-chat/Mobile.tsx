@@ -1,11 +1,14 @@
 import { Menu, SendHorizontal, Sparkles } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useChat } from './state';
+import { pick, useLang } from '../_shared/i18n';
+import { STR } from './data';
 import { Messages } from './Messages';
 import { cn } from '../../../lib/cn';
 
 export function Mobile(_: DemoComponentProps) {
   const { input, setInput, send, thinking } = useChat();
+  const lang = useLang();
 
   return (
     <div className="flex h-full flex-col bg-[#101418] text-zinc-200">
@@ -33,7 +36,7 @@ export function Mobile(_: DemoComponentProps) {
             data-demo-id="chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="질문을 입력하세요…"
+            placeholder={pick(STR.placeholderShort, lang)}
             className="h-9 min-w-0 flex-1 bg-transparent text-[13px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
           />
           <button

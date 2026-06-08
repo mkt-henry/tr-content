@@ -2,12 +2,13 @@ import { Check, ChevronLeft, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
+import { fmt, pick as pickL, useLang } from '../_shared/i18n';
 import {
   BRACKET,
   CONTESTANTS,
   GOLD_REWARD,
-  TOURNAMENT_TITLE_KO,
-  TOURNAMENT_TITLE_VI,
+  ROUND_LABEL,
+  STR,
   type Contestant,
 } from './data';
 import { useFavoritePick } from './state';
@@ -79,6 +80,7 @@ function ContestantCard({
 
 export function TournamentScreen() {
   const { gold, goldFlash, matchIndex, picked } = useFavoritePick();
+  const lang = useLang();
   const match = BRACKET[matchIndex];
 
   // 같은 라운드 내 진행 위치 (예: Round of 16 → n/4) 계산
@@ -98,10 +100,10 @@ export function TournamentScreen() {
         <div className="rounded-2xl bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-orange-500" />
-            <span className="text-[13px] font-bold text-orange-500">Favorite Pick Tournament</span>
+            <span className="text-[13px] font-bold text-orange-500">{pickL(STR.header, lang)}</span>
           </div>
           <div className="mt-2.5 flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-zinc-500">{match.round}</span>
+            <span className="text-[12px] font-semibold text-zinc-500">{pickL(ROUND_LABEL[match.round], lang)}</span>
             <span className="text-[12px] font-bold tabular-nums text-zinc-400">
               {roundPos}/{roundMatches.length}
             </span>
@@ -115,9 +117,9 @@ export function TournamentScreen() {
             />
           </div>
 
-          {/* 질문 타이틀 — 베트남어 + 한국어 부제 */}
-          <h2 className="mt-4 text-[17px] font-bold leading-snug text-zinc-900">{TOURNAMENT_TITLE_VI}</h2>
-          <p className="mt-0.5 text-[12px] text-zinc-400">{TOURNAMENT_TITLE_KO}</p>
+          {/* 질문 타이틀 + 보조 설명 (현재 언어로 현지화) */}
+          <h2 className="mt-4 text-[17px] font-bold leading-snug text-zinc-900">{pickL(STR.tournamentTitle, lang)}</h2>
+          <p className="mt-0.5 text-[12px] text-zinc-400">{pickL(STR.tournamentSubtitle, lang)}</p>
         </div>
 
         {/* 대결 카드 2장 + 가운데 VS 뱃지 (매치 전환마다 슬라이드 인) */}
@@ -144,9 +146,7 @@ export function TournamentScreen() {
           </div>
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-zinc-400">
-          Tap the one you like — finishing the tournament checks you in.
-        </p>
+        <p className="mt-4 text-center text-[11px] text-zinc-400">{pickL(STR.tapHint, lang)}</p>
       </div>
 
       <BottomNav active="home" />
@@ -184,6 +184,7 @@ function VoteBar({ contestant, leading }: { contestant: Contestant; leading: boo
 
 export function ResultScreen() {
   const championId = useFavoritePick((s) => s.championId);
+  const lang = useLang();
   const champion = championId ? CONTESTANTS[championId] : null;
   if (!champion) return null;
 
@@ -197,7 +198,7 @@ export function ResultScreen() {
     <div className="flex h-full flex-col bg-white">
       <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-700" />
-        <span className="text-[16px] font-semibold text-zinc-900">Result</span>
+        <span className="text-[16px] font-semibold text-zinc-900">{pickL(STR.result, lang)}</span>
       </header>
 
       <div className="demo-scroll flex-1 overflow-y-auto px-5 pb-4">
@@ -237,7 +238,7 @@ export function ResultScreen() {
 
         <div className="mt-4 flex items-center justify-center gap-1.5">
           <Trophy className="h-4 w-4 text-orange-500" />
-          <span className="text-[14px] font-bold text-zinc-900">Your Pick is the Champion!</span>
+          <span className="text-[14px] font-bold text-zinc-900">{pickL(STR.championMsg, lang)}</span>
         </div>
 
         {/* 골드 보상 */}
@@ -248,13 +249,12 @@ export function ResultScreen() {
           className="mx-auto mt-3 flex w-fit items-center gap-2 rounded-full bg-amber-50 px-4 py-2 ring-1 ring-amber-300"
         >
           <Coin className="h-4 w-4 text-[9px]" />
-          <span className="text-[13px] font-bold text-amber-600">+{GOLD_REWARD} Gold earned</span>
+          <span className="text-[13px] font-bold text-amber-600">{fmt(pickL(STR.goldEarned, lang), { n: GOLD_REWARD })}</span>
         </motion.div>
 
         {/* 다른 유저들의 선택 — 투표 통계 바 */}
         <div className="mt-6 rounded-2xl bg-zinc-50 p-4">
-          <p className="text-[13px] font-bold text-zinc-900">다른 유저들의 선택</p>
-          <p className="text-[11px] text-zinc-400">Lựa chọn của mọi người</p>
+          <p className="text-[13px] font-bold text-zinc-900">{pickL(STR.othersPicks, lang)}</p>
           <div className="mt-3 space-y-3">
             {topVotes.map((cand) => (
               <VoteBar key={cand.id} contestant={cand} leading={cand.id === champion.id} />

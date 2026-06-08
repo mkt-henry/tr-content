@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { GENERATED_QUIZZES, INITIAL_GOLD, type Lang } from './data';
+import { getLang, type Lang } from '../_shared/i18n';
+import { GENERATED_QUIZZES, INITIAL_GOLD } from './data';
 
 /** 생성 흐름 단계 */
 type Phase =
@@ -37,7 +38,7 @@ export const useAiDailyQuiz = create<AiDailyQuizState>((set, get) => ({
   gold: INITIAL_GOLD,
   phase: 'idle',
   visibleCount: 0,
-  lang: 'KO',
+  lang: getLang(),
 
   startGenerate: () => {
     if (get().phase !== 'idle') return;
@@ -52,7 +53,7 @@ export const useAiDailyQuiz = create<AiDailyQuizState>((set, get) => ({
   setLang: (lang) => set({ lang }),
 
   presetDone: () =>
-    set({ phase: 'done', visibleCount: GENERATED_QUIZZES.length, lang: 'KO' }),
+    set({ phase: 'done', visibleCount: GENERATED_QUIZZES.length, lang: getLang() }),
 
   reset: () => {
     runId++;
@@ -60,7 +61,7 @@ export const useAiDailyQuiz = create<AiDailyQuizState>((set, get) => ({
       gold: INITIAL_GOLD,
       phase: 'idle',
       visibleCount: 0,
-      lang: 'KO',
+      lang: getLang(),
     });
   },
 }));

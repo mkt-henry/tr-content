@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getLang } from '../_shared/i18n';
 import { BRIEFING } from './data';
 
 export type ItemStatus = 'pending' | 'streaming' | 'done';
@@ -35,11 +36,12 @@ export const useRenewals = create<RenewalsState>((set, get) => ({
     void (async () => {
       set({ briefPhase: 'generating', itemText: {}, itemStatus: initialStatus() });
       await sleep(700);
+      const lang = getLang();
       for (const item of BRIEFING) {
         if (id !== runId) return;
         set((s) => ({ itemStatus: { ...s.itemStatus, [item.id]: 'streaming' } }));
         let acc = '';
-        for (const ch of item.fullText) {
+        for (const ch of item.fullText[lang]) {
           if (id !== runId) return;
           acc += ch;
           set((s) => ({ itemText: { ...s.itemText, [item.id]: acc } }));

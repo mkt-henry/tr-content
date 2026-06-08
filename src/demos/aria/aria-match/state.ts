@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { CANDIDATES, EMAIL_SUBJECT, EMAIL_BODY } from './data';
+import { getLang } from '../_shared/i18n';
+import { CANDIDATES, emailSubject, emailBody } from './data';
 
 export type MatchPhase = 'idle' | 'scoring' | 'ranked';
 export type EmailStatus = 'idle' | 'streaming' | 'done';
@@ -54,11 +55,15 @@ export const useMatch = create<MatchState>((set, get) => ({
     if (get().emailStatus === 'streaming') return;
     const id = ++runId;
     set({ selectedId, emailSubject: '', emailBody: '', emailStatus: 'streaming' });
+    // 재생 시점의 프로젝트 언어로 이메일 텍스트 확정
+    const lang = getLang();
+    const subject = emailSubject(lang);
+    const body = emailBody(lang);
     void (async () => {
       await sleep(700);
       // Subject 타이핑
       let acc = '';
-      for (const ch of EMAIL_SUBJECT) {
+      for (const ch of subject) {
         if (id !== runId) return;
         acc += ch;
         set({ emailSubject: acc });
@@ -67,10 +72,10 @@ export const useMatch = create<MatchState>((set, get) => ({
       await sleep(350);
       // Body 청크 스트리밍
       let i = 0;
-      while (i < EMAIL_BODY.length) {
+      while (i < body.length) {
         if (id !== runId) return;
         const size = 2 + Math.floor(Math.random() * 3);
-        set((s) => ({ emailBody: s.emailBody + EMAIL_BODY.slice(i, i + size) }));
+        set((s) => ({ emailBody: s.emailBody + body.slice(i, i + size) }));
         i += size;
         await sleep(22);
       }

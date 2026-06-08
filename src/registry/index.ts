@@ -35,3 +35,11 @@ export function getFeaturesByProject(projectId: string): FeatureDefinition[] {
 export function getFeature(id: string): FeatureDefinition | undefined {
   return features.find((f) => f.id === id);
 }
+
+/** 기능이 속한 프로젝트 id — 폴더 구조(demos/<project>/<name>)에서 유래 */
+export function getProjectIdOfFeature(featureId: string): string | undefined {
+  for (const [projectId, list] of featuresByProject) {
+    if (list.some((f) => f.id === featureId)) return projectId;
+  }
+  return undefined;
+}

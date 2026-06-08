@@ -2,12 +2,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Grid3X3, Loader2, Plus, CheckCircle2, Cpu } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useMatrix, key } from './state';
-import { DOCUMENTS, COLUMNS, CELLS, MODEL_CHIP } from './data';
+import { DOCUMENTS, COLUMNS, CELLS, MODEL_CHIP, STR, extractedSummary, addColumnLabel } from './data';
 import { CitationBadge, CitationPopover } from '../../../ui/Citation';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function Desktop(_: DemoComponentProps) {
   const m = useMatrix();
+  const lang = useLang();
   const nextColId = m.nextColumn();
   const nextCol = COLUMNS.find((c) => c.id === nextColId);
   const totalCells = DOCUMENTS.length * COLUMNS.length;
@@ -26,12 +28,13 @@ export function Desktop(_: DemoComponentProps) {
           </div>
           <div>
             <h2 className="text-[13.5px] font-semibold text-zinc-100">
-              문서 비교 Matrix <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
+              {pick(STR.appTitle, lang)}{' '}
+              <span className="ml-1 text-[10px] font-normal text-zinc-500">{pick(STR.byline, lang)}</span>
             </h2>
           </div>
           {/* V7 스타일 모델 칩 */}
           <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] text-zinc-400">
-            <Cpu className="h-3 w-3 text-brass-400" /> {MODEL_CHIP}
+            <Cpu className="h-3 w-3 text-brass-400" /> {pick(MODEL_CHIP, lang)}
           </span>
           <div className="ml-auto flex items-center gap-3">
             <AnimatePresence>
@@ -41,13 +44,13 @@ export function Desktop(_: DemoComponentProps) {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-medium text-emerald-400"
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> {DOCUMENTS.length}개 문서 · {totalCells}개 항목 추출 완료
+                  <CheckCircle2 className="h-3.5 w-3.5" /> {extractedSummary(lang, DOCUMENTS.length, totalCells)}
                 </motion.span>
               )}
             </AnimatePresence>
             {!allDone && doneCells > 0 && (
               <span className="font-mono text-[11px] text-zinc-500">
-                {doneCells}/{totalCells} 추출
+                {doneCells}/{totalCells} {pick(STR.extractProgress, lang)}
               </span>
             )}
             <button
@@ -62,7 +65,7 @@ export function Desktop(_: DemoComponentProps) {
               )}
             >
               <Plus className="h-3.5 w-3.5" />
-              {nextCol ? `열 추가: ${nextCol.label}` : '모든 열 추가됨'}
+              {nextCol ? addColumnLabel(lang, pick(nextCol.label, lang)) : pick(STR.allColumnsAdded, lang)}
             </button>
           </div>
         </header>
@@ -73,7 +76,7 @@ export function Desktop(_: DemoComponentProps) {
             {/* 헤더 행 */}
             <div className="flex border-b border-white/[0.08] bg-white/[0.03]">
               <div className="w-60 shrink-0 border-r border-white/[0.08] px-3.5 py-2.5 text-[11px] font-medium text-zinc-500">
-                문서 ({DOCUMENTS.length})
+                {pick(STR.documents, lang)} ({DOCUMENTS.length})
               </div>
               <AnimatePresence>
                 {m.activeColumns.map((colId) => (
@@ -85,7 +88,10 @@ export function Desktop(_: DemoComponentProps) {
                     className="shrink-0 overflow-hidden border-r border-white/[0.08] last:border-r-0"
                   >
                     <div className="w-[188px] px-3.5 py-2.5 text-[11px] font-medium text-brass-300">
-                      {COLUMNS.find((c) => c.id === colId)?.label}
+                      {(() => {
+                        const col = COLUMNS.find((c) => c.id === colId);
+                        return col ? pick(col.label, lang) : null;
+                      })()}
                     </div>
                   </motion.div>
                 ))}
@@ -117,7 +123,7 @@ export function Desktop(_: DemoComponentProps) {
                       {status === 'empty' && <span className="text-[11px] text-zinc-700">—</span>}
                       {status === 'extracting' && (
                         <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-                          <Loader2 className="h-3 w-3 animate-spin text-brass-400" /> 추출 중
+                          <Loader2 className="h-3 w-3 animate-spin text-brass-400" /> {pick(STR.extracting, lang)}
                         </span>
                       )}
                       {status === 'done' && cell && (
@@ -131,7 +137,7 @@ export function Desktop(_: DemoComponentProps) {
                             onClick={() => m.openPopover(doc.id, colId)}
                             className="text-left text-[12px] font-medium text-zinc-100 hover:text-brass-200"
                           >
-                            {cell.value}
+                            {pick(cell.value, lang)}
                           </button>
                           <CitationBadge label={`[${cell.citation}]`} onClick={() => m.openPopover(doc.id, colId)} active={active} />
                         </motion.div>
@@ -140,7 +146,7 @@ export function Desktop(_: DemoComponentProps) {
                   );
                 })}
                 {m.activeColumns.length === 0 && (
-                  <div className="flex items-center px-4 text-[11px] text-zinc-700">열을 추가하면 ARIA가 자동 추출합니다</div>
+                  <div className="flex items-center px-4 text-[11px] text-zinc-700">{pick(STR.emptyHint, lang)}</div>
                 )}
               </div>
             ))}
@@ -156,6 +162,7 @@ export function Desktop(_: DemoComponentProps) {
             : null
         }
         onClose={() => m.closePopover()}
+        title={lang === 'ko' ? '원문 인용' : 'Source citation'}
       />
     </div>
   );

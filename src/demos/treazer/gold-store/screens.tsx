@@ -2,13 +2,9 @@ import { ArrowDownRight, ArrowUpRight, Check, ChevronRight, Minus, Ticket } from
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import { BottomNav, Coin, GoldPill, Wordmark } from '../_shared/ui';
-import { CATEGORIES, DONG_PER_GOLD, GOLD_GRAMS_PER_UNIT, type StoreProduct } from './data';
+import { fmt, pick, useLang } from '../_shared/i18n';
+import { CATEGORIES, CURRENCY, GOLD_GRAMS_PER_UNIT, STR, money, type StoreProduct } from './data';
 import { priceInGold, useGoldStore, visibleProducts } from './state';
-
-/** ₫ 환산 — 천 단위 콤마 */
-function dong(amount: number): string {
-  return `₫${Math.round(amount).toLocaleString('en-US')}`;
-}
 
 /** 실시간 금 시세 미니 티커 — ₩/g 숫자가 틱마다 미세 변동 + 상승/하락 화살표 */
 function PriceTicker() {
@@ -38,6 +34,8 @@ function PriceTicker() {
 /** 다크 카드 — My Gold Points: 골드 수량 + ₫ 환산 + 그램 환산 + 미니 티커 */
 function GoldCard() {
   const { gold, goldFlash } = useGoldStore();
+  const lang = useLang();
+  const cur = CURRENCY[lang];
   const grams = gold * GOLD_GRAMS_PER_UNIT;
 
   return (
@@ -48,7 +46,7 @@ function GoldCard() {
       className="rounded-2xl bg-zinc-900 p-4 text-white"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[12px] font-medium text-zinc-300">My Gold Points</span>
+        <span className="text-[12px] font-medium text-zinc-300">{pick(STR.myGoldPoints, lang)}</span>
         <PriceTicker />
       </div>
       <div className="mt-2 flex items-center gap-2">
@@ -64,7 +62,7 @@ function GoldCard() {
       </div>
       {/* ₫ 환산 + 그램 환산 — 시나리오 v1에서 커서로 강조하는 핵심 영역 */}
       <p data-demo-id="gold-converted" className="mt-1 text-[12px] text-zinc-400">
-        = {dong(gold * DONG_PER_GOLD)}{' '}
+        = {money(gold * cur.perGold, cur)}{' '}
         <span className="text-amber-400/90">({grams.toFixed(8)} g)</span>
       </p>
     </motion.div>
@@ -100,6 +98,7 @@ function CategoryChips() {
 /** eGIFT 카드 — 가격은 시세 연동으로 출렁인다 */
 function ProductCard({ product }: { product: StoreProduct }) {
   const { goldPrice, openSheet } = useGoldStore();
+  const lang = useLang();
   const cost = priceInGold(product, goldPrice);
 
   return (
@@ -117,7 +116,7 @@ function ProductCard({ product }: { product: StoreProduct }) {
       </div>
       <div className="p-2.5">
         <p className="text-[10px] text-zinc-400">{product.brand}</p>
-        <p className="truncate text-[12.5px] font-bold text-zinc-800">{product.name}</p>
+        <p className="truncate text-[12.5px] font-bold text-zinc-800">{pick(product.name, lang)}</p>
         <div className="mt-1.5 flex items-center justify-end gap-1">
           <Coin className="h-3.5 w-3.5 text-[8px]" />
           <motion.span
@@ -138,6 +137,8 @@ function ProductCard({ product }: { product: StoreProduct }) {
 /** 상품 상세 — 하단에서 올라오는 bottom sheet */
 function ProductSheet() {
   const { sheetProduct, gold, goldPrice, closeSheet, exchange } = useGoldStore();
+  const lang = useLang();
+  const cur = CURRENCY[lang];
 
   return (
     <AnimatePresence>
@@ -165,15 +166,15 @@ function ProductSheet() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] text-zinc-400">{sheetProduct.brand}</p>
-                <p className="text-[15px] font-bold leading-tight text-zinc-900">{sheetProduct.name}</p>
+                <p className="text-[15px] font-bold leading-tight text-zinc-900">{pick(sheetProduct.name, lang)}</p>
                 <p className="mt-1 text-[12px] text-zinc-500">
-                  Face value {dong(sheetProduct.faceValue)}
+                  {pick(STR.faceValue, lang)} {money(sheetProduct.faceUnits * cur.perFaceUnit, cur)}
                 </p>
               </div>
             </div>
 
             <div className="mt-4 flex items-center justify-between rounded-xl bg-zinc-100 px-4 py-3">
-              <span className="text-[12px] text-zinc-500">Price (live)</span>
+              <span className="text-[12px] text-zinc-500">{pick(STR.priceLive, lang)}</span>
               <span className="flex items-center gap-1.5">
                 <Coin className="h-4 w-4 text-[9px]" />
                 <span className="text-[16px] font-bold tabular-nums text-zinc-900">
@@ -182,7 +183,7 @@ function ProductSheet() {
               </span>
             </div>
             <p className="mt-1.5 px-1 text-[10.5px] text-zinc-400">
-              가격은 실시간 금 시세에 연동됩니다. 보유 {gold.toLocaleString('en-US')} G
+              {fmt(pick(STR.pegNote, lang), { n: gold.toLocaleString('en-US') })}
             </p>
 
             <button
@@ -191,7 +192,7 @@ function ProductSheet() {
               onClick={exchange}
               className="mt-4 w-full rounded-xl bg-orange-500 py-3.5 text-[15px] font-bold text-white"
             >
-              Exchange
+              {pick(STR.exchange, lang)}
             </button>
           </motion.div>
         </>
@@ -203,6 +204,7 @@ function ProductSheet() {
 /** 교환 완료 오버레이 — 성공 체크 애니메이션 + 쿠폰함 저장 안내 */
 function ExchangedOverlay() {
   const { exchanged } = useGoldStore();
+  const lang = useLang();
 
   return (
     <AnimatePresence>
@@ -222,11 +224,11 @@ function ExchangedOverlay() {
           >
             <Check className="h-10 w-10 text-white" strokeWidth={3} />
           </motion.div>
-          <p className="mt-5 text-[19px] font-bold text-zinc-900">교환 완료!</p>
+          <p className="mt-5 text-[19px] font-bold text-zinc-900">{pick(STR.exchangedTitle, lang)}</p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-500">
-            기프트카드가 쿠폰함에 저장되었습니다.
+            {pick(STR.exchangedSavedLine1, lang)}
             <br />
-            골드가 차감되었어요.
+            {pick(STR.exchangedSavedLine2, lang)}
           </p>
         </motion.div>
       )}
@@ -236,13 +238,14 @@ function ExchangedOverlay() {
 
 export function StoreScreen() {
   const { gold, goldFlash, category, coupons } = useGoldStore();
+  const lang = useLang();
   const products = visibleProducts(category);
 
   return (
     <div className="relative flex h-full flex-col bg-[#f4f4f6]">
       <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-4">
         <div className="flex items-baseline gap-2">
-          <span className="text-[22px] font-bold tracking-tight text-zinc-900">Store</span>
+          <span className="text-[22px] font-bold tracking-tight text-zinc-900">{pick(STR.store, lang)}</span>
           <Wordmark className="text-[12px] opacity-50" />
         </div>
         <GoldPill amount={gold} flash={goldFlash} />
@@ -259,7 +262,7 @@ export function StoreScreen() {
         >
           <span className="flex items-center gap-2 text-[13px] font-semibold text-orange-500">
             <Ticket className="h-4.5 w-4.5" />
-            My Coupon
+            {pick(STR.myCoupon, lang)}
           </span>
           <span className="flex items-center gap-1 text-[12px] font-bold text-zinc-400">
             {coupons > 0 && (

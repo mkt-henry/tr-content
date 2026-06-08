@@ -2,10 +2,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Handshake } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useMatch } from './state';
+import { pick, useLang } from '../_shared/i18n';
+import { STR } from './data';
 import { RiskCard, CandidateList, EmailPanel } from './widgets';
 
 export function Desktop(_: DemoComponentProps) {
   const selectedId = useMatch((s) => s.selectedId);
+  const lang = useLang();
 
   return (
     <div className="flex h-full flex-col bg-[#111014] text-zinc-200">
@@ -14,9 +17,9 @@ export function Desktop(_: DemoComponentProps) {
           <Handshake className="h-4 w-4" />
         </div>
         <h2 className="text-[13.5px] font-semibold text-zinc-100">
-          재보험사 매칭 <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
+          {pick(STR.appTitle, lang)} <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
         </h2>
-        <span className="ml-auto font-mono text-[10.5px] text-zinc-600">패널 데이터: 최근 5년 인수 이력 · 선호 라인</span>
+        <span className="ml-auto font-mono text-[10.5px] text-zinc-600">{pick(STR.panelMeta, lang)}</span>
       </header>
 
       <div className="flex min-h-0 flex-1">
@@ -27,7 +30,7 @@ export function Desktop(_: DemoComponentProps) {
 
         {/* 중: 후보 랭킹 */}
         <div className="demo-scroll min-w-0 flex-1 overflow-y-auto p-4">
-          <p className="mb-3 text-[11px] font-medium text-zinc-500">재보험사 후보 · 적합도 순</p>
+          <p className="mb-3 text-[11px] font-medium text-zinc-500">{pick(STR.candidatesHeader, lang)}</p>
           <CandidateList />
         </div>
 

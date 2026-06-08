@@ -2,14 +2,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, CalendarClock, CheckCircle2, FileDown, Loader2, Sparkles, TrendingUp, History, Lightbulb, Share2 } from 'lucide-react';
 import { CountUp } from '../../../ui/CountUp';
 import { useRenewals } from './state';
-import { RENEWALS, BRIEFING, TERMS_STATS, type RenewalCard } from './data';
+import { RENEWALS, BRIEFING, TERMS_STATS, STR, type RenewalCard } from './data';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function DDayBadge({ dday }: { dday: number | null }) {
+  const lang = useLang();
   if (dday === null) {
     return (
       <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 font-mono text-[10px] font-medium text-emerald-400">
-        <CheckCircle2 className="h-3 w-3" /> 완료
+        <CheckCircle2 className="h-3 w-3" /> {pick(STR.done, lang)}
       </span>
     );
   }
@@ -24,6 +26,7 @@ export function DDayBadge({ dday }: { dday: number | null }) {
 
 export function RenewalCardItem({ card, index }: { card: RenewalCard; index: number }) {
   const { selectedCardId, selectCard } = useRenewals();
+  const lang = useLang();
   const selected = selectedCardId === card.id;
   return (
     <motion.button
@@ -45,7 +48,7 @@ export function RenewalCardItem({ card, index }: { card: RenewalCard; index: num
         <DDayBadge dday={card.dday} />
       </div>
       <p className="mt-1 text-[10.5px] text-zinc-500">
-        {card.cedant} · {card.klass}
+        {pick(card.cedant, lang)} · {card.klass}
       </p>
       <p className="mt-0.5 flex items-center gap-1 text-[10px] text-zinc-600">
         <Building2 className="h-3 w-3" /> {card.reinsurer}
@@ -64,6 +67,7 @@ const ITEM_ICONS: Record<string, typeof Building2> = {
 /** 미팅 브리핑 패널 (선택된 갱신 건 기준) */
 export function BriefingPanel() {
   const s = useRenewals();
+  const lang = useLang();
   const card = RENEWALS.find((c) => c.id === s.selectedCardId);
   if (!card) return null;
 
@@ -73,7 +77,7 @@ export function BriefingPanel() {
         <div className="flex items-center gap-2">
           <CalendarClock className="h-4 w-4 text-brass-400" />
           <span className="text-[12.5px] font-medium text-zinc-200">
-            {card.cedant} {card.title} — 미팅 브리핑
+            {pick(card.cedant, lang)} {card.title} — {pick(STR.briefingSuffix, lang)}
           </span>
           <span className="ml-auto">
             <DDayBadge dday={card.dday} />
@@ -81,18 +85,16 @@ export function BriefingPanel() {
         </div>
       </div>
 
-      <div className="demo-scroll min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="demo-scroll demo-scroll-follow min-h-0 flex-1 overflow-y-auto p-4">
         {s.briefPhase === 'idle' ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brass-500/15 text-brass-300">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[13.5px] font-medium text-zinc-300">미팅 전 30초 브리핑</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
-                상대 프로필 · 인수 동향 · 지난 조건 · 추천 논점을
-                <br />
-                ARIA가 자동으로 정리합니다
+              <p className="text-[13.5px] font-medium text-zinc-300">{pick(STR.idleTitle, lang)}</p>
+              <p className="mt-1 whitespace-pre-line text-[11px] leading-relaxed text-zinc-500">
+                {pick(STR.idleBody, lang)}
               </p>
             </div>
             <button
@@ -100,7 +102,7 @@ export function BriefingPanel() {
               onClick={() => s.generateBriefing()}
               className="flex h-10 items-center gap-2 rounded-xl bg-brass-500 px-5 text-[13px] font-semibold text-ink-950 shadow-[0_8px_24px_-8px_rgba(192,141,82,0.6)] hover:bg-brass-400"
             >
-              <Sparkles className="h-4 w-4" /> 미팅 브리핑 생성
+              <Sparkles className="h-4 w-4" /> {pick(STR.generateBtn, lang)}
             </button>
           </div>
         ) : (
@@ -122,7 +124,7 @@ export function BriefingPanel() {
                 >
                   <div className="flex items-center gap-2">
                     <Icon className={cn('h-3.5 w-3.5', status === 'done' ? 'text-brass-400' : 'text-zinc-500')} />
-                    <p className="text-[11px] font-medium text-zinc-400">{item.title}</p>
+                    <p className="text-[11px] font-medium text-zinc-400">{pick(item.title, lang)}</p>
                     {status === 'streaming' && <Loader2 className="ml-auto h-3 w-3 animate-spin text-brass-400" />}
                     {status === 'done' && <CheckCircle2 className="ml-auto h-3.5 w-3.5 text-emerald-400" />}
                   </div>
@@ -141,16 +143,16 @@ export function BriefingPanel() {
                   {/* 지난 조건 카드: 스탯 칩 + 손해율 카운트업 */}
                   {item.id === 'terms' && status === 'done' && (
                     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-2.5 grid grid-cols-3 gap-2">
-                      {TERMS_STATS.map((st) => (
-                        <div key={st.label} className="rounded-lg bg-white/[0.04] px-2.5 py-2 text-center">
-                          <p className="text-[9.5px] text-zinc-500">{st.label}</p>
+                      {TERMS_STATS.map((stat) => (
+                        <div key={stat.label.en} className="rounded-lg bg-white/[0.04] px-2.5 py-2 text-center">
+                          <p className="text-[9.5px] text-zinc-500">{pick(stat.label, lang)}</p>
                           <p className="mt-0.5 font-mono text-[13px] font-semibold text-zinc-100">
-                            {st.countTo ? (
+                            {stat.countTo ? (
                               <>
-                                <CountUp value={st.countTo} duration={0.9} />%
+                                <CountUp value={stat.countTo} duration={0.9} />%
                               </>
                             ) : (
-                              st.value
+                              pick(stat.value, lang)
                             )}
                           </p>
                         </div>
@@ -173,7 +175,8 @@ export function BriefingPanel() {
             className="flex shrink-0 items-center gap-2 border-t border-white/[0.06] p-3.5"
           >
             <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
-              <CheckCircle2 className="h-3.5 w-3.5" /> 브리핑 완료 · 미팅까지 {card.dday !== null ? `D-${card.dday}` : '완료'}
+              <CheckCircle2 className="h-3.5 w-3.5" /> {pick(STR.briefingDonePrefix, lang)}{' '}
+              {card.dday !== null ? `D-${card.dday}` : pick(STR.done, lang)}
             </span>
             <button className="ml-auto flex h-8 items-center gap-1.5 rounded-lg bg-brass-500 px-3 text-[11.5px] font-semibold text-ink-950 shadow-[0_6px_20px_-6px_rgba(192,141,82,0.6)]">
               <FileDown className="h-3.5 w-3.5" /> PDF

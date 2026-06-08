@@ -3,11 +3,14 @@ import { Sparkles } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { SourcePanel, SummaryPanel } from './panels';
 import { useSummary } from './state';
+import { STR } from './data';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 export function Mobile(_: DemoComponentProps) {
   const [tab, setTab] = useState<'summary' | 'source'>('summary');
   const phase = useSummary((s) => s.phase);
+  const lang = useLang();
 
   // 생성 시작 시 요약 탭 유지, 리셋 시 요약 탭으로
   useEffect(() => {
@@ -20,7 +23,7 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-brass-500/90 text-ink-950">
           <Sparkles className="h-3.5 w-3.5" />
         </div>
-        <h2 className="text-[13px] font-semibold text-zinc-100">리스크 요약·번역</h2>
+        <h2 className="text-[13px] font-semibold text-zinc-100">{pick(STR.headerTitle, lang)}</h2>
         {/* 탭 토글 */}
         <div className="ml-auto flex rounded-full border border-white/10 bg-white/[0.04] p-0.5">
           {(['summary', 'source'] as const).map((t) => (
@@ -32,7 +35,7 @@ export function Mobile(_: DemoComponentProps) {
                 tab === t ? 'bg-white/[0.12] text-zinc-100' : 'text-zinc-500',
               )}
             >
-              {t === 'summary' ? '요약' : '원문'}
+              {t === 'summary' ? pick(STR.tabSummary, lang) : pick(STR.tabSource, lang)}
             </button>
           ))}
         </div>

@@ -15,8 +15,11 @@ import { cn } from '../lib/cn';
 export function Stage({ feature, variant }: { feature: FeatureDefinition; variant: DemoVariant }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const { device, phoneFrame, browserChrome } = useShellStore();
+  const projectLang = useShellStore((s) => s.projectLang);
   const { play, stop } = usePlayback();
   const status = usePlaybackStore((s) => s.status);
+  // 언어 전환도 변형 전환처럼 정지+리셋 트리거 (문자열 객체라 JSON으로 비교)
+  const langKey = JSON.stringify(projectLang);
 
   const handlePlay = useCallback(() => {
     void play(variant.scenario, feature.resetState);
@@ -27,11 +30,11 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     feature.resetState();
   }, [stop, feature]);
 
-  // 변형/디바이스 전환 시 정지 + 리셋
+  // 변형/디바이스/언어 전환 시 정지 + 리셋
   useEffect(() => {
     stop();
     feature.resetState();
-  }, [variant.id, device, stop, feature]);
+  }, [variant.id, device, langKey, stop, feature]);
 
   // 키보드 단축키 (입력 필드 포커스 시 무시)
   useEffect(() => {
@@ -124,7 +127,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
               )}
               style={{ height: 'min(82vh, 780px)', aspectRatio: '9 / 19.2' }}
             >
-              {browserChrome && <BrowserChrome url={url} device="mobile" />}
+              {/* 모바일은 네이티브 앱 화면이므로 주소창(BrowserChrome) 비표시 */}
               <div className="relative min-h-0 flex-1">
                 <Comp device="mobile" />
               </div>

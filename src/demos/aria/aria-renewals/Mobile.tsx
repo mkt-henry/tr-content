@@ -2,11 +2,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarClock, X } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useRenewals } from './state';
-import { RENEWALS, STAGES } from './data';
+import { RENEWALS, STAGES, STR } from './data';
+import { fmt, pick, useLang } from '../_shared/i18n';
 import { RenewalCardItem, BriefingPanel } from './widgets';
 
 export function Mobile(_: DemoComponentProps) {
   const { selectedCardId, selectCard } = useRenewals();
+  const lang = useLang();
 
   return (
     <div className="relative flex h-full flex-col bg-[#111014] text-zinc-200">
@@ -15,8 +17,8 @@ export function Mobile(_: DemoComponentProps) {
           <CalendarClock className="h-3.5 w-3.5" />
         </div>
         <div>
-          <h2 className="text-[13px] font-semibold text-zinc-100">갱신 파이프라인</h2>
-          <p className="text-[9.5px] text-zinc-500">2026 1/1 갱신 시즌 · {RENEWALS.length}건</p>
+          <h2 className="text-[13px] font-semibold text-zinc-100">{pick(STR.appTitle, lang)}</h2>
+          <p className="text-[9.5px] text-zinc-500">{fmt(pick(STR.seasonMobile, lang), { n: RENEWALS.length })}</p>
         </div>
       </header>
 
@@ -27,7 +29,7 @@ export function Mobile(_: DemoComponentProps) {
           return (
             <div key={stage.id}>
               <div className="mb-2 flex items-center gap-2">
-                <span className="text-[11px] font-medium text-zinc-400">{stage.label}</span>
+                <span className="text-[11px] font-medium text-zinc-400">{pick(stage.label, lang)}</span>
                 <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9.5px] text-zinc-500">
                   {cards.length}
                 </span>

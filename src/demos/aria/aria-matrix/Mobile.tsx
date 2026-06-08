@@ -3,13 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, FileText, Grid3X3, Loader2, Plus } from 'lucide-react';
 import type { DemoComponentProps } from '../../../registry/types';
 import { useMatrix, key } from './state';
-import { DOCUMENTS, COLUMNS, CELLS } from './data';
+import { DOCUMENTS, COLUMNS, CELLS, STR, addColumnLabel } from './data';
 import { CitationBadge, SnippetText } from '../../../ui/Citation';
+import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 /** 모바일: 행렬 대신 문서별 아코디언 카드 */
 export function Mobile(_: DemoComponentProps) {
   const m = useMatrix();
+  const lang = useLang();
   const [openDoc, setOpenDoc] = useState<string | null>(DOCUMENTS[0].id);
   const nextCol = COLUMNS.find((c) => c.id === m.nextColumn());
 
@@ -19,7 +21,7 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-brass-500/90 text-ink-950">
           <Grid3X3 className="h-3.5 w-3.5" />
         </div>
-        <h2 className="text-[13px] font-semibold text-zinc-100">문서 비교 Matrix</h2>
+        <h2 className="text-[13px] font-semibold text-zinc-100">{pick(STR.appTitle, lang)}</h2>
       </header>
 
       <div className="demo-scroll min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
@@ -48,7 +50,7 @@ export function Mobile(_: DemoComponentProps) {
                   >
                     <div className="space-y-2 border-t border-white/[0.06] px-3.5 py-3">
                       {m.activeColumns.length === 0 && (
-                        <p className="text-[11px] text-zinc-600">열을 추가하면 ARIA가 자동 추출합니다</p>
+                        <p className="text-[11px] text-zinc-600">{pick(STR.emptyHint, lang)}</p>
                       )}
                       {m.activeColumns.map((colId) => {
                         const status = m.cellStatus[key(doc.id, colId)] ?? 'empty';
@@ -58,7 +60,10 @@ export function Mobile(_: DemoComponentProps) {
                           <div key={colId}>
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-[10.5px] text-zinc-500">
-                                {COLUMNS.find((c) => c.id === colId)?.label}
+                                {(() => {
+                                  const col = COLUMNS.find((c) => c.id === colId);
+                                  return col ? pick(col.label, lang) : null;
+                                })()}
                               </span>
                               {status === 'extracting' && <Loader2 className="h-3 w-3 animate-spin text-brass-400" />}
                               {status === 'done' && cell && (
@@ -68,7 +73,7 @@ export function Mobile(_: DemoComponentProps) {
                                     onClick={() => (popped ? m.closePopover() : m.openPopover(doc.id, colId))}
                                     className="text-[12px] font-medium text-zinc-100"
                                   >
-                                    {cell.value}
+                                    {pick(cell.value, lang)}
                                   </button>
                                   <CitationBadge
                                     label={`[${cell.citation}]`}
@@ -115,7 +120,7 @@ export function Mobile(_: DemoComponentProps) {
           )}
         >
           <Plus className="h-4 w-4" />
-          {nextCol ? `열 추가: ${nextCol.label}` : '모든 열 추가됨'}
+          {nextCol ? addColumnLabel(lang, pick(nextCol.label, lang)) : pick(STR.allColumnsAdded, lang)}
         </button>
       </div>
     </div>
