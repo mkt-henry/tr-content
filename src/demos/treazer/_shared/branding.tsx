@@ -12,16 +12,6 @@ function DarkWordmark({ className }: { className?: string }) {
   );
 }
 
-/** 우상향 금 시세 라인 — 가로/세로 프레임에 맞는 기하 */
-const LINE_LANDSCAPE = {
-  viewBox: '0 0 320 180',
-  d: 'M0 158 L60 135 L110 142 L160 98 L210 106 L260 60 L320 22',
-};
-const LINE_PORTRAIT = {
-  viewBox: '0 0 180 320',
-  d: 'M12 300 L45 250 L75 262 L100 175 L125 192 L155 92 L170 28',
-};
-
 /** 인트로(~2.5s): 그라디언트 배경 + 중앙 로고 페이드인 (무난한 브랜드 인트로) */
 function TreazerIntro() {
   return (
@@ -55,25 +45,13 @@ function TreazerIntro() {
   );
 }
 
-/** 아웃트로(~3s): 시세 라인 배경 + 로고·태그 + treazer.app CTA */
-function TreazerOutro({ portrait = false }: { portrait?: boolean }) {
-  const line = portrait ? LINE_PORTRAIT : LINE_LANDSCAPE;
+/** 아웃트로(~3s): 그라디언트 배경 + 로고·태그 + treazer.app CTA */
+function TreazerOutro() {
   return (
     <div
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
-      <svg className="absolute inset-0 h-full w-full opacity-20" viewBox={line.viewBox} preserveAspectRatio="none">
-        <motion.path
-          d={line.d}
-          fill="none"
-          stroke="#f97316"
-          strokeWidth={2.5}
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.1, ease: 'easeInOut' }}
-        />
-      </svg>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
