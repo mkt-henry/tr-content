@@ -11,20 +11,22 @@ import { FakeCursor } from './FakeCursor';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
 import { cn } from '../lib/cn';
-import { getProjectIdOfFeature } from '../registry';
+import { getProjectIdOfFeature, getProject } from '../registry';
 import { getBranding } from '../branding';
 import { BrandOverlay } from './BrandOverlay';
 
 /** 시연 무대: 배경 → 디바이스/브라우저 프레임 → 데모 → 컨트롤 바 → 가짜 커서 */
 export function Stage({ feature, variant }: { feature: FeatureDefinition; variant: DemoVariant }) {
   const stageRef = useRef<HTMLDivElement>(null);
-  const { device, phoneFrame, browserChrome } = useShellStore();
+  const { device: rawDevice, phoneFrame, browserChrome } = useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
   const { play, stop } = usePlayback();
   const status = usePlaybackStore((s) => s.status);
   const includeBranding = useShellStore((s) => s.includeBranding);
   const projectId = getProjectIdOfFeature(feature.id);
   const branding = getBranding(projectId);
+  const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
+  const device = mobileOnly ? 'mobile' : rawDevice;
   const { recording, countdown, supported: canRecord, recordSequence } = useRecorder();
   const lang = projectId ? projectLang[projectId] : undefined;
   const recFilename = [projectId, variant.id, lang].filter(Boolean).join('-') + '.webm';
@@ -135,7 +137,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           break;
         case 'd':
         case 'D':
-          shell.toggleDevice();
+          if (!mobileOnly) shell.toggleDevice();
           break;
         case 'b':
         case 'B':
@@ -143,13 +145,13 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           break;
         case 'p':
         case 'P':
-          if (shell.device === 'mobile') shell.togglePhoneFrame();
+          if (mobileOnly || shell.device === 'mobile') shell.togglePhoneFrame();
           break;
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handlePlay, handleReset, handleStop]);
+  }, [handlePlay, handleReset, handleStop, mobileOnly]);
 
   // 언마운트 시 진행 중 시퀀스 정리
   useEffect(() => () => cancelSequence(), [cancelSequence]);
