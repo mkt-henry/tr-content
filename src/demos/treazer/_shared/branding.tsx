@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
+import { cn } from '../../../lib/cn';
 import type { ProjectBranding } from '../../../branding/types';
 import { Coin, TZ_BACKGROUND } from './ui';
 
 /** 다크 배경용 Treazer 워드마크 (ui.tsx Wordmark는 다크 텍스트라 별도) */
 function DarkWordmark({ className }: { className?: string }) {
   return (
-    <span className={`font-bold tracking-tight text-white ${className ?? ''}`}>
+    <span className={cn('font-bold tracking-tight text-white', className)}>
       Treazer<span className="text-orange-500">.</span>
     </span>
   );
