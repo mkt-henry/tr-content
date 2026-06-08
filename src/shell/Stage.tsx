@@ -29,6 +29,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const [seqPhase, setSeqPhase] = useState<'intro' | 'outro' | null>(null);
   const phaseResolve = useRef<(() => void) | null>(null);
   const runningRef = useRef(false);
+  const runIdRef = useRef(0);
 
   /** seqPhase를 설정하고 BrandOverlay onDone에서 resolve되는 Promise */
   const phase = useCallback(
@@ -49,6 +50,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
 
   /** 진행 중 시퀀스 취소 — pending phase resolver 정리 + 오버레이 제거 */
   const cancelSequence = useCallback(() => {
+    runIdRef.current++;          // 진행 중 체인 무효화 (stale continuation 차단)
     runningRef.current = false;
     if (phaseResolve.current) {
       const r = phaseResolve.current;
@@ -63,19 +65,20 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const handlePlay = useCallback(async () => {
     if (runningRef.current) return; // 시퀀스 진행 중 재진입 방지
     runningRef.current = true;
+    const myId = ++runIdRef.current; // 이 체인의 세대
     const useBranding = includeBranding && !!branding;
     try {
       if (useBranding && branding) {
         await phase('intro');
-        if (!runningRef.current) return; // 중단됨
+        if (runIdRef.current !== myId) return; // 취소/재시작됨
       }
       await play(variant.scenario, feature.resetState);
-      if (!runningRef.current) return; // 데모 중 중단됨
+      if (runIdRef.current !== myId) return; // 데모 중 취소됨
       if (useBranding && branding) {
         await phase('outro');
       }
     } finally {
-      runningRef.current = false;
+      if (runIdRef.current === myId) runningRef.current = false; // 내 세대일 때만 해제
     }
   }, [play, variant, feature, includeBranding, branding, phase]);
 
@@ -134,6 +137,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [handlePlay, handleReset, handleStop]);
+
+  // 언마운트 시 진행 중 시퀀스 정리
+  useEffect(() => () => cancelSequence(), [cancelSequence]);
 
   // 재생 중 사용자가 데모를 직접 조작하면 자동 재생 중단 → 그 상태 그대로 수동 전환
   const intervene = useCallback(() => {
