@@ -71,7 +71,7 @@ function CandleChartSvg({ series }: { series: Candle[] }) {
 }
 
 export function GoldPriceScreen() {
-  const { gold, goldPrice, avgCost, chartMode, period, closePrice, setChartMode, setPeriod } =
+  const { gold, goldPrice, avgCost, chartMode, period, closePrice, setChartMode, setPeriod, tick } =
     useGoldStore();
   const lang = useLang();
   const cur = CURRENCY[lang];
@@ -119,7 +119,7 @@ export function GoldPriceScreen() {
             <span className="text-[22px] font-bold tabular-nums">{gold.toLocaleString('en-US')}</span>
           </div>
           <motion.p
-            key={Math.round(v.value * 100)}
+            key={tick}
             initial={{ opacity: 0.5 }}
             animate={{ opacity: 1 }}
             className="mt-0.5 text-[13px] text-zinc-400"
@@ -137,7 +137,7 @@ export function GoldPriceScreen() {
             <span className="flex items-center gap-1.5 text-emerald-400">
               <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
               <motion.span
-                key={Math.round(v.ret * 1000)}
+                key={tick}
                 initial={{ y: 4, opacity: 0.5 }}
                 animate={{ y: 0, opacity: 1 }}
                 className="text-[18px] font-bold tabular-nums"
@@ -248,7 +248,7 @@ export function GoldPriceScreen() {
           <div className="mt-3 rounded-xl bg-white px-3.5 py-2.5">
             <p className="text-[11px] text-zinc-400">{pick(STR.conversionRate, lang)}</p>
             <p className="mt-0.5 text-[14px] font-bold text-orange-500">
-              1 GOLD = {money(cur.perGold, cur)}
+              1,000 GOLD = {money(1000 * cur.perGold, cur)}
             </p>
           </div>
         </div>
