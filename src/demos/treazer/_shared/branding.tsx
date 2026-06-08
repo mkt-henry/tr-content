@@ -22,50 +22,43 @@ const LINE_PORTRAIT = {
   d: 'M12 300 L45 250 L75 262 L100 175 L125 192 L155 92 L170 28',
 };
 
-/** 인트로(~2.5s): 시세 라인 → 코인 → 워드마크 → 태그라인 */
-function TreazerIntro({ portrait = false }: { portrait?: boolean }) {
-  const line = portrait ? LINE_PORTRAIT : LINE_LANDSCAPE;
+/** 인트로(~2.5s): 그라디언트 배경 + 중앙 로고 페이드인 (무난한 브랜드 인트로) */
+function TreazerIntro() {
   return (
     <div
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
-      <svg className="absolute inset-0 h-full w-full" viewBox={line.viewBox} preserveAspectRatio="none">
-        <motion.path
-          d={line.d}
-          fill="none"
-          stroke="#f97316"
-          strokeWidth={2.5}
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.0, ease: 'easeInOut' }}
-        />
-      </svg>
-      <div className="relative z-10 flex flex-col items-center text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col items-center text-center"
+      >
         <motion.div
-          initial={{ scale: 0, rotate: -90, opacity: 0 }}
-          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-          transition={{ delay: 0.95, type: 'spring', stiffness: 220, damping: 14 }}
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 16 }}
         >
-          <Coin className="h-14 w-14 text-[28px]" />
+          <Coin className="h-16 w-16 text-[32px]" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.35, duration: 0.5 }}
-          className="mt-4"
+          transition={{ delay: 0.55, duration: 0.5 }}
+          className="mt-5"
         >
-          <DarkWordmark className="text-[40px]" />
+          <DarkWordmark className="text-[44px]" />
         </motion.div>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.75, duration: 0.5 }}
+          transition={{ delay: 0.9, duration: 0.5 }}
           className="mt-2 text-[13px] font-medium tracking-[0.15em] text-amber-300/80"
         >
           LEARN &amp; EARN GOLD
         </motion.p>
-      </div>
+      </motion.div>
     </div>
   );
 }
