@@ -27,7 +27,7 @@
 ```
 
 - **인트로/아웃트로 포함 옵션 = 기존 `includeBranding` 토글 재사용**(DRY). 녹화 전에 토글로 선택.
-- **녹화 중 상태**: 빨간 점 + "REC" 인디케이터(컨트롤바 영역). 녹화 중 다른 컨트롤 비활성.
+- **녹화 중 UI**: 깨끗한 영상을 위해 **녹화 구간에는 컨트롤 바를 숨긴다**(컨트롤바 영역에 REC 점을 두면 영상에 찍히므로 별도 in-video 인디케이터를 두지 않음). 녹화 상태 피드백은 ① 녹화 시작 직전 3·2·1 카운트다운, ② 브라우저 네이티브 "이 탭을 공유 중" 인디케이터로 제공한다.
 - **정지**: 녹화 중 Stop → 시퀀스 취소 → `handlePlay` resolve → 그때까지 분량으로 정지·다운로드.
 - **파일명**: `<project>-<variant>-<lang>.webm` (예: `treazer-real-gold-en.webm`). lang 없으면 생략.
 - **포맷**: `video/webm` (vp9 우선, vp8, webm 순 폴백). 무음(데모는 오디오 없음).
@@ -53,8 +53,8 @@
 ### 수정
 
 - `src/lib/fullscreen.ts` — 기존 `toggleFullscreen` 유지 + `enterFullscreen(el)`/`exitFullscreen()` 추가(이미 전체화면이면 no-op).
-- `src/shell/ControlBar.tsx` — `녹화` 버튼(lucide `Video`/`Circle`, `supported`일 때만 노출, `recording`/`playing` 중 비활성). 녹화 중에는 빨간 점 + "REC" 인디케이터. 신규 props: `recording`, `onRecord`, `canRecord`.
-- `src/shell/Stage.tsx` — `useRecorder()` 사용. `handleRecord()` = `recordSequence({ stageEl: stageRef.current, filename, runSequence: () => handlePlay() })`. `countdown`이 있으면 풀스테이지 카운트다운 오버레이 렌더. ControlBar에 `recording`/`onRecord`/`canRecord` 전달.
+- `src/shell/ControlBar.tsx` — `녹화` 버튼(lucide `Video`, `canRecord`(=supported)일 때만 노출, `playing` 중 비활성). 신규 props: `onRecord`, `canRecord`. (녹화 중에는 Stage가 컨트롤바 자체를 미렌더하므로 in-bar REC 인디케이터는 두지 않는다.)
+- `src/shell/Stage.tsx` — `useRecorder()` 사용. `handleRecord()` = (진행 중 시퀀스 가드) `recordSequence({ stageEl: stageRef.current, filename, runSequence: () => handlePlay() })`. `countdown`이 있으면 풀스테이지 카운트다운 오버레이 렌더. **녹화 중에는 컨트롤 바를 미렌더(`{!recording && <ControlBar/>}`) — 정지는 Space 키.**
 
 ### 오케스트레이션 재사용
 
