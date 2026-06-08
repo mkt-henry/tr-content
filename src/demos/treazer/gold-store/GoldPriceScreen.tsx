@@ -7,6 +7,7 @@ import { pick, useLang } from '../_shared/i18n';
 import {
   CURRENCY,
   PERIODS,
+  PERIOD_CHANGE,
   STR,
   makeSeries,
   money,
@@ -79,10 +80,8 @@ export function GoldPriceScreen() {
   const v = valuation(gold, goldPrice, avgCost, cur);
   const series = useMemo(() => makeSeries(period), [period]);
 
-  // 차트 등락(%) — 첫 시가 대비 마지막 종가
-  const change = series.length
-    ? (series[series.length - 1].c - series[0].o) / series[0].o
-    : 0;
+  // 차트 등락(%) — 기간별 현실적 우상향 수치(차트 형태와 분리, 신뢰감 유지)
+  const change = PERIOD_CHANGE[period];
 
   // Today's OHLC — 현재 시세(spot) 기준 고정 배수로 근사 (정적 표시)
   const stats = [

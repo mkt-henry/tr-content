@@ -278,6 +278,19 @@ export const PERIODS: { id: Period; label: string }[] = [
   { id: 'all', label: 'ALL' },
 ];
 
+/**
+ * 기간별 등락 표시값(%) — 차트 위 배지에 쓴다.
+ * 차트 시각 형태는 정규화 시계열(makeSeries)로 그리지만, 배지 %는 별도로
+ * 실제 금값에 가까운 현실적 우상향 수치를 보여준다(정규화 first→last를 그대로 쓰면 과장됨).
+ */
+export const PERIOD_CHANGE: Record<Period, number> = {
+  now: 0.0072,
+  '1m': 0.024,
+  '5m': 0.068,
+  '1y': 0.142,
+  all: 0.381,
+};
+
 /** 결정적 의사난수(mulberry32) — 시드 고정으로 매 렌더마다 같은 차트를 보장(자동재생 안정성) */
 function mulberry32(seed: number): () => number {
   let s = seed;
