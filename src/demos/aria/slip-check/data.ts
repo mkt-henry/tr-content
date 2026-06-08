@@ -153,7 +153,6 @@ export const STR = {
   checkBtn: { ko: '정합성 검사', en: 'Run consistency check' },
   checking: { ko: '대조 중…', en: 'Checking…' },
   checkDone: { ko: '검사 완료', en: 'Checked' },
-  awaiting: { ko: '정합성 검사를 실행하세요', en: 'Run the consistency check' },
   findingsTitle: { ko: '검사 결과', en: 'Findings' },
   sumTotal: { ko: '{n}개 조항', en: '{n} clauses' },
   sumMatch: { ko: '일치 {n}', en: '{n} match' },
@@ -166,8 +165,6 @@ export const STR = {
   reportBadge: { ko: '검토 완료 — 체결 가능', en: 'Review complete — ready to bind' },
   toast: { ko: '수정안 {n}건이 워딩에 반영되었습니다', en: '{n} fixes applied to the wording' },
   toastSub: { ko: '체결 전 최종 검토본으로 내보낼 수 있습니다', en: 'Exportable as the pre-bind final draft' },
-  slipQuote: { ko: '슬립', en: 'Slip' },
-  wordingQuote: { ko: '워딩', en: 'Wording' },
   missingInWording: { ko: '(워딩에 해당 문구 없음)', en: '(no corresponding clause in wording)' },
 } satisfies Record<string, L>;
 
