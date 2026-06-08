@@ -67,7 +67,7 @@ export function DocPanel({ side }: { side: 'slip' | 'wording' }) {
               {/* 본문 */}
               {side === 'wording' && c.wordingText === '' ? (
                 <p className="text-[11px] italic leading-relaxed text-zinc-600">{pick(STR.missingInWording, lang)}</p>
-              ) : applied && c.fix ? (
+              ) : side === 'wording' && applied && c.fix ? (
                 <p className="text-[11.5px] leading-relaxed text-zinc-300">
                   <span className="text-rose-400/70 line-through decoration-rose-500/50">{c.fix.from}</span>{' '}
                   <motion.span
