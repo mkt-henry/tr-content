@@ -22,6 +22,9 @@ interface ShellState {
   toggleDevice: () => void;
   togglePhoneFrame: () => void;
   toggleBrowserChrome: () => void;
+  /** 인트로/아웃트로 포함 여부 (브랜딩 정의된 프로젝트에서만 의미) */
+  includeBranding: boolean;
+  toggleBranding: () => void;
 }
 
 export const useShellStore = create<ShellState>((set) => ({
@@ -32,6 +35,7 @@ export const useShellStore = create<ShellState>((set) => ({
   device: 'desktop',
   phoneFrame: true,
   browserChrome: true,
+  includeBranding: false,
   setProject: (projectId) => set({ projectId }),
   setProjectLang: (projectId, lang) =>
     set((s) => ({ projectLang: { ...s.projectLang, [projectId]: lang } })),
@@ -41,4 +45,5 @@ export const useShellStore = create<ShellState>((set) => ({
   toggleDevice: () => set((s) => ({ device: s.device === 'desktop' ? 'mobile' : 'desktop' })),
   togglePhoneFrame: () => set((s) => ({ phoneFrame: !s.phoneFrame })),
   toggleBrowserChrome: () => set((s) => ({ browserChrome: !s.browserChrome })),
+  toggleBranding: () => set((s) => ({ includeBranding: !s.includeBranding })),
 }));

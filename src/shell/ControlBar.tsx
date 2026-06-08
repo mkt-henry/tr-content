@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  Clapperboard,
   Frame,
   Maximize,
   Monitor,
@@ -12,6 +13,7 @@ import {
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
 import type { PlaybackStatus } from '../engine/playbackStore';
 import { getProjectIdOfFeature, getProject } from '../registry';
+import { getBranding } from '../branding';
 import { useShellStore } from '../store/shellStore';
 import { cn } from '../lib/cn';
 
@@ -37,6 +39,10 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
   const projectId = getProjectIdOfFeature(feature.id);
   const languages = projectId ? getProject(projectId)?.languages : undefined;
   const lang = projectId ? (projectLang[projectId] ?? languages?.[0]?.id) : undefined;
+
+  const includeBranding = useShellStore((s) => s.includeBranding);
+  const toggleBranding = useShellStore((s) => s.toggleBranding);
+  const hasBranding = !!getBranding(projectId);
 
   return (
     <div
@@ -97,6 +103,12 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
         <BarButton onClick={onReset} label="리셋 (R)">
           <RotateCcw className="h-4 w-4" />
         </BarButton>
+
+        {hasBranding && (
+          <BarButton onClick={toggleBranding} label="인트로/아웃트로" active={includeBranding}>
+            <Clapperboard className="h-4 w-4" />
+          </BarButton>
+        )}
 
         <Divider />
 
