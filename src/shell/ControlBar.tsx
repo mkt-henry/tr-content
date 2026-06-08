@@ -9,6 +9,7 @@ import {
   Smartphone,
   PanelTop,
   Square,
+  Video,
 } from 'lucide-react';
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
 import type { PlaybackStatus } from '../engine/playbackStore';
@@ -25,10 +26,12 @@ interface ControlBarProps {
   onStop: () => void;
   onReset: () => void;
   onFullscreen: () => void;
+  onRecord: () => void;
+  canRecord: boolean;
 }
 
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
-export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen }: ControlBarProps) {
+export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
   const { device, phoneFrame, browserChrome, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
@@ -110,6 +113,12 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
           </BarButton>
         )}
 
+        {canRecord && (
+          <BarButton onClick={onRecord} label="녹화 (전체화면)" disabled={playing}>
+            <Video className="h-4 w-4 text-red-400" />
+          </BarButton>
+        )}
+
         <Divider />
 
         <BarButton onClick={toggleDevice} label={device === 'desktop' ? '모바일로 (D)' : '데스크탑으로 (D)'}>
@@ -143,12 +152,14 @@ function BarButton({
   label,
   active,
   highlight,
+  disabled,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   label: string;
   active?: boolean;
   highlight?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -156,10 +167,12 @@ function BarButton({
       onClick={onClick}
       title={label}
       aria-label={label}
+      disabled={disabled}
       className={cn(
         'flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-zinc-100',
         active && 'bg-white/[0.08] text-brass-300',
         highlight && 'bg-brass-500/20 text-brass-300 hover:bg-brass-500/30',
+        disabled && 'pointer-events-none opacity-40',
       )}
     >
       {children}
