@@ -9,6 +9,7 @@ import { BrowserChrome } from './BrowserChrome';
 import { ControlBar } from './ControlBar';
 import { FakeCursor } from './FakeCursor';
 import { toggleFullscreen } from '../lib/fullscreen';
+import { useRecorder } from './useRecorder';
 import { cn } from '../lib/cn';
 import { getProjectIdOfFeature } from '../registry';
 import { getBranding } from '../branding';
@@ -24,6 +25,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const includeBranding = useShellStore((s) => s.includeBranding);
   const projectId = getProjectIdOfFeature(feature.id);
   const branding = getBranding(projectId);
+  const { recording, countdown, supported: canRecord, recordSequence } = useRecorder();
+  const lang = projectId ? projectLang[projectId] : undefined;
+  const recFilename = [projectId, variant.id, lang].filter(Boolean).join('-') + '.webm';
 
   // 인트로/아웃트로 시퀀스 상태
   const [seqPhase, setSeqPhase] = useState<'intro' | 'outro' | null>(null);
@@ -92,6 +96,15 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     stop();
     feature.resetState();
   }, [cancelSequence, stop, feature]);
+
+  const handleRecord = useCallback(() => {
+    if (runningRef.current) return; // 진행 중 시퀀스가 있으면 빈 녹화 방지
+    void recordSequence({
+      stageEl: stageRef.current,
+      filename: recFilename,
+      runSequence: () => handlePlay(),
+    });
+  }, [recordSequence, recFilename, handlePlay]);
 
   // 변형/디바이스/언어 전환 시 정지 + 리셋
   useEffect(() => {
@@ -206,15 +219,19 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
         )}
       </div>
 
-      <ControlBar
-        feature={feature}
-        variant={variant}
-        status={status}
-        onPlay={handlePlay}
-        onStop={handleStop}
-        onReset={handleReset}
-        onFullscreen={() => stageRef.current && toggleFullscreen(stageRef.current)}
-      />
+      {!recording && (
+        <ControlBar
+          feature={feature}
+          variant={variant}
+          status={status}
+          onPlay={handlePlay}
+          onStop={handleStop}
+          onReset={handleReset}
+          onFullscreen={() => stageRef.current && toggleFullscreen(stageRef.current)}
+          onRecord={handleRecord}
+          canRecord={canRecord}
+        />
+      )}
 
       <AnimatePresence>
         {seqPhase && branding && (
@@ -224,6 +241,27 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             durationMs={seqPhase === 'intro' ? branding.introMs : branding.outroMs}
             onDone={onPhaseDone}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {countdown !== null && (
+          <motion.div
+            key="rec-countdown"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-40 flex items-center justify-center bg-black/70"
+          >
+            <motion.span
+              key={countdown}
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-[120px] font-bold tabular-nums text-white"
+            >
+              {countdown}
+            </motion.span>
+          </motion.div>
         )}
       </AnimatePresence>
 
