@@ -42,6 +42,8 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
   const projectId = getProjectIdOfFeature(feature.id);
   const languages = projectId ? getProject(projectId)?.languages : undefined;
   const lang = projectId ? (projectLang[projectId] ?? languages?.[0]?.id) : undefined;
+  const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
+  const effDevice = mobileOnly ? 'mobile' : device;
 
   const includeBranding = useShellStore((s) => s.includeBranding);
   const toggleBranding = useShellStore((s) => s.toggleBranding);
@@ -121,15 +123,17 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
 
         <Divider />
 
-        <BarButton onClick={toggleDevice} label={device === 'desktop' ? '모바일로 (D)' : '데스크탑으로 (D)'}>
-          {device === 'desktop' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
-        </BarButton>
-        {device === 'mobile' && (
+        {!mobileOnly && (
+          <BarButton onClick={toggleDevice} label={effDevice === 'desktop' ? '모바일로 (D)' : '데스크탑으로 (D)'}>
+            {effDevice === 'desktop' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+          </BarButton>
+        )}
+        {effDevice === 'mobile' && (
           <BarButton onClick={togglePhoneFrame} label="폰 프레임 (P)" active={phoneFrame}>
             <Frame className="h-4 w-4" />
           </BarButton>
         )}
-        {device === 'desktop' && (
+        {effDevice === 'desktop' && (
           <BarButton onClick={toggleBrowserChrome} label="브라우저 프레임 (B)" active={browserChrome}>
             <PanelTop className="h-4 w-4" />
           </BarButton>
