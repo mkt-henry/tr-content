@@ -2,7 +2,7 @@ import { ArrowDownRight, ArrowUpRight, Coins, LineChart, Wallet } from 'lucide-r
 import type { DemoComponentProps } from '../../../registry/types';
 import { Coin } from '../_shared/ui';
 import { useLang } from '../_shared/i18n';
-import { CURRENCY, money } from './data';
+import { CURRENCY, INITIAL_GOLD_PRICE, money, spotPerGram } from './data';
 import { useGoldStore } from './state';
 import { AppScreens } from './screens';
 
@@ -11,6 +11,7 @@ export function Desktop(_: DemoComponentProps) {
   const { gold, goldPrice, trend } = useGoldStore();
   const lang = useLang();
   const cur = CURRENCY[lang];
+  const spot = spotPerGram(cur) * (goldPrice / INITIAL_GOLD_PRICE);
   const Arrow = trend === 'down' ? ArrowDownRight : ArrowUpRight;
   const arrowColor = trend === 'down' ? 'text-red-400' : 'text-emerald-400';
 
@@ -54,7 +55,7 @@ export function Desktop(_: DemoComponentProps) {
               <span className="text-[11px]">현재 시세</span>
             </div>
             <p className="mt-1.5 flex items-center gap-1 text-[20px] font-bold tabular-nums text-zinc-100">
-              ₩{goldPrice.toLocaleString('en-US')}
+              {money(Math.round(spot), cur)}/g
               <Arrow className={`h-4 w-4 ${arrowColor}`} strokeWidth={2.5} />
             </p>
           </div>

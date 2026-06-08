@@ -185,6 +185,42 @@ export const STR = {
     vi: 'Vàng của bạn đã được trừ.',
     th: 'หักทองของคุณแล้ว',
   },
+  goldPrice: { en: 'Gold Price', ja: 'ゴールド価格', vi: 'Giá vàng', th: 'ราคาทอง' },
+  myValuation: {
+    en: 'My Gold Value',
+    ja: '保有ゴールド評価額',
+    vi: 'Giá trị vàng của tôi',
+    th: 'มูลค่าทองของฉัน',
+  },
+  sinceBought: {
+    en: 'Since you started collecting',
+    ja: '貯め始めてから',
+    vi: 'Kể từ khi bắt đầu tích lũy',
+    th: 'นับตั้งแต่เริ่มสะสม',
+  },
+  perGram: { en: '/g', ja: '/g', vi: '/g', th: '/g' },
+  todaysOpen: { en: "Today's Open", ja: '始値', vi: 'Giá mở cửa', th: 'ราคาเปิด' },
+  todaysHigh: { en: "Today's High", ja: '高値', vi: 'Giá cao nhất', th: 'ราคาสูงสุด' },
+  todaysLow: { en: "Today's Low", ja: '安値', vi: 'Giá thấp nhất', th: 'ราคาต่ำสุด' },
+  todaysClose: { en: "Today's Close", ja: '終値', vi: 'Giá đóng cửa', th: 'ราคาปิด' },
+  aboutTitle: {
+    en: 'About Gold Pricing',
+    ja: 'ゴールド価格について',
+    vi: 'Về giá vàng',
+    th: 'เกี่ยวกับราคาทอง',
+  },
+  aboutBody: {
+    en: 'Your GOLD rewards are linked to international gold prices. As the gold market moves, the value of the GOLD you have collected moves with it.',
+    ja: 'あなたのGOLDは国際的な金相場に連動します。相場が動けば、貯めてきたGOLDの価値も一緒に動きます。',
+    vi: 'Phần thưởng GOLD của bạn được liên kết với giá vàng quốc tế. Khi thị trường vàng biến động, giá trị số GOLD bạn đã tích lũy cũng thay đổi theo.',
+    th: 'รางวัล GOLD ของคุณเชื่อมโยงกับราคาทองสากล เมื่อตลาดทองเคลื่อนไหว มูลค่า GOLD ที่คุณสะสมไว้ก็เปลี่ยนตามไปด้วย',
+  },
+  conversionRate: {
+    en: 'Current Conversion Rate',
+    ja: '現在の換算レート',
+    vi: 'Tỷ giá quy đổi hiện tại',
+    th: 'อัตราแปลงปัจจุบัน',
+  },
 } satisfies Record<string, L>;
 
 /** 통화 금액 포맷 — 심볼 + 로케일 천 단위 구분 + 소수 자릿수 */
@@ -206,3 +242,91 @@ export const GOLD_GRAMS_PER_UNIT = 0.00040385 / 8077;
 
 /** 데모 시작 시 금 시세 (₩/g) — 미니 티커가 이 값을 중심으로 미세 변동 */
 export const INITIAL_GOLD_PRICE = 152_400;
+
+/**
+ * 평균 매입 시세 (추상 인덱스, INITIAL_GOLD_PRICE와 같은 축).
+ * 현재 시세(152,400)보다 약 11% 낮게 잡아 "모은 시점 대비 +12.4%" 평가수익을 연출한다.
+ * 수익률 = INITIAL_GOLD_PRICE / INITIAL_AVG_COST - 1 = 152400/135600 - 1 ≈ +12.4%
+ */
+export const INITIAL_AVG_COST = 135_600;
+
+/**
+ * 1 g당 통화 시세(ratio=1 기준) — 기존 cur.perGold에서 유도한다.
+ * 1 GOLD = GOLD_GRAMS_PER_UNIT g, 1 GOLD ≈ cur.perGold 통화 이므로
+ * 통화/g = perGold / GOLD_GRAMS_PER_UNIT. (별도 시세 테이블 없이 DRY하게 일관 유지)
+ */
+export function spotPerGram(c: Currency): number {
+  return c.perGold / GOLD_GRAMS_PER_UNIT;
+}
+
+/** 차트 한 봉의 시가/고가/저가/종가 — 정규화(0~1) 스케일 */
+export interface Candle {
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+}
+
+export type Period = 'now' | '1m' | '5m' | '1y' | 'all';
+
+/** 기간 토글 — 라벨은 실제 앱과 동일하게 영어 공통 */
+export const PERIODS: { id: Period; label: string }[] = [
+  { id: 'now', label: 'Now' },
+  { id: '1m', label: '1M' },
+  { id: '5m', label: '5M' },
+  { id: '1y', label: '1Y' },
+  { id: 'all', label: 'ALL' },
+];
+
+/**
+ * 기간별 등락 표시값(%) — 차트 위 배지에 쓴다.
+ * 차트 시각 형태는 정규화 시계열(makeSeries)로 그리지만, 배지 %는 별도로
+ * 실제 금값에 가까운 현실적 우상향 수치를 보여준다(정규화 first→last를 그대로 쓰면 과장됨).
+ */
+export const PERIOD_CHANGE: Record<Period, number> = {
+  now: 0.0072,
+  '1m': 0.024,
+  '5m': 0.068,
+  '1y': 0.142,
+  all: 0.381,
+};
+
+/** 결정적 의사난수(mulberry32) — 시드 고정으로 매 렌더마다 같은 차트를 보장(자동재생 안정성) */
+function mulberry32(seed: number): () => number {
+  let s = seed;
+  return function () {
+    s |= 0;
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * 기간별 우상향 추세 + 노이즈의 정규화 OHLC 시계열.
+ * 값은 0~1 스케일(차트 형태 전용); 실제 시세 라벨은 spotPerGram으로 별도 매핑한다.
+ * 기간이 길수록 점 개수·변동폭·누적 상승폭이 커진다.
+ */
+export function makeSeries(period: Period): Candle[] {
+  const cfg: Record<Period, { n: number; vol: number; drift: number; seed: number }> = {
+    now: { n: 24, vol: 0.016, drift: 0.004, seed: 11 },
+    '1m': { n: 30, vol: 0.02, drift: 0.006, seed: 22 },
+    '5m': { n: 40, vol: 0.024, drift: 0.008, seed: 33 },
+    '1y': { n: 48, vol: 0.03, drift: 0.011, seed: 44 },
+    all: { n: 60, vol: 0.045, drift: 0.018, seed: 55 },
+  };
+  const { n, vol, drift, seed } = cfg[period];
+  const rnd = mulberry32(seed);
+  const out: Candle[] = [];
+  let prev = 0.32; // 낮게 시작 → 전체 우상향
+  for (let i = 0; i < n; i++) {
+    const o = prev;
+    const c = Math.min(0.97, Math.max(0.05, o + drift + (rnd() - 0.5) * vol * 2));
+    const h = Math.min(1, Math.max(o, c) + rnd() * vol);
+    const l = Math.max(0, Math.min(o, c) - rnd() * vol);
+    out.push({ o, h, l, c });
+    prev = c;
+  }
+  return out;
+}

@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 import {
   GOLD_GRAMS_PER_UNIT,
+  INITIAL_AVG_COST,
   INITIAL_GOLD,
   INITIAL_GOLD_PRICE,
   PRODUCTS,
+  spotPerGram,
+  type Currency,
+  type Period,
   type StoreProduct,
 } from './data';
 
@@ -28,9 +32,21 @@ interface GoldStoreState {
   exchanged: boolean;
   /** 보유 쿠폰 수 */
   coupons: number;
+  /** 현재 보고 있는 화면 */
+  view: 'store' | 'price';
+  /** 평균 매입 시세 (평가손익 기준) */
+  avgCost: number;
+  /** 차트 표시 모드 */
+  chartMode: 'line' | 'candle';
+  /** 선택된 차트 기간 */
+  period: Period;
 
   /** 시세를 한 틱 미세 변동 (시나리오 do step에서 호출) */
   tickPrice: () => void;
+  openPrice: () => void;
+  closePrice: () => void;
+  setChartMode: (m: 'line' | 'candle') => void;
+  setPeriod: (p: Period) => void;
   selectCategory: (id: string | null) => void;
   openSheet: (product: StoreProduct) => void;
   closeSheet: () => void;
@@ -50,6 +66,36 @@ export function priceInGold(product: StoreProduct, goldPrice: number): number {
   return Math.round((base * ratio) / 10) * 10;
 }
 
+/** 보유 골드의 평가 결과 — 통화별 환산값과 매입 대비 수익률/평가이익을 한 번에 계산 */
+export interface Valuation {
+  /** 보유 골드의 금 그램 */
+  grams: number;
+  /** 현재 통화/g 시세 (시세 ratio 반영) */
+  spot: number;
+  /** 현재 평가액 (통화) */
+  value: number;
+  /** 매입 대비 수익률 (0.124 = +12.4%) */
+  ret: number;
+  /** 평가이익 (통화) */
+  profit: number;
+}
+
+export function valuation(
+  gold: number,
+  goldPrice: number,
+  avgCost: number,
+  c: Currency,
+): Valuation {
+  const grams = gold * GOLD_GRAMS_PER_UNIT;
+  const ratio = goldPrice / INITIAL_GOLD_PRICE;
+  const spot = spotPerGram(c) * ratio;
+  const value = grams * spot;
+  const ret = goldPrice / avgCost - 1;
+  const cost = value / (1 + ret);
+  const profit = value - cost;
+  return { grams, spot, value, ret, profit };
+}
+
 export const useGoldStore = create<GoldStoreState>((set, get) => ({
   gold: INITIAL_GOLD,
   goldFlash: false,
@@ -60,11 +106,15 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
   sheetProduct: null,
   exchanged: false,
   coupons: 0,
+  view: 'store',
+  avgCost: INITIAL_AVG_COST,
+  chartMode: 'candle',
+  period: '1m',
 
   tickPrice: () => {
     const { goldPrice } = get();
-    // ±0.06% 범위 내 미세 변동 — 살짝 상승 편향을 줘서 자산처럼 우상향 느낌
-    const drift = (Math.random() - 0.45) * 0.0012;
+    // 상승 편향을 키운 미세 변동 — "내 자산이 오르고 있다"가 또렷하게 보이도록
+    const drift = (Math.random() - 0.32) * 0.0016;
     const next = Math.round(goldPrice * (1 + drift));
     set({
       goldPrice: next,
@@ -72,6 +122,11 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
       tick: get().tick + 1,
     });
   },
+
+  openPrice: () => set({ view: 'price' }),
+  closePrice: () => set({ view: 'store' }),
+  setChartMode: (m) => set({ chartMode: m }),
+  setPeriod: (p) => set({ period: p }),
 
   selectCategory: (id) => set({ category: id }),
 
@@ -111,6 +166,10 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
       sheetProduct: null,
       exchanged: false,
       coupons: 0,
+      view: 'store',
+      avgCost: INITIAL_AVG_COST,
+      chartMode: 'candle',
+      period: '1m',
     });
   },
 }));

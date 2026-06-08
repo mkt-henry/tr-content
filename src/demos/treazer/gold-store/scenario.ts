@@ -8,37 +8,43 @@ const st = () => useGoldStore.getState();
 const TARGET = PRODUCTS.find((p) => p.id === 'highlands') ?? PRODUCTS[0];
 
 /**
- * v1 — 금 시세 연동 소구: 시세 티커가 여러 번 틱하며 보유 골드의 ₫/그램 환산과
- * 상품 가격이 함께 출렁이는 걸 보여준다. 마지막에 커서로 골드 카드 환산 영역 강조.
+ * v1 — "포인트가 아니라 진짜 금": 스토어 골드 카드 → Gold Price 화면 진입.
+ * 시세가 틱할 때마다 내 골드 평가액·수익률이 함께 오르는 걸 보여주고,
+ * "모은 시점 대비 +X%" 평가손익을 클로즈업하며 마무리한다.
  */
 export const realGoldScenario: Scenario = {
   id: 'gold-store-real-gold',
   steps: [
-    { kind: 'wait', ms: 1000 },
-    // 골드 카드(₫/그램 환산)로 시선 유도
+    { kind: 'wait', ms: 900 },
+    // 스토어의 골드 카드로 시선 유도
     { kind: 'cursor', target: 'gold-card', ms: 700 },
+    { kind: 'wait', ms: 600 },
+
+    // 카드 탭 → Gold Price 화면 진입
+    { kind: 'click', target: 'gold-card', run: () => st().openPrice() },
+    { kind: 'wait', ms: 1100 },
+
+    // 내 골드 평가 카드 강조
+    { kind: 'cursor', target: 'my-valuation', ms: 800 },
     { kind: 'wait', ms: 700 },
 
-    // 시세 미니 티커가 여러 번 틱 — 가격이 살아 움직이는 연출
-    { kind: 'cursor', target: 'price-ticker', ms: 600 },
+    // 시세 틱 — 평가액·수익률이 함께 상승
     { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 800 },
     { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 800 },
 
-    // 시세에 따라 상품 그리드 가격도 함께 출렁이는 걸 강조
-    { kind: 'cursor', target: `product-${TARGET.id}`, ms: 700 },
+    // 차트로 시선 이동 + 기간 전환으로 우상향 추세 확인
+    { kind: 'cursor', target: 'gold-chart', ms: 700 },
+    { kind: 'click', target: 'period-1y', run: () => st().setPeriod('1y') },
+    { kind: 'wait', ms: 1000 },
     { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 800 },
     { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 800 },
 
-    // 핵심: 골드의 ₫/그램 환산 강조 — "진짜 금"
-    { kind: 'cursor', target: 'gold-converted', ms: 900 },
+    // 핵심: 모은 시점 대비 평가손익 클로즈업
+    { kind: 'cursor', target: 'valuation-return', ms: 900 },
     { kind: 'do', run: () => st().tickPrice() },
     { kind: 'wait', ms: 2400 },
   ],
