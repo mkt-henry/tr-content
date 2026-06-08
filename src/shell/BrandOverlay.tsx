@@ -7,15 +7,18 @@ import { motion } from 'framer-motion';
  * durationMs 타이머 만료 또는 클릭 시 onDone을 정확히 1회 호출한다.
  * z-40 — ControlBar(z-50)보다 아래라 데모 재생 단계에서 컨트롤이 가려지지 않는다.
  * 인트로/아웃트로 단계에서는 오버레이 클릭으로 스킵, Space로 정지할 수 있다.
+ * portrait=true(모바일)면 중앙 9:16 세로 패널로 감싸 릴스/숏츠 비율로 렌더한다.
  */
 export function BrandOverlay({
   Phase,
   durationMs,
   onDone,
+  portrait,
 }: {
-  Phase: ComponentType;
+  Phase: ComponentType<{ portrait?: boolean }>;
   durationMs: number;
   onDone: () => void;
+  portrait: boolean;
 }) {
   const fired = useRef(false);
   const fire = useCallback(() => {
@@ -36,9 +39,18 @@ export function BrandOverlay({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
       onClick={fire}
-      className="absolute inset-0 z-40 cursor-pointer"
+      className="absolute inset-0 z-40 flex cursor-pointer items-center justify-center"
     >
-      <Phase />
+      {portrait ? (
+        <div
+          className="relative overflow-hidden rounded-[2rem]"
+          style={{ height: 'min(82vh, 780px)', aspectRatio: '9 / 16' }}
+        >
+          <Phase portrait />
+        </div>
+      ) : (
+        <Phase portrait={false} />
+      )}
     </motion.div>
   );
 }

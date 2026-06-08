@@ -12,19 +12,27 @@ function DarkWordmark({ className }: { className?: string }) {
   );
 }
 
-/** 우상향 금 시세 라인 path (인트로/아웃트로 공용 모양) */
-const LINE_D = 'M0 158 L60 135 L110 142 L160 98 L210 106 L260 60 L320 22';
+/** 우상향 금 시세 라인 — 가로/세로 프레임에 맞는 기하 */
+const LINE_LANDSCAPE = {
+  viewBox: '0 0 320 180',
+  d: 'M0 158 L60 135 L110 142 L160 98 L210 106 L260 60 L320 22',
+};
+const LINE_PORTRAIT = {
+  viewBox: '0 0 180 320',
+  d: 'M12 300 L45 250 L75 262 L100 175 L125 192 L155 92 L170 28',
+};
 
 /** 인트로(~2.5s): 시세 라인 → 코인 → 워드마크 → 태그라인 */
-function TreazerIntro() {
+function TreazerIntro({ portrait = false }: { portrait?: boolean }) {
+  const line = portrait ? LINE_PORTRAIT : LINE_LANDSCAPE;
   return (
     <div
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 180" preserveAspectRatio="none">
+      <svg className="absolute inset-0 h-full w-full" viewBox={line.viewBox} preserveAspectRatio="none">
         <motion.path
-          d={LINE_D}
+          d={line.d}
           fill="none"
           stroke="#f97316"
           strokeWidth={2.5}
@@ -63,15 +71,16 @@ function TreazerIntro() {
 }
 
 /** 아웃트로(~3s): 시세 라인 배경 + 코인·로고·태그 + treazer.app CTA */
-function TreazerOutro() {
+function TreazerOutro({ portrait = false }: { portrait?: boolean }) {
+  const line = portrait ? LINE_PORTRAIT : LINE_LANDSCAPE;
   return (
     <div
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
-      <svg className="absolute inset-0 h-full w-full opacity-20" viewBox="0 0 320 180" preserveAspectRatio="none">
+      <svg className="absolute inset-0 h-full w-full opacity-20" viewBox={line.viewBox} preserveAspectRatio="none">
         <motion.path
-          d={LINE_D}
+          d={line.d}
           fill="none"
           stroke="#f97316"
           strokeWidth={2.5}

@@ -240,6 +240,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             Phase={seqPhase === 'intro' ? branding.Intro : branding.Outro}
             durationMs={seqPhase === 'intro' ? branding.introMs : branding.outroMs}
             onDone={onPhaseDone}
+            portrait={device === 'mobile'}
           />
         )}
       </AnimatePresence>
