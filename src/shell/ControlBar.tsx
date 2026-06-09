@@ -4,6 +4,7 @@ import {
   Frame,
   Maximize,
   Monitor,
+  Pause,
   Play,
   RotateCcw,
   Smartphone,
@@ -24,6 +25,8 @@ interface ControlBarProps {
   status: PlaybackStatus;
   onPlay: () => void;
   onStop: () => void;
+  onPause: () => void;
+  onResume: () => void;
   onReset: () => void;
   onFullscreen: () => void;
   onRecord: () => void;
@@ -31,12 +34,13 @@ interface ControlBarProps {
 }
 
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
-export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
+export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, onResume, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
   const { device, phoneFrame, browserChrome, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
   const setProjectLang = useShellStore((s) => s.setProjectLang);
   const playing = status === 'playing';
+  const paused = status === 'paused';
 
   // 프로젝트 단위 언어 전환 — 지원 프로젝트(Treazer 등)의 데모에서만 노출
   const projectId = getProjectIdOfFeature(feature.id);
@@ -97,9 +101,23 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
         <Divider />
 
         {playing ? (
-          <BarButton onClick={onStop} label="정지" highlight>
-            <Square className="h-4 w-4" />
-          </BarButton>
+          <>
+            <BarButton onClick={onPause} label="일시정지 (Space)" highlight>
+              <Pause className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={onStop} label="정지">
+              <Square className="h-4 w-4" />
+            </BarButton>
+          </>
+        ) : paused ? (
+          <>
+            <BarButton onClick={onResume} label="재개 (Space)" highlight>
+              <Play className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={onStop} label="정지">
+              <Square className="h-4 w-4" />
+            </BarButton>
+          </>
         ) : (
           <BarButton onClick={onPlay} label="자동 재생 (Space)" highlight>
             <Play className="h-4 w-4" />
@@ -116,7 +134,7 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
         )}
 
         {canRecord && (
-          <BarButton onClick={onRecord} label="녹화 (전체화면)" disabled={playing}>
+          <BarButton onClick={onRecord} label="녹화 (전체화면)" disabled={playing || paused}>
             <Video className="h-4 w-4 text-red-400" />
           </BarButton>
         )}

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type PlaybackStatus = 'idle' | 'playing' | 'done';
+export type PlaybackStatus = 'idle' | 'playing' | 'paused' | 'done';
 
 interface CursorState {
   x: number;

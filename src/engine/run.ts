@@ -6,19 +6,40 @@ function resolveText(text: StepText): string {
   return typeof text === 'function' ? text() : text;
 }
 
-/** abort 시 즉시 resolve되는 지연 */
+/**
+ * abort 시 즉시 resolve되는 지연.
+ * status === 'paused' 동안에는 카운트다운을 멈춰(일시정지) resume 시 남은 시간만 이어서 센다.
+ * 50ms 폴링으로 일시정지/재개에 즉시 반응한다.
+ */
 function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
     if (signal.aborted) return resolve();
-    const t = setTimeout(resolve, ms);
-    signal.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(t);
-        resolve();
-      },
-      { once: true },
-    );
+    let remaining = ms;
+    let last = Date.now();
+    let timer: ReturnType<typeof setTimeout>;
+
+    const onAbort = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+
+    const tick = () => {
+      if (signal.aborted) return resolve();
+      const now = Date.now();
+      // 일시정지 중에는 남은 시간을 줄이지 않는다
+      if (usePlaybackStore.getState().status !== 'paused') {
+        remaining -= now - last;
+      }
+      last = now;
+      if (remaining <= 0) {
+        signal.removeEventListener('abort', onAbort);
+        return resolve();
+      }
+      timer = setTimeout(tick, Math.min(50, remaining));
+    };
+
+    signal.addEventListener('abort', onAbort, { once: true });
+    tick();
   });
 }
 
