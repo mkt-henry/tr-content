@@ -27,6 +27,9 @@ export interface SolvableArticle {
   time: L;
   thumb: { from: string; to: string; emoji: string };
   quizzes: Quiz[];      // 3 quizzes
+  category: L;
+  keyPoints: L<string[]>;  // 5 bullet strings, each starting with an emoji
+  relatedNews: { title: L; source: L; thumb: { from: string; to: string; emoji: string } };
 }
 
 export const LANGS: { id: Lang; label: string; flag: string }[] = [
@@ -300,6 +303,57 @@ export const SOLVABLE_ARTICLE: SolvableArticle = {
       reward: 30,
     },
   ],
+  category: {
+    en: 'financial_markets',
+    ja: '金融市場',
+    vi: 'thị_trường_tài_chính',
+    th: 'ตลาดการเงิน',
+  },
+  keyPoints: {
+    en: [
+      '📈 Fed held benchmark rate at 5.25–5.50% for the 7th consecutive meeting',
+      '💵 CPI cooled to 3.1% YoY, down sharply from the 9.1% peak in mid-2022',
+      '🏦 Core PCE — the Fed\'s preferred inflation gauge — continues to slow meaningfully',
+      '📉 Markets pricing ~70% probability of a 25 bp rate cut at the September meeting',
+      '⚠️ Upside surprises in employment or inflation could delay the policy pivot',
+    ],
+    ja: [
+      '📈 FRBは政策金利5.25–5.50%を7回連続で据え置き',
+      '💵 CPIは前年比3.1%に低下、2022年半ばの9.1%ピークから大幅に鈍化',
+      '🏦 FRBが重視するコアPCEデフレーターも継続的に鈍化',
+      '📉 市場は9月会合での25bp利下げ確率を約70%と織り込む',
+      '⚠️ 雇用・物価データが上振れすれば政策転換が遅れる可能性',
+    ],
+    vi: [
+      '📈 Fed giữ nguyên lãi suất 5,25–5,50% lần thứ bảy liên tiếp',
+      '💵 CPI hạ nhiệt xuống 3,1% so với năm ngoái, giảm mạnh từ đỉnh 9,1% giữa năm 2022',
+      '🏦 PCE lõi — thước đo lạm phát ưa thích của Fed — tiếp tục chậm lại đáng kể',
+      '📉 Thị trường định giá ~70% xác suất cắt giảm 25 bp tại cuộc họp tháng 9',
+      '⚠️ Dữ liệu việc làm hay lạm phát tăng bất ngờ có thể trì hoãn việc chuyển hướng chính sách',
+    ],
+    th: [
+      '📈 เฟดคงอัตราดอกเบี้ย 5.25–5.50% เป็นครั้งที่เจ็ดติดต่อกัน',
+      '💵 CPI ชะลอตัวเหลือ 3.1% เมื่อเทียบปีก่อน ลดลงจากจุดสูงสุด 9.1% กลางปี 2565',
+      '🏦 PCE พื้นฐาน มาตรวัดเงินเฟ้อที่เฟดชื่นชอบ ยังคงชะลอตัวต่อเนื่อง',
+      '📉 ตลาดตั้งราคาความน่าจะเป็น ~70% สำหรับการลดดอกเบี้ย 25 bp ในการประชุมเดือนกันยายน',
+      '⚠️ ข้อมูลการจ้างงานหรือเงินเฟ้อที่สูงกว่าคาดอาจทำให้การเปลี่ยนนโยบายล่าช้าออกไป',
+    ],
+  },
+  relatedNews: {
+    title: {
+      en: 'U.S. Treasury yields slip as bond traders bet on Fed pivot',
+      ja: '米国債利回り低下、債券市場がFRBの政策転換を織り込む',
+      vi: 'Lợi suất trái phiếu Mỹ giảm khi nhà giao dịch cược vào việc Fed chuyển hướng',
+      th: 'อัตราผลตอบแทนพันธบัตรสหรัฐฯ ลดลง นักลงทุนพันธบัตรเดิมพันเฟดเปลี่ยนทิศ',
+    },
+    source: {
+      en: 'Treazer Markets',
+      ja: 'Treazer マーケット',
+      vi: 'Treazer Thị trường',
+      th: 'Treazer มาร์เก็ต',
+    },
+    thumb: { from: '#1e3a5f', to: '#2563eb', emoji: '🏦' },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -396,5 +450,65 @@ export const STR = {
     ja: 'フィードに戻る',
     vi: 'Về trang tin',
     th: 'กลับไปที่ฟีด',
+  },
+  newsSummary: {
+    en: 'News Summary',
+    ja: 'ニュース要約',
+    vi: 'Tóm tắt tin tức',
+    th: 'สรุปข่าว',
+  },
+  keyPoints: {
+    en: 'Key Points 💡',
+    ja: 'キーポイント 💡',
+    vi: 'Điểm chính 💡',
+    th: 'ประเด็นสำคัญ 💡',
+  },
+  relatedNews: {
+    en: 'Related News',
+    ja: '関連ニュース',
+    vi: 'Tin liên quan',
+    th: 'ข่าวที่เกี่ยวข้อง',
+  },
+  letsStart: {
+    en: "Let's Start",
+    ja: 'スタート',
+    vi: 'Bắt đầu',
+    th: 'เริ่มเลย',
+  },
+  quizHeader: {
+    en: 'Quiz',
+    ja: 'クイズ',
+    vi: 'Quiz',
+    th: 'ควิซ',
+  },
+  questionLabel: {
+    en: 'Q.{n}',
+    ja: 'Q.{n}',
+    vi: 'Q.{n}',
+    th: 'Q.{n}',
+  },
+  submitAnswer: {
+    en: 'Submit Answer',
+    ja: '回答する',
+    vi: 'Trả lời',
+    th: 'ส่งคำตอบ',
+  },
+  next: {
+    en: 'Next',
+    ja: '次へ',
+    vi: 'Tiếp theo',
+    th: 'ถัดไป',
+  },
+  correctAnswerIs: {
+    en: 'The correct answer is {n}.',
+    ja: '正解は {n} です。',
+    vi: 'Đáp án đúng là {n}.',
+    th: 'คำตอบที่ถูกคือ {n}',
+  },
+  explanationLabel: {
+    en: 'Explanation',
+    ja: '解説',
+    vi: 'Giải thích',
+    th: 'คำอธิบาย',
   },
 } satisfies Record<string, L>;
