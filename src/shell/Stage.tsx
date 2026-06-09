@@ -22,7 +22,8 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const projectLang = useShellStore((s) => s.projectLang);
   const { play, stop, pause, resume } = usePlayback();
   const status = usePlaybackStore((s) => s.status);
-  const includeBranding = useShellStore((s) => s.includeBranding);
+  const includeIntro = useShellStore((s) => s.includeIntro);
+  const includeOutro = useShellStore((s) => s.includeOutro);
   const projectId = getProjectIdOfFeature(feature.id);
   const branding = getBranding(projectId);
   const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
@@ -72,21 +73,22 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     if (runningRef.current) return; // 시퀀스 진행 중 재진입 방지
     runningRef.current = true;
     const myId = ++runIdRef.current; // 이 체인의 세대
-    const useBranding = includeBranding && !!branding;
+    const useIntro = includeIntro && !!branding;
+    const useOutro = includeOutro && !!branding;
     try {
-      if (useBranding && branding) {
+      if (useIntro && branding) {
         await phase('intro');
         if (runIdRef.current !== myId) return; // 취소/재시작됨
       }
       await play(variant.scenario, feature.resetState);
       if (runIdRef.current !== myId) return; // 데모 중 취소됨
-      if (useBranding && branding) {
+      if (useOutro && branding) {
         await phase('outro');
       }
     } finally {
       if (runIdRef.current === myId) runningRef.current = false; // 내 세대일 때만 해제
     }
-  }, [play, variant, feature, includeBranding, branding, phase]);
+  }, [play, variant, feature, includeIntro, includeOutro, branding, phase]);
 
   const handleStop = useCallback(() => {
     cancelSequence();

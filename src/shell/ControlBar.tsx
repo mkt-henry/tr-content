@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   Clapperboard,
+  Film,
   Frame,
   Maximize,
   Monitor,
@@ -54,8 +55,10 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, 
   const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
   const effDevice = mobileOnly ? 'mobile' : device;
 
-  const includeBranding = useShellStore((s) => s.includeBranding);
-  const toggleBranding = useShellStore((s) => s.toggleBranding);
+  const includeIntro = useShellStore((s) => s.includeIntro);
+  const includeOutro = useShellStore((s) => s.includeOutro);
+  const toggleIntro = useShellStore((s) => s.toggleIntro);
+  const toggleOutro = useShellStore((s) => s.toggleOutro);
   const hasBranding = !!getBranding(projectId);
 
   return (
@@ -146,9 +149,14 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, 
         </select>
 
         {hasBranding && (
-          <BarButton onClick={toggleBranding} label="인트로/아웃트로" active={includeBranding}>
-            <Clapperboard className="h-4 w-4" />
-          </BarButton>
+          <>
+            <BarButton onClick={toggleIntro} label="인트로 삽입" active={includeIntro}>
+              <Clapperboard className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={toggleOutro} label="아웃트로 삽입" active={includeOutro}>
+              <Film className="h-4 w-4" />
+            </BarButton>
+          </>
         )}
 
         {canRecord && (
