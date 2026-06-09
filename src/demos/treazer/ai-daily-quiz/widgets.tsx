@@ -24,19 +24,6 @@ export function Thumbnail({
 }
 
 // ---------------------------------------------------------------------------
-// AdBanner
-// ---------------------------------------------------------------------------
-
-export function AdBanner() {
-  return (
-    <div className="w-full rounded-2xl bg-blue-600 px-4 py-3">
-      <p className="text-[11px] font-medium text-blue-100">우리 가족 안심생활</p>
-      <p className="text-[17px] font-bold leading-snug text-white">시작하기 &gt;</p>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // GoldFloat
 // ---------------------------------------------------------------------------
 

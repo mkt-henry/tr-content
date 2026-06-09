@@ -3,7 +3,7 @@ import { cn } from '../../../lib/cn';
 import { pick, fmt } from '../_shared/i18n';
 import type { Lang } from '../_shared/i18n';
 import { Wordmark, GoldPill, BottomNav, Coin } from '../_shared/ui';
-import { Thumbnail, AdBanner } from './widgets';
+import { Thumbnail } from './widgets';
 import { useAiDailyQuiz } from './state';
 import { FEED_ARTICLES, STR } from './data';
 import type { FeedArticle } from './data';
@@ -81,15 +81,13 @@ export function FeedScreen() {
       <div className="demo-scroll flex-1 overflow-y-auto px-4 pb-4">
         <div className="flex flex-col gap-3">
           {FEED_ARTICLES.map((article, i) => (
-            <div key={article.id}>
-              <ArticleCard
-                article={article}
-                index={i}
-                lang={lang}
-                onOpen={article.solvable ? openArticle : undefined}
-              />
-              {i === 2 && <AdBanner />}
-            </div>
+            <ArticleCard
+              key={article.id}
+              article={article}
+              index={i}
+              lang={lang}
+              onOpen={article.solvable ? openArticle : undefined}
+            />
           ))}
         </div>
       </div>
