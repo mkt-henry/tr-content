@@ -20,9 +20,10 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const stageRef = useRef<HTMLDivElement>(null);
   const { device: rawDevice, phoneFrame, browserChrome } = useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
-  const { play, stop } = usePlayback();
+  const { play, stop, pause, resume } = usePlayback();
   const status = usePlaybackStore((s) => s.status);
-  const includeBranding = useShellStore((s) => s.includeBranding);
+  const includeIntro = useShellStore((s) => s.includeIntro);
+  const includeOutro = useShellStore((s) => s.includeOutro);
   const projectId = getProjectIdOfFeature(feature.id);
   const branding = getBranding(projectId);
   const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
@@ -72,21 +73,22 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     if (runningRef.current) return; // 시퀀스 진행 중 재진입 방지
     runningRef.current = true;
     const myId = ++runIdRef.current; // 이 체인의 세대
-    const useBranding = includeBranding && !!branding;
+    const useIntro = includeIntro && !!branding;
+    const useOutro = includeOutro && !!branding;
     try {
-      if (useBranding && branding) {
+      if (useIntro && branding) {
         await phase('intro');
         if (runIdRef.current !== myId) return; // 취소/재시작됨
       }
       await play(variant.scenario, feature.resetState);
       if (runIdRef.current !== myId) return; // 데모 중 취소됨
-      if (useBranding && branding) {
+      if (useOutro && branding) {
         await phase('outro');
       }
     } finally {
       if (runIdRef.current === myId) runningRef.current = false; // 내 세대일 때만 해제
     }
-  }, [play, variant, feature, includeBranding, branding, phase]);
+  }, [play, variant, feature, includeIntro, includeOutro, branding, phase]);
 
   const handleStop = useCallback(() => {
     cancelSequence();
@@ -125,11 +127,14 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
       const shell = useShellStore.getState();
       switch (e.key) {
-        case ' ':
+        case ' ': {
           e.preventDefault();
-          if (runningRef.current || usePlaybackStore.getState().status === 'playing') handleStop();
-          else handlePlay();
+          const st = usePlaybackStore.getState().status;
+          if (st === 'playing') pause();
+          else if (st === 'paused') resume();
+          else if (!runningRef.current) handlePlay();
           break;
+        }
         case 'r':
         case 'R':
           handleReset();
@@ -154,14 +159,15 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handlePlay, handleReset, handleStop, mobileOnly]);
+  }, [handlePlay, handleReset, handleStop, pause, resume, mobileOnly]);
 
   // 언마운트 시 진행 중 시퀀스 정리
   useEffect(() => () => cancelSequence(), [cancelSequence]);
 
   // 재생 중 사용자가 데모를 직접 조작하면 자동 재생 중단 → 그 상태 그대로 수동 전환
   const intervene = useCallback(() => {
-    if (usePlaybackStore.getState().status === 'playing') stop();
+    const st = usePlaybackStore.getState().status;
+    if (st === 'playing' || st === 'paused') stop();
   }, [stop]);
 
   const Comp = device === 'mobile' && feature.Mobile ? feature.Mobile : feature.Desktop;
@@ -231,6 +237,8 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           status={status}
           onPlay={handlePlay}
           onStop={handleStop}
+          onPause={pause}
+          onResume={resume}
           onReset={handleReset}
           onFullscreen={() => stageRef.current && toggleFullscreen(stageRef.current)}
           onRecord={handleRecord}

@@ -1,9 +1,11 @@
 import {
   ArrowLeft,
   Clapperboard,
+  Film,
   Frame,
   Maximize,
   Monitor,
+  Pause,
   Play,
   RotateCcw,
   Smartphone,
@@ -12,7 +14,7 @@ import {
   Video,
 } from 'lucide-react';
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
-import type { PlaybackStatus } from '../engine/playbackStore';
+import { usePlaybackStore, type PlaybackStatus } from '../engine/playbackStore';
 import { getProjectIdOfFeature, getProject } from '../registry';
 import { getBranding } from '../branding';
 import { useShellStore } from '../store/shellStore';
@@ -24,19 +26,27 @@ interface ControlBarProps {
   status: PlaybackStatus;
   onPlay: () => void;
   onStop: () => void;
+  onPause: () => void;
+  onResume: () => void;
   onReset: () => void;
   onFullscreen: () => void;
   onRecord: () => void;
   canRecord: boolean;
 }
 
+/** 자동 재생 속도 옵션 */
+const SPEEDS = [0.5, 1, 1.5, 2];
+
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
-export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
+export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, onResume, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
   const { device, phoneFrame, browserChrome, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
   const setProjectLang = useShellStore((s) => s.setProjectLang);
   const playing = status === 'playing';
+  const paused = status === 'paused';
+  const speed = usePlaybackStore((s) => s.speed);
+  const setSpeed = usePlaybackStore((s) => s.setSpeed);
 
   // 프로젝트 단위 언어 전환 — 지원 프로젝트(Treazer 등)의 데모에서만 노출
   const projectId = getProjectIdOfFeature(feature.id);
@@ -45,8 +55,10 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
   const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
   const effDevice = mobileOnly ? 'mobile' : device;
 
-  const includeBranding = useShellStore((s) => s.includeBranding);
-  const toggleBranding = useShellStore((s) => s.toggleBranding);
+  const includeIntro = useShellStore((s) => s.includeIntro);
+  const includeOutro = useShellStore((s) => s.includeOutro);
+  const toggleIntro = useShellStore((s) => s.toggleIntro);
+  const toggleOutro = useShellStore((s) => s.toggleOutro);
   const hasBranding = !!getBranding(projectId);
 
   return (
@@ -97,9 +109,23 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
         <Divider />
 
         {playing ? (
-          <BarButton onClick={onStop} label="정지" highlight>
-            <Square className="h-4 w-4" />
-          </BarButton>
+          <>
+            <BarButton onClick={onPause} label="일시정지 (Space)" highlight>
+              <Pause className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={onStop} label="정지">
+              <Square className="h-4 w-4" />
+            </BarButton>
+          </>
+        ) : paused ? (
+          <>
+            <BarButton onClick={onResume} label="재개 (Space)" highlight>
+              <Play className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={onStop} label="정지">
+              <Square className="h-4 w-4" />
+            </BarButton>
+          </>
         ) : (
           <BarButton onClick={onPlay} label="자동 재생 (Space)" highlight>
             <Play className="h-4 w-4" />
@@ -109,14 +135,32 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onReset, 
           <RotateCcw className="h-4 w-4" />
         </BarButton>
 
+        <select
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          title="재생 속도"
+          className="h-8 cursor-pointer rounded-lg border border-white/10 bg-white/[0.06] px-1.5 text-[12px] font-medium tabular-nums text-zinc-200 outline-none hover:bg-white/[0.1]"
+        >
+          {SPEEDS.map((s) => (
+            <option key={s} value={s} className="bg-zinc-900">
+              {s}x
+            </option>
+          ))}
+        </select>
+
         {hasBranding && (
-          <BarButton onClick={toggleBranding} label="인트로/아웃트로" active={includeBranding}>
-            <Clapperboard className="h-4 w-4" />
-          </BarButton>
+          <>
+            <BarButton onClick={toggleIntro} label="인트로 삽입" active={includeIntro}>
+              <Clapperboard className="h-4 w-4" />
+            </BarButton>
+            <BarButton onClick={toggleOutro} label="아웃트로 삽입" active={includeOutro}>
+              <Film className="h-4 w-4" />
+            </BarButton>
+          </>
         )}
 
         {canRecord && (
-          <BarButton onClick={onRecord} label="녹화 (전체화면)" disabled={playing}>
+          <BarButton onClick={onRecord} label="녹화 (전체화면)" disabled={playing || paused}>
             <Video className="h-4 w-4 text-red-400" />
           </BarButton>
         )}

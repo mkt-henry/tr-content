@@ -20,6 +20,18 @@ export function usePlayback() {
     s.setCursor({ visible: false, pressed: false });
   }, []);
 
+  /** 일시정지 — 재생 세션은 유지한 채 진행만 멈춘다 (delay가 status를 보고 카운트다운 정지) */
+  const pause = useCallback(() => {
+    const s = usePlaybackStore.getState();
+    if (s.status === 'playing') s.setStatus('paused');
+  }, []);
+
+  /** 재개 — 멈춘 지점부터 이어서 재생 */
+  const resume = useCallback(() => {
+    const s = usePlaybackStore.getState();
+    if (s.status === 'paused') s.setStatus('playing');
+  }, []);
+
   const play = useCallback(
     async (scenario: Scenario, reset: () => void) => {
       abortRef.current?.abort();
@@ -44,5 +56,5 @@ export function usePlayback() {
   // 언마운트 시 정리
   useEffect(() => stop, [stop]);
 
-  return { play, stop };
+  return { play, stop, pause, resume };
 }
