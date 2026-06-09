@@ -517,4 +517,77 @@ export const STR = {
     vi: 'Giải thích',
     th: 'คำอธิบาย',
   },
+  myGoldValue: {
+    en: 'My Gold Value',
+    ja: '保有ゴールド評価額',
+    vi: 'Giá trị vàng của tôi',
+    th: 'มูลค่าทองของฉัน',
+  },
+  sinceCollecting: {
+    en: 'Since you started collecting',
+    ja: '貯め始めてから',
+    vi: 'Kể từ khi bắt đầu tích lũy',
+    th: 'นับตั้งแต่เริ่มสะสม',
+  },
+  goldPriceLabel: {
+    en: 'Gold price',
+    ja: 'ゴールド価格',
+    vi: 'Giá vàng',
+    th: 'ราคาทอง',
+  },
+  perGram: { en: '/g', ja: '/g', vi: '/g', th: '/g' },
+  todayChange: { en: 'today', ja: '本日', vi: 'hôm nay', th: 'วันนี้' },
+  goldPeggedNote: {
+    en: 'Your GOLD is pegged to the real gold price.',
+    ja: 'あなたのGOLDは実際の金相場に連動します。',
+    vi: 'GOLD của bạn được neo theo giá vàng thực tế.',
+    th: 'GOLD ของคุณอิงราคาทองจริง',
+  },
 } satisfies Record<string, L>;
+
+// ---------------------------------------------------------------------------
+// Gold pricing (mirrors gold-store values; GOLD rewards are pegged to real gold)
+// ---------------------------------------------------------------------------
+
+export interface Currency {
+  symbol: string;
+  perGold: number;
+  locale: string;
+  fractionDigits: number;
+}
+
+export const CURRENCY: L<Currency> = {
+  en: { symbol: 'S$', perGold: 0.000037, locale: 'en-US', fractionDigits: 2 },
+  ja: { symbol: '¥', perGold: 0.583, locale: 'ja-JP', fractionDigits: 0 },
+  vi: { symbol: '₫', perGold: 1535 / 8077, locale: 'vi-VN', fractionDigits: 0 },
+  th: { symbol: '฿', perGold: 0.00723, locale: 'th-TH', fractionDigits: 0 },
+};
+
+export const GOLD_GRAMS_PER_UNIT = 0.00040385 / 8077;
+export const INITIAL_GOLD_PRICE = 152_400;
+export const INITIAL_AVG_COST = 135_600; // ~+12.4% since collecting
+export const GOLD_DAILY_CHANGE = 0.0072; // today's spot move (+0.72%)
+
+export function spotPerGram(c: Currency): number {
+  return c.perGold / GOLD_GRAMS_PER_UNIT;
+}
+
+export function money(amount: number, c: Currency): string {
+  return `${c.symbol}${amount.toLocaleString(c.locale, {
+    minimumFractionDigits: c.fractionDigits,
+    maximumFractionDigits: c.fractionDigits,
+  })}`;
+}
+
+export interface Valuation { grams: number; spot: number; value: number; ret: number; profit: number; }
+
+export function valuation(gold: number, goldPrice: number, avgCost: number, c: Currency): Valuation {
+  const grams = gold * GOLD_GRAMS_PER_UNIT;
+  const ratio = goldPrice / INITIAL_GOLD_PRICE;
+  const spot = spotPerGram(c) * ratio;
+  const value = grams * spot;
+  const ret = goldPrice / avgCost - 1;
+  const cost = value / (1 + ret);
+  const profit = value - cost;
+  return { grams, spot, value, ret, profit };
+}

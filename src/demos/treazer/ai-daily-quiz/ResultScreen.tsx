@@ -1,11 +1,20 @@
 import { motion } from 'framer-motion';
-import { Trophy, Flame } from 'lucide-react';
+import { Trophy, Flame, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import { pick, fmt } from '../_shared/i18n';
 import { Coin } from '../_shared/ui';
 import { CountUp } from '../../../ui/CountUp';
 import { useAiDailyQuiz } from './state';
-import { SOLVABLE_ARTICLE, STR } from './data';
+import {
+  SOLVABLE_ARTICLE,
+  STR,
+  CURRENCY,
+  valuation,
+  money,
+  INITIAL_GOLD_PRICE,
+  INITIAL_AVG_COST,
+  GOLD_DAILY_CHANGE,
+} from './data';
 
 // ---------------------------------------------------------------------------
 // Helper: render a localised template with {n} replaced by a <CountUp> node
@@ -30,10 +39,13 @@ function GoldTemplate({ template, value }: { template: string; value: number }) 
 // ---------------------------------------------------------------------------
 
 export function ResultScreen() {
-  const { earnedGold, answers, comboMode, lang, goToFeed } = useAiDailyQuiz();
+  const { earnedGold, answers, comboMode, lang, goToFeed, gold } = useAiDailyQuiz();
 
   const total = SOLVABLE_ARTICLE.quizzes.length;
   const correctCount = Object.values(answers).filter((a) => a.correct).length;
+
+  const cur = CURRENCY[lang];
+  const v = valuation(gold, INITIAL_GOLD_PRICE, INITIAL_AVG_COST, cur);
 
   return (
     <div
@@ -62,12 +74,64 @@ export function ResultScreen() {
           </span>
         </div>
 
-        {/* 3. Score */}
+        {/* 3. My Gold Value — highlights GOLD is pegged to real gold */}
+        <div className="w-full rounded-2xl bg-zinc-900 p-4 text-white ring-1 ring-orange-400/50">
+          {/* Label */}
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
+            {pick(STR.myGoldValue, lang)}
+          </p>
+
+          {/* Balance row */}
+          <div className="flex items-center gap-1.5">
+            <Coin className="h-5 w-5 shrink-0 text-[10px]" />
+            <span className="text-[22px] font-extrabold tabular-nums text-amber-400">
+              {gold.toLocaleString('en-US')} G
+            </span>
+          </div>
+
+          {/* Fiat value + grams */}
+          <p className="mt-0.5 text-[13px] tabular-nums text-zinc-300">
+            ≈ <span className="font-semibold text-white">{money(v.value, cur)}</span>
+            <span className="ml-1 text-amber-400/80">({v.grams.toFixed(6)} g)</span>
+          </p>
+
+          {/* Since-collecting gain row */}
+          <div className="mt-2 flex items-center gap-1 rounded-xl bg-emerald-950/60 px-3 py-1.5 ring-1 ring-emerald-800/50">
+            <span className="text-[11px] text-emerald-300">{pick(STR.sinceCollecting, lang)}</span>
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+            <span className="text-[13px] font-bold tabular-nums text-emerald-400">
+              +{(v.ret * 100).toFixed(1)}%
+            </span>
+            <span className="text-[12px] tabular-nums text-emerald-500">
+              (+{money(v.profit, cur)})
+            </span>
+          </div>
+
+          {/* Spot price + daily change */}
+          <div className="mt-2.5 flex items-center justify-between">
+            <span className="text-[12px] text-zinc-400">
+              {pick(STR.goldPriceLabel, lang)}{' '}
+              <span className="tabular-nums text-zinc-200">
+                {money(v.spot, cur)}{pick(STR.perGram, lang)}
+              </span>
+            </span>
+            <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold tabular-nums text-emerald-400">
+              ▲ +{(GOLD_DAILY_CHANGE * 100).toFixed(2)}% {pick(STR.todayChange, lang)}
+            </span>
+          </div>
+
+          {/* Peg note */}
+          <p className="mt-2 text-[10px] leading-relaxed text-zinc-500">
+            {pick(STR.goldPeggedNote, lang)}
+          </p>
+        </div>
+
+        {/* 4. Score */}
         <p className={cn('text-[15px] font-semibold text-zinc-500')}>
           {fmt(pick(STR.resultScore, lang), { c: correctCount, t: total })}
         </p>
 
-        {/* 4. Streak card — only when comboMode (v2) */}
+        {/* 5. Streak card — only when comboMode (v2) */}
         {comboMode && (
           <div className="flex w-full flex-col items-center gap-1 rounded-2xl bg-orange-50 px-4 py-4 ring-1 ring-orange-200">
             <div className="flex items-center gap-2">
@@ -82,7 +146,7 @@ export function ResultScreen() {
           </div>
         )}
 
-        {/* 5. CTA button */}
+        {/* 6. CTA button */}
         <button
           data-demo-id="result-cta"
           onClick={goToFeed}
