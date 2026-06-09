@@ -26,16 +26,19 @@ function delay(ms: number, signal: AbortSignal): Promise<void> {
     const tick = () => {
       if (signal.aborted) return resolve();
       const now = Date.now();
-      // 일시정지 중에는 남은 시간을 줄이지 않는다
-      if (usePlaybackStore.getState().status !== 'paused') {
-        remaining -= now - last;
+      const { status, speed } = usePlaybackStore.getState();
+      const rate = speed > 0 ? speed : 1;
+      // 일시정지 중에는 남은 시간을 줄이지 않는다. 그 외에는 speed 배수로 가속/감속.
+      if (status !== 'paused') {
+        remaining -= (now - last) * rate;
       }
       last = now;
       if (remaining <= 0) {
         signal.removeEventListener('abort', onAbort);
         return resolve();
       }
-      timer = setTimeout(tick, Math.min(50, remaining));
+      // 실제 대기 = 가상 잔여시간 / speed. 50ms 폴링으로 일시정지·속도 변경에 즉시 반응.
+      timer = setTimeout(tick, Math.min(50, Math.max(4, remaining / rate)));
     };
 
     signal.addEventListener('abort', onAbort, { once: true });
