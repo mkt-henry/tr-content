@@ -27,6 +27,9 @@ export interface SolvableArticle {
   time: L;
   thumb: { from: string; to: string; emoji: string };
   quizzes: Quiz[];      // 3 quizzes
+  category: L;
+  keyPoints: L<string[]>;  // 5 bullet strings, each starting with an emoji
+  relatedNews: { title: L; source: L; thumb: { from: string; to: string; emoji: string } };
 }
 
 export const LANGS: { id: Lang; label: string; flag: string }[] = [
@@ -42,112 +45,118 @@ export const LANGS: { id: Lang; label: string; flag: string }[] = [
 
 export const FEED_ARTICLES: FeedArticle[] = [
   {
+    // slot 0 — central-bank policy (SOLVABLE). id kept as 'fed-rate' for scenario targeting.
     id: 'fed-rate',
     solvable: true,
     title: {
-      en: 'Fed holds benchmark rate, signals possible cut later this year',
-      ja: 'FRB、政策金利を据え置き 年内利下げの可能性を示唆',
-      vi: 'Fed giữ nguyên lãi suất, phát tín hiệu có thể cắt giảm cuối năm nay',
-      th: 'เฟดคงอัตราดอกเบี้ยนโยบาย ส่งสัญญาณอาจลดดอกเบี้ยภายในปีนี้',
+      en: 'MAS keeps policy unchanged, holds S$NEER appreciation path',
+      ja: '日銀、マイナス金利を解除 17年ぶりの利上げに踏み切る',
+      vi: 'NHNN giữ nguyên lãi suất điều hành để hỗ trợ tăng trưởng',
+      th: 'ธปท. คงอัตราดอกเบี้ยนโยบาย ท่ามกลางท่องเที่ยวฟื้นตัว',
     },
     category: {
-      en: 'Monetary Policy',
+      en: 'monetary_policy',
       ja: '金融政策',
-      vi: 'Chính sách tiền tệ',
+      vi: 'chính_sách_tiền_tệ',
       th: 'นโยบายการเงิน',
     },
     reward: 14050,
-    thumb: { from: '#1e3a5f', to: '#2563eb', emoji: '📈' },
+    thumb: { from: '#1e3a5f', to: '#2563eb', emoji: '🏦' },
   },
   {
+    // slot 1 — stock index
     id: 'oil-price',
     title: {
-      en: 'Brent crude drops below $80 as OPEC+ hints at output increase',
-      ja: 'OPEC+が増産示唆、ブレント原油が80ドルを割り込む',
-      vi: 'Dầu Brent giảm xuống dưới 80 USD khi OPEC+ gợi ý tăng sản lượng',
-      th: 'น้ำมันเบรนต์ร่วงต่ำกว่า 80 ดอลลาร์ หลัง OPEC+ ส่งสัญญาณเพิ่มกำลังผลิต',
+      en: 'STI hits record high, led by the three local banks',
+      ja: '日経平均、史上初の4万円台に乗せる',
+      vi: 'VN-Index vượt mốc 1.300 điểm nhờ dòng tiền ngoại',
+      th: 'SET ปรับขึ้นรับแรงซื้อหุ้นกลุ่มพลังงาน',
     },
     category: {
-      en: 'Commodities',
-      ja: 'コモディティ',
-      vi: 'Hàng hóa',
-      th: 'สินค้าโภคภัณฑ์',
-    },
-    reward: 10270,
-    thumb: { from: '#422006', to: '#ea580c', emoji: '🛢️' },
-  },
-  {
-    id: 'nikkei-rally',
-    title: {
-      en: 'Nikkei surges 2.4% as yen weakens to 155 per dollar',
-      ja: '円安で155円台、日経平均が2.4%急騰',
-      vi: 'Nikkei tăng vọt 2.4% khi đồng yên yếu xuống mức 155 yen/đô la',
-      th: 'นิกเคอิพุ่งขึ้น 2.4% ขณะเงินเยนอ่อนค่าแตะ 155 เยนต่อดอลลาร์',
-    },
-    category: {
-      en: 'Stock Markets',
+      en: 'equities',
       ja: '株式市場',
-      vi: 'Thị trường chứng khoán',
+      vi: 'chứng_khoán',
       th: 'ตลาดหุ้น',
     },
-    reward: 49100,
-    thumb: { from: '#1a1a2e', to: '#7c3aed', emoji: '💹' },
+    reward: 10270,
+    thumb: { from: '#1a1a2e', to: '#7c3aed', emoji: '📈' },
   },
   {
+    // slot 2 — currency / FX
+    id: 'nikkei-rally',
+    title: {
+      en: 'Singapore dollar near record high on strong S$NEER',
+      ja: '円相場、1ドル160円台で介入警戒強まる',
+      vi: 'Tỷ giá USD/VND lập đỉnh, NHNN bán ngoại tệ can thiệp',
+      th: 'เงินบาทแข็งค่าตามค่าเงินภูมิภาค',
+    },
+    category: {
+      en: 'fx',
+      ja: '為替',
+      vi: 'tỷ_giá',
+      th: 'อัตราแลกเปลี่ยน',
+    },
+    reward: 49100,
+    thumb: { from: '#0f766e', to: '#14b8a6', emoji: '💱' },
+  },
+  {
+    // slot 3 — flagship company
     id: 'ev-japan',
     title: {
-      en: "BYD launches sub-$25k EV in Japan, targeting Toyota's home turf",
-      ja: 'BYD、2万5千ドル以下のEVで日本市場参入 トヨタのホームを狙う',
-      vi: 'BYD ra mắt xe điện dưới 25.000 USD tại Nhật Bản, nhắm vào sân nhà của Toyota',
-      th: 'BYD เปิดตัว EV ราคาต่ำกว่า 25,000 ดอลลาร์ในญี่ปุ่น บุกถิ่นบ้านเกิดของโตโยตา',
+      en: 'DBS posts record quarterly profit on higher net interest income',
+      ja: 'トヨタ、過去最高益を更新 円安が追い風に',
+      vi: 'VinFast tăng tốc bàn giao xe điện ra thị trường quốc tế',
+      th: 'ปตท. ลงทุนพลังงานสะอาดเพิ่ม รับเทรนด์เปลี่ยนผ่านพลังงาน',
     },
     category: {
-      en: 'Auto Industry',
-      ja: '自動車',
-      vi: 'Ngành ô tô',
-      th: 'อุตสาหกรรมยานยนต์',
+      en: 'blue_chip',
+      ja: '企業決算',
+      vi: 'doanh_nghiệp',
+      th: 'บริษัทจดทะเบียน',
     },
     reward: 47400,
-    thumb: { from: '#064e3b', to: '#10b981', emoji: '🚗' },
+    thumb: { from: '#1e1b4b', to: '#4f46e5', emoji: '🏢' },
   },
   {
+    // slot 4 — property
     id: 'merger-pharma',
     title: {
-      en: 'AstraZeneca acquires rare-disease biotech in $8.7bn deal',
-      ja: 'アストラゼネカ、難病バイオ企業を87億ドルで買収',
-      vi: 'AstraZeneca mua lại công ty công nghệ sinh học bệnh hiếm với giá 8.7 tỷ USD',
-      th: 'AstraZeneca เข้าซื้อกิจการบริษัทไบโอเทคโรคหายากมูลค่า 8.7 พันล้านดอลลาร์',
+      en: 'Private home prices rise as cooling measures bite',
+      ja: '都心の新築マンション価格、最高値を更新',
+      vi: 'Giá bất động sản TP.HCM phục hồi ở phân khúc căn hộ',
+      th: 'ตลาดอสังหาฯ กรุงเทพฯ ฟื้นตัวในกลุ่มคอนโด',
     },
     category: {
-      en: 'M&A',
-      ja: 'M&A',
-      vi: 'Mua bán & Sáp nhập',
-      th: 'การควบรวมกิจการ',
+      en: 'property',
+      ja: '不動産',
+      vi: 'bất_động_sản',
+      th: 'อสังหาริมทรัพย์',
     },
     reward: 26950,
-    thumb: { from: '#1e1b4b', to: '#4f46e5', emoji: '🏭' },
+    thumb: { from: '#7c2d12', to: '#ea580c', emoji: '🏠' },
   },
   {
+    // slot 5 — tourism / industry
     id: 'us-admissions',
     title: {
-      en: 'Harvard acceptance rate hits all-time low of 3.6% for Class of 2029',
-      ja: 'ハーバード大の合格率、2029年入学クラスで過去最低の3.6%に',
-      vi: 'Tỷ lệ trúng tuyển Harvard chạm đáy lịch sử 3.6% cho khóa 2029',
-      th: 'อัตรารับนักศึกษาฮาร์วาร์ดต่ำสุดเป็นประวัติการณ์ที่ 3.6% สำหรับรุ่นปี 2029',
+      en: 'Changi traffic recovers past pre-pandemic levels',
+      ja: '訪日インバウンド消費、過去最高を記録',
+      vi: 'Du lịch Việt Nam đón lượng khách quốc tế kỷ lục',
+      th: 'นักท่องเที่ยวต่างชาติเที่ยวไทยทะลุเป้า',
     },
     category: {
-      en: 'Education',
-      ja: '教育',
-      vi: 'Giáo dục',
-      th: 'การศึกษา',
+      en: 'tourism',
+      ja: '観光',
+      vi: 'du_lịch',
+      th: 'การท่องเที่ยว',
     },
     reward: 18600,
-    thumb: { from: '#7f1d1d', to: '#dc2626', emoji: '🎓' },
+    thumb: { from: '#155e75', to: '#0891b2', emoji: '✈️' },
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Solvable Article (Fed rate — same topic as FEED_ARTICLES[0])
+// Solvable Article (central-bank policy — same slot as FEED_ARTICLES[0])
 // ---------------------------------------------------------------------------
 
 export const SOLVABLE_ARTICLE: SolvableArticle = {
@@ -161,145 +170,196 @@ export const SOLVABLE_ARTICLE: SolvableArticle = {
     th: 'วันนี้ 08:12 น.',
   },
   summary: {
-    en: 'The U.S. Federal Reserve voted unanimously to hold its benchmark federal funds rate at 5.25–5.50% at its June meeting, marking the seventh consecutive pause since the last hike in July 2023. Chair Jerome Powell cited persistent but easing price pressures and a resilient labor market as the primary reasons for the hold.\n\nRecent data shows the Consumer Price Index (CPI) rising just 3.1% year-on-year, down from a peak of 9.1% in mid-2022. Core PCE — the Fed\'s preferred inflation gauge — has also slowed meaningfully, giving policymakers room to observe conditions before moving.\n\nMarket participants are now pricing in at least one 25-basis-point cut by December, with futures implying a roughly 70% probability of an easing move at the September meeting. Analysts caution that any upside surprise in employment or inflation data could delay the pivot.',
+    en: 'The Monetary Authority of Singapore (MAS) kept monetary policy unchanged at its latest review, maintaining the prevailing rate of appreciation of the Singapore dollar nominal effective exchange rate (S$NEER) policy band. The width of the band and the level at which it is centred were also left unchanged.\n\nUnlike most central banks, MAS does not set an interest rate. Because Singapore is a small, highly open and trade-dependent economy, it manages monetary policy through the EXCHANGE RATE — the S$NEER measured against a trade-weighted basket of currencies — which is a more effective tool for managing imported inflation.\n\nMAS noted that core inflation has continued to ease towards its long-term average, and reaffirmed that the current appreciating policy stance remains appropriate. The authority now reviews policy on a quarterly basis, giving it more frequent opportunities to respond to shifts in the outlook.',
 
-    ja: '米連邦準備制度理事会（FRB）は6月の会合で政策金利（フェデラルファンド金利）を5.25–5.50%に据え置くことを全会一致で決定した。これは2023年7月の最後の利上げ以来、7回連続の据え置きとなる。ジェローム・パウエル議長は、価格上昇圧力が根強いながらも和らいでいること、そして労働市場の堅調さが主な理由だと述べた。\n\n最近のデータによると、消費者物価指数（CPI）は前年比3.1%上昇にとどまり、2022年半ばの9.1%のピークから大幅に低下した。FRBが重視するインフレ指標であるコアPCEデフレーターも明確に鈍化しており、政策当局者が動く前に状況を見極める余地が生まれている。\n\n市場参加者は12月までに少なくとも25ベーシスポイントの利下げを織り込んでおり、先物市場は9月会合での緩和措置の確率を約70%と示している。アナリストたちは、雇用や物価データが上振れした場合、政策転換が遅れる可能性があると警告している。',
+    ja: '日本銀行は2024年3月の金融政策決定会合で、マイナス金利政策の解除を決定し、17年ぶりの利上げに踏み切った。政策金利は0〜0.1%程度に誘導される。これにより、世界で最後まで残っていたマイナス金利政策に終止符が打たれた。\n\n背景には、春闘（春季労使交渉）での力強い賃上げと、2%の物価安定目標の持続的・安定的な達成が見通せる状況になったとの判断がある。植田和男総裁は、賃金と物価の好循環が確認できたと説明した。\n\n日銀は同時に、長短金利操作（イールドカーブ・コントロール、YCC）の枠組みも終了。今後は短期金利の操作を主たる政策手段とする、正常化への一歩を踏み出した。',
 
-    vi: 'Cục Dự trữ Liên bang Mỹ (Fed) đã nhất trí bỏ phiếu giữ nguyên lãi suất quỹ liên bang mục tiêu ở mức 5,25–5,50% trong cuộc họp tháng 6, đánh dấu lần dừng thứ bảy liên tiếp kể từ đợt tăng lãi suất cuối cùng vào tháng 7 năm 2023. Chủ tịch Jerome Powell cho biết áp lực giá dai dẳng nhưng đang giảm dần cùng với thị trường lao động vẫn ổn định là lý do chính để giữ nguyên.\n\nDữ liệu gần đây cho thấy Chỉ số Giá tiêu dùng (CPI) chỉ tăng 3,1% so với cùng kỳ năm ngoái, giảm mạnh so với mức đỉnh 9,1% vào giữa năm 2022. Chỉ số PCE lõi — thước đo lạm phát ưa thích của Fed — cũng đã chậm lại đáng kể, tạo không gian để các nhà hoạch định chính sách quan sát điều kiện trước khi hành động.\n\nCác thành viên thị trường hiện đang định giá ít nhất một đợt cắt giảm 25 điểm cơ bản trước tháng 12, với hợp đồng tương lai ngụ ý xác suất khoảng 70% cho động thái nới lỏng tại cuộc họp tháng 9. Các nhà phân tích cảnh báo rằng bất kỳ sự bất ngờ nào về việc làm hoặc dữ liệu lạm phát có thể trì hoãn việc chuyển hướng.',
+    vi: 'Ngân hàng Nhà nước Việt Nam (NHNN) quyết định giữ nguyên các mức lãi suất điều hành trong kỳ điều hành lần này, nhằm tiếp tục hỗ trợ tăng trưởng kinh tế trong bối cảnh lạm phát vẫn được kiểm soát ổn định.\n\nQuyết định được đưa ra khi NHNN cân bằng giữa mục tiêu thúc đẩy tăng trưởng và áp lực lên tỷ giá USD/VND. Việc duy trì mặt bằng lãi suất thấp nhằm giảm chi phí vốn cho doanh nghiệp và người dân.\n\nNHNN cho biết sẽ tiếp tục điều hành linh hoạt, đồng bộ các công cụ chính sách tiền tệ, hướng tới mục tiêu tăng trưởng tín dụng và GDP quanh mức 6–6,5% cho cả năm, đồng thời sẵn sàng can thiệp để ổn định thị trường ngoại hối khi cần thiết.',
 
-    th: 'ธนาคารกลางสหรัฐฯ (เฟด) ลงมติเป็นเอกฉันท์คงอัตราดอกเบี้ยเงินกองทุนเฟดเดอรัลไว้ที่ 5.25–5.50% ในการประชุมเดือนมิถุนายน นับเป็นการหยุดพักครั้งที่เจ็ดติดต่อกันนับตั้งแต่การขึ้นดอกเบี้ยครั้งสุดท้ายในเดือนกรกฎาคม 2566 ประธาน Jerome Powell อ้างถึงแรงกดดันด้านราคาที่ยังคงอยู่แต่ผ่อนคลายลง และตลาดแรงงานที่ยืดหยุ่นเป็นเหตุผลหลักในการคงอัตราดอกเบี้ย\n\nข้อมูลล่าสุดแสดงให้เห็นว่าดัชนีราคาผู้บริโภค (CPI) เพิ่มขึ้นเพียง 3.1% เมื่อเทียบกับปีก่อน ลดลงจากจุดสูงสุด 9.1% ในกลางปี 2565 PCE พื้นฐาน ซึ่งเป็นมาตรวัดเงินเฟ้อที่เฟดชื่นชอบ ก็ชะลอตัวลงอย่างมีนัยสำคัญ เปิดโอกาสให้ผู้กำหนดนโยบายสังเกตสภาวะก่อนดำเนินการ\n\nผู้เข้าร่วมตลาดกำลังตั้งราคาการปรับลดอย่างน้อย 25 จุดพื้นฐานภายในเดือนธันวาคม โดยสัญญาซื้อขายล่วงหน้าบ่งชี้ความน่าจะเป็นประมาณ 70% สำหรับการผ่อนคลายในการประชุมเดือนกันยายน นักวิเคราะห์เตือนว่าการเซอร์ไพรส์เชิงบวกในข้อมูลการจ้างงานหรือเงินเฟ้ออาจทำให้การเปลี่ยนทิศทางล่าช้าออกไป',
+    th: 'คณะกรรมการนโยบายการเงิน (กนง.) ของธนาคารแห่งประเทศไทย (ธปท.) มีมติคงอัตราดอกเบี้ยนโยบายไว้ในการประชุมล่าสุด โดยประเมินว่าเศรษฐกิจไทยยังอยู่ในทิศทางฟื้นตัว\n\nธปท. มองว่าการฟื้นตัวของเศรษฐกิจได้แรงหนุนหลักจากภาคการท่องเที่ยวที่กลับมาคึกคัก ขณะที่การส่งออกและการบริโภคในประเทศยังฟื้นตัวอย่างค่อยเป็นค่อยไป\n\nอย่างไรก็ตาม ธปท. ยังคงกังวลต่อระดับหนี้ครัวเรือนที่อยู่ในระดับสูง ส่วนอัตราเงินเฟ้อทั่วไปอยู่ในกรอบเป้าหมาย ทำให้ยังมีพื้นที่ในการดำเนินนโยบายแบบระมัดระวังเพื่อรักษาเสถียรภาพในระยะยาว',
   },
   quizzes: [
-    // Q1: What did the Fed do with the rate? correctIndex = 2 (held steady)
+    // Q1 — main policy tool / action. correctIndex = 2
     {
       question: {
-        en: 'What action did the Federal Reserve take on its benchmark rate at the June meeting?',
-        ja: '6月の会合でFRBは政策金利をどう扱いましたか？',
-        vi: 'Fed đã thực hiện hành động nào đối với lãi suất cơ bản tại cuộc họp tháng 6?',
-        th: 'เฟดดำเนินการอย่างไรกับอัตราดอกเบี้ยนโยบายในการประชุมเดือนมิถุนายน?',
+        en: "What is the MAS's main tool for conducting monetary policy?",
+        ja: '日本銀行が2024年3月に解除した政策はどれですか？',
+        vi: 'Công cụ điều hành chính của NHNN trong đợt này là gì?',
+        th: 'ธปท. ดำเนินการอย่างไรกับอัตราดอกเบี้ยนโยบายในรอบนี้?',
       },
       options: {
         en: [
-          'Raised it by 25 basis points',
-          'Cut it by 50 basis points',
-          'Held it steady at 5.25–5.50%',
-          'Raised it by 50 basis points',
+          'A benchmark interest rate',
+          'The reserve requirement ratio',
+          'The exchange rate (S$NEER)',
+          'Government bond purchases',
         ],
         ja: [
-          '25ベーシスポイント引き上げた',
-          '50ベーシスポイント引き下げた',
-          '5.25–5.50%に据え置いた',
-          '50ベーシスポイント引き上げた',
+          '量的緩和の全廃',
+          '預金準備率の引き上げ',
+          'マイナス金利政策の解除',
+          '消費税率の変更',
         ],
         vi: [
-          'Tăng thêm 25 điểm cơ bản',
-          'Giảm 50 điểm cơ bản',
-          'Giữ nguyên ở mức 5.25–5.50%',
-          'Tăng thêm 50 điểm cơ bản',
+          'Tăng mạnh lãi suất điều hành',
+          'Nâng tỷ lệ dự trữ bắt buộc',
+          'Giữ nguyên lãi suất điều hành',
+          'Bán toàn bộ dự trữ ngoại hối',
         ],
         th: [
-          'ปรับขึ้น 25 จุดพื้นฐาน',
-          'ปรับลด 50 จุดพื้นฐาน',
-          'คงไว้ที่ 5.25–5.50%',
-          'ปรับขึ้น 50 จุดพื้นฐาน',
+          'ปรับขึ้นอัตราดอกเบี้ย',
+          'ปรับลดอัตราดอกเบี้ย',
+          'คงอัตราดอกเบี้ยไว้',
+          'ยกเลิกกรอบเป้าหมายเงินเฟ้อ',
         ],
       },
       correctIndex: 2,
       explanation: {
-        en: 'The Fed voted unanimously to hold the rate at 5.25–5.50%, its seventh consecutive pause since the last hike in July 2023.',
-        ja: 'FRBは2023年7月の最後の利上げ以来7回連続で、全会一致で5.25–5.50%への据え置きを決定しました。',
-        vi: 'Fed đã nhất trí bỏ phiếu giữ nguyên lãi suất ở mức 5,25–5,50%, là lần dừng thứ bảy liên tiếp kể từ đợt tăng lãi suất cuối cùng vào tháng 7 năm 2023.',
-        th: 'เฟดลงมติเป็นเอกฉันท์คงอัตราดอกเบี้ยที่ 5.25–5.50% นับเป็นการหยุดพักครั้งที่เจ็ดติดต่อกันนับตั้งแต่การขึ้นดอกเบี้ยครั้งสุดท้ายในเดือนกรกฎาคม 2566',
+        en: 'MAS manages policy through the exchange rate — the S$NEER policy band — rather than an interest rate, because Singapore is a small, trade-dependent open economy.',
+        ja: '日銀は2024年3月にマイナス金利政策を解除し、17年ぶりの利上げに踏み切りました。同時にYCC（イールドカーブ・コントロール）も終了しました。',
+        vi: 'NHNN giữ nguyên các mức lãi suất điều hành để hỗ trợ tăng trưởng, trong bối cảnh lạm phát vẫn được kiểm soát.',
+        th: 'กนง. มีมติคงอัตราดอกเบี้ยนโยบายไว้ โดยประเมินว่าเศรษฐกิจยังฟื้นตัวต่อเนื่องและเงินเฟ้ออยู่ในกรอบเป้าหมาย',
       },
       reward: 50,
     },
-    // Q2: What signal was behind the hold? correctIndex = 0 (cooling inflation)
+    // Q2 — the driver / why. correctIndex = 0
     {
       question: {
-        en: 'Which economic signal primarily supported the Fed\'s decision to keep rates unchanged?',
-        ja: '金利据え置き決定を主に後押しした経済シグナルはどれですか？',
-        vi: 'Tín hiệu kinh tế nào chủ yếu hỗ trợ quyết định giữ nguyên lãi suất của Fed?',
-        th: 'สัญญาณเศรษฐกิจใดที่สนับสนุนการตัดสินใจคงอัตราดอกเบี้ยของเฟดเป็นหลัก?',
+        en: 'Which factor primarily supported the MAS decision?',
+        ja: '今回の日銀の決定を主に後押しした要因はどれですか？',
+        vi: 'Yếu tố nào chủ yếu hỗ trợ quyết định lần này của NHNN?',
+        th: 'ปัจจัยใดที่สนับสนุนการตัดสินใจของ ธปท. เป็นหลัก?',
       },
       options: {
         en: [
-          'Cooling inflation (CPI at 3.1%)',
-          'Rising unemployment above 6%',
-          'Sharp contraction in GDP',
-          'Surging consumer spending',
+          'Core inflation has eased',
+          'A sudden surge in unemployment',
+          'A sharp contraction in GDP',
+          'A domestic banking crisis',
         ],
         ja: [
-          'インフレ鈍化（CPI3.1%）',
-          '失業率が6%超に上昇',
+          '春闘での力強い賃上げと2%物価目標の達成見通し',
+          '失業率の急上昇',
           'GDPの急激な落ち込み',
-          '消費支出の急増',
+          '国内銀行の経営危機',
         ],
         vi: [
-          'Lạm phát hạ nhiệt (CPI ở mức 3,1%)',
-          'Tỷ lệ thất nghiệp tăng vượt 6%',
+          'Hỗ trợ tăng trưởng kinh tế trong khi lạm phát được kiểm soát',
+          'Thất nghiệp tăng đột biến',
           'GDP suy giảm mạnh',
-          'Chi tiêu người tiêu dùng tăng vọt',
+          'Khủng hoảng hệ thống ngân hàng',
         ],
         th: [
-          'เงินเฟ้อชะลอตัว (CPI อยู่ที่ 3.1%)',
-          'การว่างงานพุ่งเกิน 6%',
-          'GDP หดตัวรุนแรง',
-          'การใช้จ่ายของผู้บริโภคพุ่งสูง',
+          'การฟื้นตัวของเศรษฐกิจจากภาคการท่องเที่ยว',
+          'การว่างงานพุ่งสูงขึ้นอย่างฉับพลัน',
+          'GDP หดตัวอย่างรุนแรง',
+          'วิกฤตธนาคารในประเทศ',
         ],
       },
       correctIndex: 0,
       explanation: {
-        en: 'CPI has fallen to 3.1% year-on-year — down from a 9.1% peak — signalling that inflation is cooling and giving the Fed confidence to hold.',
-        ja: 'CPIは前年比3.1%まで低下し、ピーク時の9.1%から大幅に鈍化。これがFRBに据え置きの自信を与えました。',
-        vi: 'CPI đã giảm xuống 3,1% so với cùng kỳ năm ngoái, giảm từ mức đỉnh 9,1%, cho thấy lạm phát đang hạ nhiệt và tạo cho Fed sự tự tin để giữ nguyên lãi suất.',
-        th: 'CPI ลดลงเหลือ 3.1% เมื่อเทียบกับปีก่อน จากจุดสูงสุด 9.1% บ่งชี้ว่าเงินเฟ้อกำลังชะลอตัวและทำให้เฟดมั่นใจในการคงอัตราดอกเบี้ย',
+        en: 'Core inflation has continued to ease towards its long-term average, allowing MAS to keep its appreciating S$NEER stance unchanged.',
+        ja: '春闘での力強い賃上げと、2%の物価安定目標の持続的な達成見通しが、マイナス金利解除の決め手となりました。',
+        vi: 'NHNN giữ lãi suất nhằm hỗ trợ tăng trưởng kinh tế, trong khi lạm phát vẫn được kiểm soát ổn định.',
+        th: 'การฟื้นตัวของเศรษฐกิจได้แรงหนุนหลักจากภาคการท่องเที่ยวที่กลับมาคึกคัก ทำให้ ธปท. คงนโยบายไว้',
       },
       reward: 40,
     },
-    // Q3: What does the market expect later this year? correctIndex = 1 (a rate cut)
+    // Q3 — a distinctive local fact. correctIndex = 1
     {
       question: {
-        en: 'What monetary policy move are markets pricing in for later this year?',
-        ja: '市場が年内に織り込んでいる金融政策の動きは何ですか？',
-        vi: 'Thị trường đang định giá động thái chính sách tiền tệ nào cho cuối năm nay?',
-        th: 'ตลาดกำลังตั้งราคาการเคลื่อนไหวนโยบายการเงินใดสำหรับช่วงปลายปีนี้?',
+        en: 'Why does Singapore manage policy via the exchange rate?',
+        ja: '今回の日銀の利上げは何年ぶりのものですか？',
+        vi: 'NHNN đặt mục tiêu tăng trưởng GDP cả năm quanh mức nào?',
+        th: 'แรงขับเคลื่อนหลักของการฟื้นตัวทางเศรษฐกิจไทยคืออะไร?',
       },
       options: {
         en: [
-          'Another rate hike of 50 basis points',
-          'At least one 25 bp rate cut',
-          'Quantitative tightening acceleration',
-          'No change through year-end',
+          'Because it has very low public debt',
+          'Because it is a small, trade-dependent open economy',
+          'Because the central bank sets fiscal policy',
+          'Because it has a floating free-market currency',
         ],
         ja: [
-          'さらに50ベーシスポイントの利上げ',
-          '少なくとも25ベーシスポイントの利下げ',
-          '量的引き締めの加速',
-          '年末まで変更なし',
+          '約5年ぶり',
+          '17年ぶり',
+          '約30年ぶり',
+          '初めての利上げ',
         ],
         vi: [
-          'Tăng lãi suất thêm 50 điểm cơ bản',
-          'Ít nhất một lần cắt giảm 25 điểm cơ bản',
-          'Đẩy nhanh thắt chặt định lượng',
-          'Không thay đổi đến cuối năm',
+          'Khoảng 3–3,5%',
+          'Khoảng 6–6,5%',
+          'Khoảng 9–10%',
+          'Khoảng 12–13%',
         ],
         th: [
-          'ขึ้นดอกเบี้ยอีก 50 จุดพื้นฐาน',
-          'ปรับลดอย่างน้อย 25 จุดพื้นฐานหนึ่งครั้ง',
-          'เร่งการลดสภาพคล่อง (QT)',
-          'ไม่มีการเปลี่ยนแปลงจนถึงสิ้นปี',
+          'ภาคการส่งออก',
+          'ภาคการท่องเที่ยว',
+          'ภาคเกษตรกรรม',
+          'การลงทุนภาครัฐ',
         ],
       },
       correctIndex: 1,
       explanation: {
-        en: 'Futures markets imply a ~70% probability of a rate cut at the September meeting, with most analysts expecting at least one 25 bp cut by December.',
-        ja: '先物市場は9月会合での利下げ確率を約70%と示しており、多くのアナリストは12月までに少なくとも25ベーシスポイントの利下げを予想しています。',
-        vi: 'Thị trường hợp đồng tương lai ngụ ý xác suất khoảng 70% về việc cắt giảm lãi suất tại cuộc họp tháng 9, với hầu hết các nhà phân tích kỳ vọng ít nhất một lần cắt giảm 25 điểm cơ bản trước tháng 12.',
-        th: 'ตลาดสัญญาซื้อขายล่วงหน้าบ่งชี้ความน่าจะเป็นประมาณ 70% สำหรับการปรับลดดอกเบี้ยในการประชุมเดือนกันยายน โดยนักวิเคราะห์ส่วนใหญ่คาดว่าจะมีการปรับลดอย่างน้อย 25 จุดพื้นฐานภายในเดือนธันวาคม',
+        en: 'As a small, highly open and trade-dependent economy, the exchange rate is a more effective tool than interest rates for managing imported inflation.',
+        ja: '今回の利上げは2007年以来、実に17年ぶりとなり、世界で最後のマイナス金利政策にも終止符が打たれました。',
+        vi: 'NHNN hướng tới mục tiêu tăng trưởng tín dụng và GDP cả năm quanh mức 6–6,5%.',
+        th: 'ธปท. ประเมินว่าการฟื้นตัวของเศรษฐกิจได้แรงหนุนหลักจากภาคการท่องเที่ยวที่กลับมาคึกคัก',
       },
       reward: 30,
     },
   ],
+  category: {
+    en: 'monetary_policy',
+    ja: '日本銀行',
+    vi: 'ngân_hàng_nhà_nước',
+    th: 'ธนาคารแห่งประเทศไทย',
+  },
+  keyPoints: {
+    en: [
+      '🏦 MAS kept policy unchanged, holding the S$NEER appreciation path',
+      '💱 Policy is run through the exchange rate (S$NEER), not an interest rate',
+      '🌏 Singapore is a small, highly open, trade-dependent economy',
+      '📉 Core inflation has continued to ease towards its long-term average',
+      '🗓️ MAS now reviews monetary policy on a quarterly basis',
+    ],
+    ja: [
+      '🏦 日銀がマイナス金利政策を解除（2024年3月）',
+      '⏳ 17年ぶりの利上げで、世界最後のマイナス金利が終了',
+      '💪 春闘での力強い賃上げが決定の背景',
+      '🎯 2%物価目標の持続的な達成見通しを確認',
+      '📐 イールドカーブ・コントロール（YCC）も終了',
+    ],
+    vi: [
+      '🏦 NHNN giữ nguyên các mức lãi suất điều hành',
+      '📈 Mục tiêu chính là hỗ trợ tăng trưởng kinh tế',
+      '🧮 Lạm phát vẫn đang được kiểm soát ổn định',
+      '💱 Cân bằng với áp lực lên tỷ giá USD/VND',
+      '🎯 Hướng tới tăng trưởng tín dụng và GDP quanh mức 6–6,5%',
+    ],
+    th: [
+      '🏦 กนง. มีมติคงอัตราดอกเบี้ยนโยบาย',
+      '✈️ การฟื้นตัวได้แรงหนุนหลักจากภาคการท่องเที่ยว',
+      '⚠️ ยังกังวลระดับหนี้ครัวเรือนที่อยู่ในระดับสูง',
+      '🧮 อัตราเงินเฟ้อทั่วไปอยู่ในกรอบเป้าหมาย',
+      '💱 ติดตามทิศทางค่าเงินบาทอย่างใกล้ชิด',
+    ],
+  },
+  relatedNews: {
+    title: {
+      en: 'Singapore government bond yields slip as SGD holds firm',
+      ja: '円安進行で国債利回り上昇、日銀の追加利上げ観測も',
+      vi: 'Lợi suất trái phiếu chính phủ giảm khi tỷ giá USD/VND hạ nhiệt',
+      th: 'อัตราผลตอบแทนพันธบัตรไทยทรงตัว ค่าเงินบาทเคลื่อนไหวในกรอบ',
+    },
+    source: {
+      en: 'Treazer Markets',
+      ja: 'Treazer マーケット',
+      vi: 'Treazer Thị trường',
+      th: 'Treazer มาร์เก็ต',
+    },
+    thumb: { from: '#1e3a5f', to: '#2563eb', emoji: '🏦' },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -397,4 +457,137 @@ export const STR = {
     vi: 'Về trang tin',
     th: 'กลับไปที่ฟีด',
   },
+  newsSummary: {
+    en: 'News Summary',
+    ja: 'ニュース要約',
+    vi: 'Tóm tắt tin tức',
+    th: 'สรุปข่าว',
+  },
+  keyPoints: {
+    en: 'Key Points 💡',
+    ja: 'キーポイント 💡',
+    vi: 'Điểm chính 💡',
+    th: 'ประเด็นสำคัญ 💡',
+  },
+  relatedNews: {
+    en: 'Related News',
+    ja: '関連ニュース',
+    vi: 'Tin liên quan',
+    th: 'ข่าวที่เกี่ยวข้อง',
+  },
+  letsStart: {
+    en: "Let's Start",
+    ja: 'スタート',
+    vi: 'Bắt đầu',
+    th: 'เริ่มเลย',
+  },
+  quizHeader: {
+    en: 'Quiz',
+    ja: 'クイズ',
+    vi: 'Quiz',
+    th: 'ควิซ',
+  },
+  questionLabel: {
+    en: 'Q.{n}',
+    ja: 'Q.{n}',
+    vi: 'Q.{n}',
+    th: 'Q.{n}',
+  },
+  submitAnswer: {
+    en: 'Submit Answer',
+    ja: '回答する',
+    vi: 'Trả lời',
+    th: 'ส่งคำตอบ',
+  },
+  next: {
+    en: 'Next',
+    ja: '次へ',
+    vi: 'Tiếp theo',
+    th: 'ถัดไป',
+  },
+  correctAnswerIs: {
+    en: 'The correct answer is {n}.',
+    ja: '正解は {n} です。',
+    vi: 'Đáp án đúng là {n}.',
+    th: 'คำตอบที่ถูกคือ {n}',
+  },
+  explanationLabel: {
+    en: 'Explanation',
+    ja: '解説',
+    vi: 'Giải thích',
+    th: 'คำอธิบาย',
+  },
+  myGoldValue: {
+    en: 'My Gold Value',
+    ja: '保有ゴールド評価額',
+    vi: 'Giá trị vàng của tôi',
+    th: 'มูลค่าทองของฉัน',
+  },
+  sinceCollecting: {
+    en: 'Since you started collecting',
+    ja: '貯め始めてから',
+    vi: 'Kể từ khi bắt đầu tích lũy',
+    th: 'นับตั้งแต่เริ่มสะสม',
+  },
+  goldPriceLabel: {
+    en: 'Gold price',
+    ja: 'ゴールド価格',
+    vi: 'Giá vàng',
+    th: 'ราคาทอง',
+  },
+  perGram: { en: '/g', ja: '/g', vi: '/g', th: '/g' },
+  todayChange: { en: 'today', ja: '本日', vi: 'hôm nay', th: 'วันนี้' },
+  goldPeggedNote: {
+    en: 'Your GOLD is pegged to the real gold price.',
+    ja: 'あなたのGOLDは実際の金相場に連動します。',
+    vi: 'GOLD của bạn được neo theo giá vàng thực tế.',
+    th: 'GOLD ของคุณอิงราคาทองจริง',
+  },
 } satisfies Record<string, L>;
+
+// ---------------------------------------------------------------------------
+// Gold pricing (mirrors gold-store values; GOLD rewards are pegged to real gold)
+// ---------------------------------------------------------------------------
+
+export interface Currency {
+  symbol: string;
+  perGold: number;
+  locale: string;
+  fractionDigits: number;
+}
+
+export const CURRENCY: L<Currency> = {
+  en: { symbol: 'S$', perGold: 0.000037, locale: 'en-US', fractionDigits: 2 },
+  ja: { symbol: '¥', perGold: 0.583, locale: 'ja-JP', fractionDigits: 0 },
+  vi: { symbol: '₫', perGold: 1535 / 8077, locale: 'vi-VN', fractionDigits: 0 },
+  th: { symbol: '฿', perGold: 0.00723, locale: 'th-TH', fractionDigits: 0 },
+};
+
+export const GOLD_GRAMS_PER_UNIT = 0.00040385 / 8077;
+export const INITIAL_GOLD_PRICE = 152_400;
+export const INITIAL_AVG_COST = 135_600; // ~+12.4% since collecting
+export const GOLD_DAILY_CHANGE = 0.0072; // today's spot move (+0.72%)
+
+export function spotPerGram(c: Currency): number {
+  return c.perGold / GOLD_GRAMS_PER_UNIT;
+}
+
+export function money(amount: number, c: Currency): string {
+  return `${c.symbol}${amount.toLocaleString(c.locale, {
+    minimumFractionDigits: c.fractionDigits,
+    maximumFractionDigits: c.fractionDigits,
+  })}`;
+}
+
+export interface Valuation { grams: number; spot: number; value: number; ret: number; profit: number; }
+
+export function valuation(gold: number, goldPrice: number, avgCost: number, c: Currency): Valuation {
+  const grams = gold * GOLD_GRAMS_PER_UNIT;
+  const ratio = goldPrice / INITIAL_GOLD_PRICE;
+  const spot = spotPerGram(c) * ratio;
+  const value = grams * spot;
+  const ret = goldPrice / avgCost - 1;
+  const cost = value / (1 + ret);
+  const profit = value - cost;
+  return { grams, spot, value, ret, profit };
+}

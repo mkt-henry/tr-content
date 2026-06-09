@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAiDailyQuiz } from './state';
 import { FeedScreen } from './FeedScreen';
-import { ArticleQuizScreen } from './ArticleQuizScreen';
+import { ArticleScreen } from './ArticleScreen';
+import { QuizRunnerScreen } from './QuizRunnerScreen';
 import { ResultScreen } from './ResultScreen';
 
 export function AppScreens() {
@@ -18,7 +19,8 @@ export function AppScreens() {
           className="absolute inset-0"
         >
           {screen === 'feed' && <FeedScreen />}
-          {screen === 'article' && <ArticleQuizScreen />}
+          {screen === 'article' && <ArticleScreen />}
+          {screen === 'quiz' && <QuizRunnerScreen />}
           {screen === 'result' && <ResultScreen />}
         </motion.div>
       </AnimatePresence>
