@@ -60,8 +60,13 @@ export const projects: ProjectDefinition[] = [
   {
     id: 'alphalenz',
     name: 'AlphaLenz',
-    tagline: '',
-    description: '데모 준비 중입니다.',
+    tagline: 'AI Investment Intelligence',
+    description:
+      '금융 LLM 기반 투자 분석 플랫폼 AlphaLenz의 데모 스튜디오 — Alpha Chat, AI 차트 드로잉, 전략 스크리너, 멀티 에이전트 추론, 데이터 파이프라인을 자동 재생으로 시연하세요. 모든 데모는 더미 데이터로 실제처럼 동작합니다.',
+    languages: [
+      { id: 'ko', label: '한국어', flag: '🇰🇷' },
+      { id: 'en', label: 'English', flag: '🇺🇸' },
+    ],
   },
 ];
 
