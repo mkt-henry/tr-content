@@ -89,10 +89,9 @@ export function ResultScreen() {
             </span>
           </div>
 
-          {/* Fiat value + grams */}
-          <p className="mt-0.5 text-[13px] tabular-nums text-zinc-300">
+          {/* Fiat value */}
+          <p className="mt-0.5 text-[14px] tabular-nums text-zinc-300">
             ≈ <span className="font-semibold text-white">{money(v.value, cur)}</span>
-            <span className="ml-1 text-amber-400/80">({v.grams.toFixed(6)} g)</span>
           </p>
 
           {/* Since-collecting gain row */}
@@ -107,14 +106,9 @@ export function ResultScreen() {
             </span>
           </div>
 
-          {/* Spot price + daily change */}
+          {/* Gold price daily change (rate only — avoids unrealistic per-gram spot across currencies) */}
           <div className="mt-2.5 flex items-center justify-between">
-            <span className="text-[12px] text-zinc-400">
-              {pick(STR.goldPriceLabel, lang)}{' '}
-              <span className="tabular-nums text-zinc-200">
-                {money(v.spot, cur)}{pick(STR.perGram, lang)}
-              </span>
-            </span>
+            <span className="text-[12px] text-zinc-400">{pick(STR.goldPriceLabel, lang)}</span>
             <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold tabular-nums text-emerald-400">
               ▲ +{(GOLD_DAILY_CHANGE * 100).toFixed(2)}% {pick(STR.todayChange, lang)}
             </span>
