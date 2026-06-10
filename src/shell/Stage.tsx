@@ -90,11 +90,6 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     }
   }, [play, variant, feature, includeIntro, includeOutro, branding, phase]);
 
-  const handleStop = useCallback(() => {
-    cancelSequence();
-    stop();
-  }, [cancelSequence, stop]);
-
   const handleReset = useCallback(() => {
     cancelSequence();
     stop();
@@ -159,7 +154,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handlePlay, handleReset, handleStop, pause, resume, mobileOnly]);
+  }, [handlePlay, handleReset, pause, resume, mobileOnly]);
 
   // 언마운트 시 진행 중 시퀀스 정리
   useEffect(() => () => cancelSequence(), [cancelSequence]);
@@ -236,7 +231,6 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           variant={variant}
           status={status}
           onPlay={handlePlay}
-          onStop={handleStop}
           onPause={pause}
           onResume={resume}
           onReset={handleReset}
