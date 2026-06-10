@@ -1,46 +1,54 @@
 import type { Scenario } from '../../../engine/types';
 import { getLang } from '../_shared/i18n';
-import { useChat } from './state';
-import { QA } from './data';
+import { GLOBAL_QA } from '../_shared/chat/data';
+import { useChat } from './store';
 
 const st = () => useChat.getState();
-/** 질문 텍스트 — 재생 시점의 프로젝트 언어로 평가 */
-const q = (i: number) => () => QA[i].question[getLang()];
+/** 전체 파이프라인 종합(GLOBAL) 추천 질문 — 재생 시점의 프로젝트 언어로 평가 */
+const q = (i: number) => () => GLOBAL_QA[i].question[getLang()];
 
-/** v1 — 근거 소구: 직접 타이핑 → 답변 + 근거 데이터 카드 */
+/** v1 — 근거 소구: 전체 종합으로 연속 질문하며 매 답변의 원문 근거를 확인 */
 export const evidenceScenario: Scenario = {
   id: 'chat-evidence',
   steps: [
-    { kind: 'wait', ms: 700 },
-    // 갱신 파이프라인에 등록된 첨부파일을 소스로 연결 (불러오기 → 분석·인덱싱)
-    { kind: 'do', run: () => st().connectSource() },
-    { kind: 'wait', ms: 2700 },
-    { kind: 'type', target: 'chat-input', text: q(0), cps: 14, set: (v) => st().setInput(v) },
-    { kind: 'wait', ms: 400 },
+    { kind: 'wait', ms: 900 },
+    // 1) 출재 구조 비교
+    { kind: 'type', target: 'chat-input', text: q(1), cps: 16, set: (v) => st().setInput(v) },
+    { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
-    // thinking 1.1s + 스트리밍 약 6s + 근거 카드
-    { kind: 'wait', ms: 9500 },
-    { kind: 'cursor', target: 'evidence-card', ms: 800 },
+    { kind: 'wait', ms: 8800 },
+    { kind: 'cursor', target: 'evidence-card', ms: 700 },
+    { kind: 'wait', ms: 1600 },
+    // 2) 이어서 면책 비교 — 같은 데이터로 다른 각도 분석
+    { kind: 'type', target: 'chat-input', text: q(2), cps: 16, set: (v) => st().setInput(v) },
+    { kind: 'wait', ms: 350 },
+    { kind: 'click', target: 'chat-send', run: () => st().send() },
+    { kind: 'wait', ms: 8800 },
+    { kind: 'cursor', target: 'evidence-card', ms: 700 },
     { kind: 'wait', ms: 1500 },
   ],
 };
 
-/** v2 — 자연어 소구: 추천 질문 클릭 → 즉시 답변, 이어서 후속 질문 */
+/** v2 — 자연어 소구: 추천 질문으로 시작해 자연어로 계속 파고드는 연속 분석 */
 export const naturalScenario: Scenario = {
   id: 'chat-natural',
   steps: [
-    { kind: 'wait', ms: 700 },
-    // 갱신 파이프라인에 등록된 첨부파일을 소스로 연결 (불러오기 → 분석·인덱싱)
-    { kind: 'do', run: () => st().connectSource() },
-    { kind: 'wait', ms: 2700 },
+    { kind: 'wait', ms: 900 },
+    // 1) 마감 우선순위 (추천 질문)
     { kind: 'cursor', target: 'suggest-0', ms: 700 },
     { kind: 'wait', ms: 300 },
-    { kind: 'click', target: 'suggest-2', run: () => st().send(q(2)()) },
-    { kind: 'wait', ms: 8500 },
-    { kind: 'type', target: 'chat-input', text: q(1), cps: 15, set: (v) => st().setInput(v) },
+    { kind: 'click', target: 'suggest-0', run: () => st().send(q(0)()) },
+    { kind: 'wait', ms: 8000 },
+    // 2) 출재 구조 비교
+    { kind: 'type', target: 'chat-input', text: q(1), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
-    { kind: 'wait', ms: 9000 },
-    { kind: 'wait', ms: 1200 },
+    { kind: 'wait', ms: 8200 },
+    // 3) 면책 공통점·차이
+    { kind: 'type', target: 'chat-input', text: q(2), cps: 16, set: (v) => st().setInput(v) },
+    { kind: 'wait', ms: 350 },
+    { kind: 'click', target: 'chat-send', run: () => st().send() },
+    { kind: 'wait', ms: 8200 },
+    { kind: 'wait', ms: 1000 },
   ],
 };

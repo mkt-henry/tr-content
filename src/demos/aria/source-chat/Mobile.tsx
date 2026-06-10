@@ -1,7 +1,7 @@
 import type { DemoComponentProps } from '../../../registry/types';
 import { ChatMobile } from '../_shared/chat/ChatMobile';
-import { useChat } from './store';
+import { useSourceChat } from './store';
 
 export function Mobile(_: DemoComponentProps) {
-  return <ChatMobile useStore={useChat} />;
+  return <ChatMobile useStore={useSourceChat} />;
 }

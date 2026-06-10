@@ -1,7 +1,7 @@
 import type { DemoComponentProps } from '../../../registry/types';
 import { ChatDesktop } from '../_shared/chat/ChatDesktop';
-import { useChat } from './store';
+import { useSourceChat } from './store';
 
 export function Desktop(_: DemoComponentProps) {
-  return <ChatDesktop useStore={useChat} />;
+  return <ChatDesktop useStore={useSourceChat} />;
 }
