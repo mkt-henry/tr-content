@@ -289,7 +289,7 @@ export const EXTRACTION: { emailId: number; fields: ExtractField[] } = {
 export const SECURITY_STEPS: L[] = [
   { ko: '첨부파일 다운로드', en: 'Downloading attachment' },
   { ko: '내용 확인·검증', en: 'Verifying contents' },
-  { ko: '바이러스 검사', en: 'Virus scan' },
+  { ko: '악성코드 및 보안 위협 검사', en: 'Malware & threat scan' },
 ];
 
 /** 앱 UI 문자열 */
