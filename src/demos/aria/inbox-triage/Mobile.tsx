@@ -18,22 +18,27 @@ export function Mobile(_: DemoComponentProps) {
           <Inbox className="h-3.5 w-3.5" />
         </div>
         <span className="text-[13px] font-semibold text-zinc-100">ARIA Inbox</span>
-        <button
-          data-demo-id="triage-run"
-          onClick={startTriage}
-          disabled={phase !== 'raw'}
-          className={cn(
-            'ml-auto flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors',
-            phase === 'raw' && 'bg-amber-500 text-[#27180a]',
-            phase === 'scanning' && 'bg-amber-500/20 text-amber-300',
-            phase === 'sorted' && 'bg-emerald-500/15 text-emerald-300',
-          )}
-        >
-          <Sparkles className="h-3 w-3" />
-          {phase === 'raw' && pick(STR.triageBtn, lang)}
-          {phase === 'scanning' && pick(STR.triaging, lang)}
-          {phase === 'sorted' && pick(STR.triageDone, lang)}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            data-demo-id="triage-run"
+            onClick={startTriage}
+            disabled={phase !== 'raw'}
+            className={cn(
+              'flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors',
+              phase === 'raw' && 'bg-amber-500 text-[#27180a]',
+              phase === 'scanning' && 'bg-amber-500/20 text-amber-300',
+              phase === 'sorted' && 'bg-emerald-500/15 text-emerald-300',
+            )}
+          >
+            <Sparkles className="h-3 w-3" />
+            {phase === 'raw' && pick(STR.triageBtn, lang)}
+            {phase === 'scanning' && pick(STR.triaging, lang)}
+            {phase === 'sorted' && pick(STR.triageDone, lang)}
+          </button>
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-[9px] font-bold text-[#27180a]">
+            SK
+          </div>
+        </div>
       </header>
 
       <SummaryBar />

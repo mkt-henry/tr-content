@@ -23,22 +23,31 @@ export function Desktop(_: DemoComponentProps) {
         <span className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[10.5px] text-zinc-500">
           {fmt(pick(STR.unread, lang), { n: EMAILS.length })}
         </span>
-        <button
-          data-demo-id="triage-run"
-          onClick={startTriage}
-          disabled={phase !== 'raw'}
-          className={cn(
-            'ml-auto flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-colors',
-            phase === 'raw' && 'bg-amber-500 text-[#27180a] hover:bg-amber-400',
-            phase === 'scanning' && 'bg-amber-500/20 text-amber-300',
-            phase === 'sorted' && 'bg-emerald-500/15 text-emerald-300',
-          )}
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          {phase === 'raw' && pick(STR.triageBtn, lang)}
-          {phase === 'scanning' && pick(STR.triaging, lang)}
-          {phase === 'sorted' && pick(STR.triageDone, lang)}
-        </button>
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            data-demo-id="triage-run"
+            onClick={startTriage}
+            disabled={phase !== 'raw'}
+            className={cn(
+              'flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-colors',
+              phase === 'raw' && 'bg-amber-500 text-[#27180a] hover:bg-amber-400',
+              phase === 'scanning' && 'bg-amber-500/20 text-amber-300',
+              phase === 'sorted' && 'bg-emerald-500/15 text-emerald-300',
+            )}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {phase === 'raw' && pick(STR.triageBtn, lang)}
+            {phase === 'scanning' && pick(STR.triaging, lang)}
+            {phase === 'sorted' && pick(STR.triageDone, lang)}
+          </button>
+          {/* 받은편지함 소유자 */}
+          <div className="flex items-center gap-2 border-l border-white/[0.06] pl-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-[10px] font-bold text-[#27180a]">
+              SK
+            </div>
+            <span className="text-[12px] font-medium text-zinc-200">Sarah Kim</span>
+          </div>
+        </div>
       </header>
 
       <SummaryBar />
