@@ -78,25 +78,24 @@ export const EMAILS: Email[] = [
   },
   {
     id: 2,
-    sender: { ko: '김민서 · 삼성생명', en: 'Minseo Kim · Samsung Life' },
-    subject: { ko: '정기보험 YRT 출재 의뢰 — 금일 회신 요청', en: 'Term life YRT cession request — reply due today' },
+    sender: { ko: '이준혁 · 한화생명', en: 'Junhyuk Lee · Hanwha Life' },
+    subject: { ko: 'Term Life XL 출재 의뢰 — 검토 요청', en: 'Term Life XL cession request — review' },
     preview: {
-      ko: '슬립 첨부드립니다. Sum at risk 약 ₩8,000억 규모이며 금일 중 인수 가능 여부 회신 부탁드립니다…',
-      en: 'Slip attached. Sum at risk approx. ₩800bn — please confirm capacity today…',
+      ko: '슬립 첨부드립니다. TSI 약 ₩800억 규모이며 검토 후 3영업일 내 회신 부탁드립니다…',
+      en: 'Slip attached. TSI approx. ₩80bn — please reply within 3 business days after review…',
     },
     body: {
-      ko: '안녕하세요, 삼성생명 김민서입니다.\n\n당사 정기보험(YRT) 블록의 출재를 의뢰드립니다. 슬립을 첨부했으며, 보유위험액(Sum at Risk)은 약 ₩8,000억, 보험기간은 2026.07.01부터 1년입니다. 희망 조건은 Quota Share 40%입니다.\n\n갱신 일정상 금일 중으로 인수 가능 여부 회신을 부탁드립니다.',
-      en: 'Hello, this is Minseo Kim at Samsung Life.\n\nWe would like to cede our term life (YRT) block. The slip is attached; sum at risk is approx. ₩800bn, period from 1 Jul 2026 for 12 months. Requested terms: Quota Share 40%.\n\nGiven our renewal schedule, please confirm capacity today.',
+      ko: '안녕하세요, 한화생명 이준혁입니다.\n\n당사 단체 정기보험 포트폴리오의 XL 출재를 의뢰드립니다. 슬립을 첨부하였으며, TSI는 약 ₩800억, 보험기간은 2026.07.01부터 1년입니다. 희망 조건은 Retention ₩30억에 Limit ₩100억입니다.\n\n검토 후 3영업일 내 회신 부탁드립니다.',
+      en: 'Hello, this is Junhyuk Lee at Hanwha Life.\n\nWe would like to cede the XL layer of our group term life portfolio. The slip is attached; TSI is approx. ₩80bn, period from 1 Jul 2026 for 12 months. Requested terms: ₩3bn retention, ₩10bn limit.\n\nPlease reply within 3 business days after your review.',
     },
-    time: { ko: '09:12', en: '09:12' },
-    attachment: 'SamsungLife_TermYRT_Slip_2026.pdf',
+    time: { ko: '09:03', en: '09:03' },
+    attachment: 'HW_TermLife_XL_Slip_2026.pdf',
     analysis: {
       category: 'submission',
-      priority: 'urgent',
-      due: { ko: '오늘 마감', en: 'Due today' },
+      priority: 'high',
       summary: {
-        ko: 'Sum at Risk ₩8,000억 정기보험 YRT 신규 출재 의뢰 — 금일 회신 필요',
-        en: '₩800bn sum-at-risk term YRT submission — reply required today',
+        ko: '단체 정기보험 Term Life XL 출재 의뢰 — 3영업일 내 회신',
+        en: 'Group term life XL cession submission — reply within 3 business days',
       },
     },
   },
@@ -270,18 +269,18 @@ export interface ExtractField {
 export const EXTRACTION: { emailId: number; fields: ExtractField[] } = {
   emailId: 2,
   fields: [
-    { label: { ko: '보종', en: 'Line of business' }, value: { ko: '정기보험 (YRT)', en: 'Term life (YRT)' } },
-    { label: { ko: '출재사', en: 'Cedent' }, value: { ko: '삼성생명', en: 'Samsung Life' } },
-    { label: { ko: '보유위험액 (Sum at Risk)', en: 'Sum at Risk' }, value: { ko: '약 ₩8,000억', en: 'approx. ₩800bn' } },
+    { label: { ko: '보종', en: 'Line of business' }, value: { ko: 'Term Life XL', en: 'Term Life XL' } },
+    { label: { ko: '출재사', en: 'Cedent' }, value: { ko: '한화생명', en: 'Hanwha Life' } },
+    { label: { ko: 'TSI', en: 'TSI' }, value: { ko: '약 ₩800억', en: 'approx. ₩80bn' } },
     {
       label: { ko: '보험기간', en: 'Period' },
       value: { ko: '2026.07.01 – 2027.06.30', en: '01 Jul 2026 – 30 Jun 2027' },
     },
     {
       label: { ko: '희망 조건', en: 'Requested terms' },
-      value: { ko: 'Quota Share 40%', en: 'Quota Share 40%' },
+      value: { ko: 'Retention ₩30억 · Limit ₩100억', en: 'Retention ₩3bn · Limit ₩10bn' },
     },
-    { label: { ko: '회신 마감', en: 'Reply due' }, value: { ko: '2026.06.05 (오늘)', en: '5 Jun 2026 (today)' } },
+    { label: { ko: '회신 마감', en: 'Reply due' }, value: { ko: '2026.06.12 (5영업일 내)', en: '12 Jun 2026 (within 5 business days)' } },
   ],
 };
 
@@ -304,8 +303,8 @@ export const STR = {
   pipelineBtn: { ko: '갱신 파이프라인에 등록', en: 'Add to renewal pipeline' },
   pipelineAdded: { ko: '등록 완료', en: 'Added' },
   toast: {
-    ko: '갱신 파이프라인에 등록되었습니다 · 삼성생명 정기보험 YRT',
-    en: 'Added to renewal pipeline · Samsung Life Term YRT',
+    ko: '갱신 파이프라인에 등록되었습니다 · 한화생명 Term Life XL',
+    en: 'Added to renewal pipeline · Hanwha Life Term Life XL',
   },
   toastSub: { ko: '갱신 파이프라인 데모에서 이어집니다', en: 'Continues in the renewals pipeline demo' },
 } satisfies Record<string, L>;
