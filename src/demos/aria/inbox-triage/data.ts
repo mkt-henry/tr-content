@@ -79,23 +79,24 @@ export const EMAILS: Email[] = [
   {
     id: 2,
     sender: { ko: '이준혁 · 한화생명', en: 'Junhyuk Lee · Hanwha Life' },
-    subject: { ko: 'Term Life XL 출재 의뢰 — 검토 요청', en: 'Term Life XL cession request — review' },
+    subject: { ko: 'Term Life XL 출재 의뢰 — 금일 회신 요청', en: 'Term Life XL cession request — reply due today' },
     preview: {
-      ko: '슬립 첨부드립니다. TSI 약 ₩800억 규모이며 검토 후 3영업일 내 회신 부탁드립니다…',
-      en: 'Slip attached. TSI approx. ₩80bn — please reply within 3 business days after review…',
+      ko: '슬립 첨부드립니다. TSI 약 ₩800억 규모이며 금일 중 인수 가능 여부 회신 부탁드립니다…',
+      en: 'Slip attached. TSI approx. ₩80bn — please confirm capacity today…',
     },
     body: {
-      ko: '안녕하세요, 한화생명 이준혁입니다.\n\n당사 단체 정기보험 포트폴리오의 XL 출재를 의뢰드립니다. 슬립을 첨부하였으며, TSI는 약 ₩800억, 보험기간은 2026.07.01부터 1년입니다. 희망 조건은 Retention ₩30억에 Limit ₩100억입니다.\n\n검토 후 3영업일 내 회신 부탁드립니다.',
-      en: 'Hello, this is Junhyuk Lee at Hanwha Life.\n\nWe would like to cede the XL layer of our group term life portfolio. The slip is attached; TSI is approx. ₩80bn, period from 1 Jul 2026 for 12 months. Requested terms: ₩3bn retention, ₩10bn limit.\n\nPlease reply within 3 business days after your review.',
+      ko: '안녕하세요, 한화생명 이준혁입니다.\n\n당사 단체 정기보험 포트폴리오의 XL 출재를 의뢰드립니다. 슬립을 첨부하였으며, TSI는 약 ₩800억, 보험기간은 2026.07.01부터 1년입니다. 희망 조건은 Retention ₩30억에 Limit ₩100억입니다.\n\n갱신 일정상 금일 중으로 인수 가능 여부 회신을 부탁드립니다.',
+      en: 'Hello, this is Junhyuk Lee at Hanwha Life.\n\nWe would like to cede the XL layer of our group term life portfolio. The slip is attached; TSI is approx. ₩80bn, period from 1 Jul 2026 for 12 months. Requested terms: ₩3bn retention, ₩10bn limit.\n\nGiven our renewal schedule, please confirm capacity today.',
     },
     time: { ko: '09:03', en: '09:03' },
     attachment: 'HW_TermLife_XL_Slip_2026.pdf',
     analysis: {
       category: 'submission',
-      priority: 'high',
+      priority: 'urgent',
+      due: { ko: '오늘 마감', en: 'Due today' },
       summary: {
-        ko: '단체 정기보험 Term Life XL 출재 의뢰 — 3영업일 내 회신',
-        en: 'Group term life XL cession submission — reply within 3 business days',
+        ko: '단체 정기보험 Term Life XL 신규 출재 의뢰 — 금일 회신 필요',
+        en: 'Group term life XL submission — reply required today',
       },
     },
   },
@@ -280,7 +281,7 @@ export const EXTRACTION: { emailId: number; fields: ExtractField[] } = {
       label: { ko: '희망 조건', en: 'Requested terms' },
       value: { ko: 'Retention ₩30억 · Limit ₩100억', en: 'Retention ₩3bn · Limit ₩10bn' },
     },
-    { label: { ko: '회신 마감', en: 'Reply due' }, value: { ko: '2026.06.12 (5영업일 내)', en: '12 Jun 2026 (within 5 business days)' } },
+    { label: { ko: '회신 마감', en: 'Reply due' }, value: { ko: '2026.06.10 (오늘)', en: '10 Jun 2026 (today)' } },
   ],
 };
 
