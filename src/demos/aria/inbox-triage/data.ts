@@ -285,10 +285,9 @@ export const EXTRACTION: { emailId: number; fields: ExtractField[] } = {
   ],
 };
 
-/** 첨부파일 보안 처리 단계 — 추출 후 자동 진행(다운로드 → 내용 확인 → 바이러스 검사) */
+/** 첨부파일 처리 단계 — 다운로드 → 악성코드/보안 위협 검사 (이후 문서 분석·추출이 이어짐) */
 export const SECURITY_STEPS: L[] = [
   { ko: '첨부파일 다운로드', en: 'Downloading attachment' },
-  { ko: '내용 확인·검증', en: 'Verifying contents' },
   { ko: '악성코드 및 보안 위협 검사', en: 'Malware & threat scan' },
 ];
 
@@ -315,6 +314,7 @@ export const STR = {
     en: 'Added to renewal pipeline · Hanwha Life Term Life XL',
   },
   toastSub: { ko: '갱신 파이프라인 데모에서 이어집니다', en: 'Continues in the renewals pipeline demo' },
-  secTitle: { ko: '첨부파일 보안 처리', en: 'Attachment security' },
+  secTitle: { ko: '첨부파일 처리', en: 'Attachment processing' },
   secSafe: { ko: '안전 — 위협 없음', en: 'Clean — no threats found' },
+  secAnalyzing: { ko: '문서 분석 중…', en: 'Analyzing document…' },
 } satisfies Record<string, L>;

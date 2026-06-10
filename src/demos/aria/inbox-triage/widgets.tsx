@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, Download, FileSearch, FileText, Loader2, Paperclip, ShieldCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2, Download, FileText, Loader2, Paperclip, ShieldCheck, Sparkles } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import { fmt, pick, useLang } from '../_shared/i18n';
 import {
@@ -176,32 +176,19 @@ export function DetailPane({ compact }: { compact?: boolean }) {
               <p className="flex items-center gap-1.5 text-[12px] font-semibold text-amber-300">
                 <Sparkles className="h-3.5 w-3.5" /> {pick(STR.extractTitle, lang)}
               </p>
-              {extractedCount === 0 && (
+              {!extracting && securityStep === 0 && extractedCount === 0 && (
                 <button
                   data-demo-id="extract-run"
                   onClick={extract}
-                  disabled={extracting}
-                  className="rounded-lg bg-amber-500 px-3 py-1.5 text-[11.5px] font-semibold text-[#27180a] transition-colors hover:bg-amber-400 disabled:opacity-60"
+                  className="rounded-lg bg-amber-500 px-3 py-1.5 text-[11.5px] font-semibold text-[#27180a] transition-colors hover:bg-amber-400"
                 >
-                  {extracting ? pick(STR.extractingLabel, lang) : pick(STR.extractBtn, lang)}
+                  {pick(STR.extractBtn, lang)}
                 </button>
               )}
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {EXTRACTION.fields.slice(0, extractedCount).map((f) => (
-                <motion.div
-                  key={f.label.en}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-2"
-                >
-                  <p className="text-[10px] uppercase tracking-wide text-zinc-500">{pick(f.label, lang)}</p>
-                  <p className="mt-0.5 text-[12px] font-medium text-zinc-200">{pick(f.value, lang)}</p>
-                </motion.div>
-              ))}
-            </div>
-            {/* 첨부파일 보안 처리 — 추출 완료 후 자동 진행 */}
-            {allExtracted && (
+
+            {/* 1) 첨부파일 처리 — 다운로드 → 악성코드/보안 위협 검사 */}
+            {(extracting || securityStep > 0 || extractedCount > 0) && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -214,7 +201,7 @@ export function DetailPane({ compact }: { compact?: boolean }) {
                   {SECURITY_STEPS.map((step, i) => {
                     const done = i < securityStep;
                     const running = i === securityStep && securityRunning;
-                    const StepIcon = i === 0 ? Download : i === 1 ? FileSearch : ShieldCheck;
+                    const StepIcon = i === 0 ? Download : ShieldCheck;
                     return (
                       <div key={i} className="flex items-center gap-2 text-[11.5px]">
                         {done ? (
@@ -232,7 +219,7 @@ export function DetailPane({ compact }: { compact?: boolean }) {
                     );
                   })}
                 </div>
-                {securityStep === 3 && (
+                {securityStep === SECURITY_STEPS.length && (
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -244,7 +231,35 @@ export function DetailPane({ compact }: { compact?: boolean }) {
               </motion.div>
             )}
 
-            {securityStep === 3 && (
+            {/* 2) 문서 분석 → 핵심 추출 (다운로드·검사 완료 후) */}
+            {securityStep === SECURITY_STEPS.length &&
+              (extractedCount === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-3 flex items-center gap-2 text-[11.5px] text-amber-200"
+                >
+                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-amber-400" />
+                  {pick(STR.secAnalyzing, lang)}
+                </motion.div>
+              ) : (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {EXTRACTION.fields.slice(0, extractedCount).map((f) => (
+                    <motion.div
+                      key={f.label.en}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-2"
+                    >
+                      <p className="text-[10px] uppercase tracking-wide text-zinc-500">{pick(f.label, lang)}</p>
+                      <p className="mt-0.5 text-[12px] font-medium text-zinc-200">{pick(f.value, lang)}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              ))}
+
+            {/* 3) 갱신 파이프라인 등록 (핵심 추출 완료 후) */}
+            {allExtracted && (
               <motion.button
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}

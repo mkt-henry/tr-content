@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { EMAILS, EXTRACTION } from './data';
+import { EMAILS, EXTRACTION, SECURITY_STEPS } from './data';
 
 export type Phase = 'raw' | 'scanning' | 'sorted';
 
@@ -83,9 +83,20 @@ export const useInbox = create<InboxState>((set, get) => ({
     const { phase, selectedId, extracting } = get();
     if (phase === 'scanning' || extracting || selectedId !== EXTRACTION.emailId) return;
     const id = ++runId;
-    set({ extracting: true, extractedCount: 0, securityStep: 0, securityRunning: false });
+    set({ extracting: true, extractedCount: 0, securityStep: 0, securityRunning: true });
     void (async () => {
-      // 1) 핵심 필드 순차 추출
+      // 1) 첨부파일 다운로드 → 악성코드/보안 위협 검사
+      for (let s = 1; s <= SECURITY_STEPS.length; s++) {
+        await sleep(850);
+        if (id !== runId) return;
+        set({ securityStep: s });
+      }
+      if (id !== runId) return;
+      set({ securityRunning: false });
+      // 2) 문서 분석 (securityStep 완료 후, 필드 등장 전 '분석 중' 표시 구간)
+      await sleep(950);
+      if (id !== runId) return;
+      // 3) 분석 결과 핵심 필드 순차 추출
       for (let i = 1; i <= EXTRACTION.fields.length; i++) {
         await sleep(380);
         if (id !== runId) return;
@@ -93,22 +104,11 @@ export const useInbox = create<InboxState>((set, get) => ({
       }
       if (id !== runId) return;
       set({ extracting: false });
-      // 2) 첨부파일 보안 처리 — 다운로드 → 내용 확인 → 바이러스 검사
-      await sleep(450);
-      if (id !== runId) return;
-      set({ securityRunning: true });
-      for (let s = 1; s <= 3; s++) {
-        await sleep(850);
-        if (id !== runId) return;
-        set({ securityStep: s });
-      }
-      if (id !== runId) return;
-      set({ securityRunning: false });
     })();
   },
 
   addToPipeline: () => {
-    if (get().securityStep === 3) set({ pipelineAdded: true });
+    if (get().extractedCount === EXTRACTION.fields.length) set({ pipelineAdded: true });
   },
 
   setHovered: (hoveredId) => set({ hoveredId }),
