@@ -1,6 +1,7 @@
 import { Home, Star, Store, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
+import logoOnLight from '../../../assets/treazer/logo-on-light.png';
 
 /** Treazer 브랜드 오렌지 */
 export const TZ_ORANGE = '#f97316';
@@ -57,12 +58,14 @@ export function BottomNav({ active }: { active: 'home' | 'mission' | 'store' | '
   );
 }
 
-/** Treazer 워드마크 */
+/** Treazer 워드마크 — 밝은 배경용 로고 이미지. 높이는 호출부 font-size(h-[1em])에 맞춘다 */
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn('font-bold tracking-tight text-zinc-900', className)}>
-      Treazer<span className="text-orange-500">.</span>
-    </span>
+    <img
+      src={logoOnLight}
+      alt="Treazer"
+      className={cn('inline-block h-[1em] w-auto select-none align-[-0.18em]', className)}
+    />
   );
 }
 

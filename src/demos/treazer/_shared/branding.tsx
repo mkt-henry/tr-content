@@ -2,13 +2,16 @@ import { motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
 import type { ProjectBranding } from '../../../branding/types';
 import { TZ_BACKGROUND } from './ui';
+import logoOnDark from '../../../assets/treazer/logo-on-dark.png';
 
-/** 다크 배경용 Treazer 워드마크 (ui.tsx Wordmark는 다크 텍스트라 별도) */
+/** 다크 배경용 Treazer 워드마크 — 인트로/아웃트로용 밝은 로고 이미지 */
 function DarkWordmark({ className }: { className?: string }) {
   return (
-    <span className={cn('font-bold tracking-tight text-white', className)}>
-      Treazer<span className="text-orange-500">.</span>
-    </span>
+    <img
+      src={logoOnDark}
+      alt="Treazer"
+      className={cn('inline-block h-[1em] w-auto select-none', className)}
+    />
   );
 }
 
