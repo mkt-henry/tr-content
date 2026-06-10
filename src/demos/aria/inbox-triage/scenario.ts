@@ -32,7 +32,7 @@ export const pipelineScenario: Scenario = {
     { kind: 'click', target: `email-row-${TARGET}`, run: () => st().selectEmail(TARGET) },
     { kind: 'wait', ms: 1000 },
     { kind: 'click', target: 'extract-run', run: () => st().extract() },
-    { kind: 'wait', ms: 3400 },
+    { kind: 'wait', ms: 5900 },
     { kind: 'cursor', target: 'pipeline-add', ms: 700 },
     { kind: 'click', target: 'pipeline-add', run: () => st().addToPipeline() },
     { kind: 'wait', ms: 2400 },

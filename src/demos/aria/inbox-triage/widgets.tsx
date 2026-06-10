@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, FileText, Paperclip, Sparkles } from 'lucide-react';
+import { CheckCircle2, Download, FileSearch, FileText, Loader2, Paperclip, ShieldCheck, Sparkles } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import { fmt, pick, useLang } from '../_shared/i18n';
 import {
@@ -7,6 +7,7 @@ import {
   EMAILS,
   EXTRACTION,
   PRIORITY_META,
+  SECURITY_STEPS,
   STR,
   sortedEmails,
   summaryCounts,
@@ -137,7 +138,8 @@ export function EmailList({ compact }: { compact?: boolean }) {
 
 /** 상세 패널 — 본문 + 첨부 칩 + (추출 대상이면) 핵심 추출 → 파이프라인 등록 */
 export function DetailPane({ compact }: { compact?: boolean }) {
-  const { selectedId, extracting, extractedCount, pipelineAdded, extract, addToPipeline } = useInbox();
+  const { selectedId, extracting, extractedCount, securityStep, securityRunning, pipelineAdded, extract, addToPipeline } =
+    useInbox();
   const lang = useLang();
   const email = EMAILS.find((e) => e.id === selectedId);
 
@@ -198,7 +200,51 @@ export function DetailPane({ compact }: { compact?: boolean }) {
                 </motion.div>
               ))}
             </div>
+            {/* 첨부파일 보안 처리 — 추출 완료 후 자동 진행 */}
             {allExtracted && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 rounded-lg border border-white/[0.07] bg-black/20 p-3"
+              >
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold text-zinc-400">
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-400" /> {pick(STR.secTitle, lang)}
+                </p>
+                <div className="mt-2 space-y-1.5">
+                  {SECURITY_STEPS.map((step, i) => {
+                    const done = i < securityStep;
+                    const running = i === securityStep && securityRunning;
+                    const StepIcon = i === 0 ? Download : i === 1 ? FileSearch : ShieldCheck;
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-[11.5px]">
+                        {done ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                        ) : running ? (
+                          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-amber-400" />
+                        ) : (
+                          <StepIcon className="h-3.5 w-3.5 shrink-0 text-zinc-600" />
+                        )}
+                        <span className={cn(done ? 'text-emerald-300/90' : running ? 'text-amber-200' : 'text-zinc-600')}>
+                          {pick(step, lang)}
+                          {i === 0 && ` · ${EMAILS.find((e) => e.id === EXTRACTION.emailId)?.attachment ?? ''}`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {securityStep === 3 && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-emerald-300"
+                  >
+                    <ShieldCheck className="h-3.5 w-3.5" /> {pick(STR.secSafe, lang)}
+                  </motion.p>
+                )}
+              </motion.div>
+            )}
+
+            {securityStep === 3 && (
               <motion.button
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}

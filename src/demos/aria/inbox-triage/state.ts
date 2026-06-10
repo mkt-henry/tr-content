@@ -13,6 +13,10 @@ interface InboxState {
   extracting: boolean;
   /** 추출되어 표시할 필드 수 (스트리밍 연출) */
   extractedCount: number;
+  /** 첨부파일 보안 처리 완료 단계 수 (0~3: 다운로드 → 내용확인 → 바이러스검사) */
+  securityStep: number;
+  /** 보안 처리 진행 중 (현재 단계 스피너 표시용) */
+  securityRunning: boolean;
   pipelineAdded: boolean;
   /** v1 — 메일을 위→아래 순차 스캔 후 우선순위 정렬 */
   startTriage: () => void;
@@ -37,6 +41,8 @@ export const useInbox = create<InboxState>((set, get) => ({
   hoveredId: null,
   extracting: false,
   extractedCount: 0,
+  securityStep: 0,
+  securityRunning: false,
   pipelineAdded: false,
 
   startTriage: () => {
@@ -62,15 +68,24 @@ export const useInbox = create<InboxState>((set, get) => ({
 
   selectEmail: (selectedId) => {
     runId++;
-    set({ selectedId, hoveredId: null, extracting: false, extractedCount: 0, pipelineAdded: false });
+    set({
+      selectedId,
+      hoveredId: null,
+      extracting: false,
+      extractedCount: 0,
+      securityStep: 0,
+      securityRunning: false,
+      pipelineAdded: false,
+    });
   },
 
   extract: () => {
     const { phase, selectedId, extracting } = get();
     if (phase === 'scanning' || extracting || selectedId !== EXTRACTION.emailId) return;
     const id = ++runId;
-    set({ extracting: true, extractedCount: 0 });
+    set({ extracting: true, extractedCount: 0, securityStep: 0, securityRunning: false });
     void (async () => {
+      // 1) 핵심 필드 순차 추출
       for (let i = 1; i <= EXTRACTION.fields.length; i++) {
         await sleep(380);
         if (id !== runId) return;
@@ -78,11 +93,22 @@ export const useInbox = create<InboxState>((set, get) => ({
       }
       if (id !== runId) return;
       set({ extracting: false });
+      // 2) 첨부파일 보안 처리 — 다운로드 → 내용 확인 → 바이러스 검사
+      await sleep(450);
+      if (id !== runId) return;
+      set({ securityRunning: true });
+      for (let s = 1; s <= 3; s++) {
+        await sleep(850);
+        if (id !== runId) return;
+        set({ securityStep: s });
+      }
+      if (id !== runId) return;
+      set({ securityRunning: false });
     })();
   },
 
   addToPipeline: () => {
-    if (get().extractedCount === EXTRACTION.fields.length) set({ pipelineAdded: true });
+    if (get().securityStep === 3) set({ pipelineAdded: true });
   },
 
   setHovered: (hoveredId) => set({ hoveredId }),
@@ -96,6 +122,8 @@ export const useInbox = create<InboxState>((set, get) => ({
       hoveredId: null,
       extracting: false,
       extractedCount: 0,
+      securityStep: 0,
+      securityRunning: false,
       pipelineAdded: false,
     });
   },
