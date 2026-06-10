@@ -10,7 +10,6 @@ import {
   RotateCcw,
   Smartphone,
   PanelTop,
-  Square,
   Video,
 } from 'lucide-react';
 import type { FeatureDefinition, DemoVariant } from '../registry/types';
@@ -25,7 +24,6 @@ interface ControlBarProps {
   variant: DemoVariant;
   status: PlaybackStatus;
   onPlay: () => void;
-  onStop: () => void;
   onPause: () => void;
   onResume: () => void;
   onReset: () => void;
@@ -38,7 +36,7 @@ interface ControlBarProps {
 const SPEEDS = [0.5, 1, 1.5, 2];
 
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
-export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, onResume, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
+export function ControlBar({ feature, variant, status, onPlay, onPause, onResume, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
   const { device, phoneFrame, browserChrome, backToGallery, toggleDevice, togglePhoneFrame, toggleBrowserChrome } =
     useShellStore();
   const projectLang = useShellStore((s) => s.projectLang);
@@ -109,23 +107,13 @@ export function ControlBar({ feature, variant, status, onPlay, onStop, onPause, 
         <Divider />
 
         {playing ? (
-          <>
-            <BarButton onClick={onPause} label="일시정지 (Space)" highlight>
-              <Pause className="h-4 w-4" />
-            </BarButton>
-            <BarButton onClick={onStop} label="정지">
-              <Square className="h-4 w-4" />
-            </BarButton>
-          </>
+          <BarButton onClick={onPause} label="일시정지 (Space)" highlight>
+            <Pause className="h-4 w-4" />
+          </BarButton>
         ) : paused ? (
-          <>
-            <BarButton onClick={onResume} label="재개 (Space)" highlight>
-              <Play className="h-4 w-4" />
-            </BarButton>
-            <BarButton onClick={onStop} label="정지">
-              <Square className="h-4 w-4" />
-            </BarButton>
-          </>
+          <BarButton onClick={onResume} label="재개 (Space)" highlight>
+            <Play className="h-4 w-4" />
+          </BarButton>
         ) : (
           <BarButton onClick={onPlay} label="자동 재생 (Space)" highlight>
             <Play className="h-4 w-4" />
