@@ -22,81 +22,85 @@ export interface QAItem {
 export const QA: QAItem[] = [
   {
     question: {
-      ko: '이 특약의 사고당 한도와 면책금액은?',
-      en: "What are this treaty's per-occurrence limit and retention?",
+      ko: '이 출재 건의 보유·한도 조건은?',
+      en: "What are this cession's retention and limit?",
     },
     answer: {
       ko: {
-        text: '본 Property Cat XoL 특약의 사고당 한도(per occurrence limit)는 ₩300억, 자기보유(retention)는 ₩60억입니다.\n\n연간 누적 한도(aggregate)는 ₩600억이며, Reinstatement는 연 2회 · 100% 추가보험료 조건입니다. 한도 산정은 Ultimate Net Loss 기준이고, 풍수해의 경우 Hours Clause 168시간이 적용됩니다.',
+        text: '본 건은 단체 정기보험(Term Life) 초과손해(XL) 재보험으로, 출재사 보유(Retention)는 ₩30억, 재보험 한도(Limit)는 ₩100억입니다.\n\nSum at Risk(SAR)는 약 ₩800억 규모이며, 한도와 보유는 1인당(per life) · 1사고당(per event) 기준으로 적용됩니다. 즉 단일 피보험자 또는 단일 집단사고에서 보유 ₩30억을 초과하는 손해를 ₩100억 한도까지 재보험사가 부담합니다.',
         evidence: [
-          { label: '사고당 한도', value: '₩300억', delta: 'Per Occurrence', positive: true },
-          { label: '자기보유 (Retention)', value: '₩60억', delta: 'UNL 기준', positive: true },
-          { label: '연간 누적 한도', value: '₩600억', delta: 'Aggregate', positive: true },
-          { label: 'Reinstatement', value: '2회', delta: '@100% A.P.', positive: true },
+          { label: '보종 (Line)', value: '단체 정기보험 XL', delta: 'Excess of Loss', positive: true },
+          { label: 'Retention (보유)', value: '₩30억', delta: 'per life / per event', positive: true },
+          { label: 'Limit (한도)', value: '₩100억', delta: '보유 초과분', positive: true },
+          { label: 'Sum at Risk', value: '약 ₩800억', delta: 'TSI 기준', positive: true },
         ],
-        source: 'Slip p.3 §Limits · Treaty Wording Art.4',
+        source: 'Slip p.2 §Cover · Reinsurance Wording Art.3',
       },
       en: {
-        text: 'This Property Cat XoL treaty carries a per-occurrence limit of ₩30bn with a retention of ₩6bn.\n\nThe annual aggregate limit is ₩60bn, with 2 reinstatements per year at 100% additional premium. Limits are calculated on an Ultimate Net Loss basis, and a 168-hour Hours Clause applies to windstorm events.',
+        text: 'This is a group term life excess-of-loss (XL) reinsurance, with a cedent retention of ₩3bn and a reinsurance limit of ₩10bn.\n\nThe Sum at Risk (SAR) is approximately ₩80bn. Limit and retention apply on a per-life and per-event basis: for any single insured life or a single catastrophe event, the reinsurer covers losses above the ₩3bn retention up to the ₩10bn limit.',
         evidence: [
-          { label: 'Per-occurrence limit', value: '₩30bn', delta: 'Per Occurrence', positive: true },
-          { label: 'Retention', value: '₩6bn', delta: 'UNL basis', positive: true },
-          { label: 'Annual aggregate', value: '₩60bn', delta: 'Aggregate', positive: true },
-          { label: 'Reinstatement', value: '2×', delta: '@100% A.P.', positive: true },
+          { label: 'Line', value: 'Group Term Life XL', delta: 'Excess of Loss', positive: true },
+          { label: 'Retention', value: '₩3bn', delta: 'per life / per event', positive: true },
+          { label: 'Limit', value: '₩10bn', delta: 'above retention', positive: true },
+          { label: 'Sum at Risk', value: '~₩80bn', delta: 'TSI basis', positive: true },
         ],
-        source: 'Slip p.3 §Limits · Treaty Wording Art.4',
+        source: 'Slip p.2 §Cover · Reinsurance Wording Art.3',
       },
     },
   },
   {
     question: {
-      ko: '최근 3년 클레임 이력을 요약해줘',
-      en: 'Summarize the claims history for the last 3 years',
+      ko: '보험기간과 담보 범위는?',
+      en: 'What is the period and scope of cover?',
     },
     answer: {
       ko: {
-        text: '최근 3년간 본 특약에서 접수된 클레임은 총 4건, 지급 보험금 합계는 ₩142억입니다.\n\n2023년 태풍 카눈 관련 2건(₩96억)이 가장 컸고, 2024년 공장 화재 1건(₩31억), 2025년 집중호우 1건(₩15억)입니다. 3년 평균 손해율은 66%로 상승 추세이며, 태풍 익스포저 누적이 주요 요인입니다.',
+        text: '보험기간은 2026.07.01부터 2027.06.30까지 1년이며, 출재사는 한화생명입니다.\n\n담보 범위는 단체 정기보험의 사망담보 초과손해로, 피보험 집단에서 발생한 사망보험금 중 보유(₩30억)를 초과하는 부분을 재보험사가 부담합니다. 1년 누적 기준으로 보장되며, 출재 방식은 XL(Excess of Loss) 구조입니다.',
         evidence: [
-          { label: '클레임 건수 (3년)', value: '4건', delta: '지급 완료 3 · 진행 1', positive: true },
-          { label: '지급 보험금 합계', value: '₩142억', delta: '태풍 카눈 ₩96억 포함', positive: false },
-          { label: '3년 평균 손해율', value: '66%', delta: "'25년 74%로 상승", positive: false },
+          { label: '보험기간 (Period)', value: '2026.07.01–2027.06.30', delta: '1년', positive: true },
+          { label: '담보 (Cover)', value: '사망담보 초과손해', delta: 'Term Life death benefit', positive: true },
+          { label: '출재방식 (Basis)', value: 'XL', delta: 'Excess of Loss', positive: true },
+          { label: '출재사 (Cedent)', value: '한화생명', delta: 'Hanwha Life', positive: true },
         ],
-        source: 'Claims Bordereaux 2023–2025 · 분기 정산서',
+        source: 'Slip p.1 §Period & Reassured',
       },
       en: {
-        text: 'Over the last 3 years this treaty recorded 4 claims totalling ₩14.2bn in paid losses.\n\nThe largest were 2 claims from Typhoon Khanun in 2023 (₩9.6bn), followed by a factory fire in 2024 (₩3.1bn) and torrential flooding in 2025 (₩1.5bn). The 3-year average loss ratio is 66% and trending upward, driven mainly by accumulating typhoon exposure.',
+        text: 'The period of cover runs one year, from 2026.07.01 to 2027.06.30, with Hanwha Life as the ceding company.\n\nCover is excess of loss on the death benefit of a group term life portfolio: the reinsurer pays death claims above the ₩3bn retention. Cover applies on a one-year aggregate basis under an excess-of-loss (XL) structure.',
         evidence: [
-          { label: 'Claims (3 yrs)', value: '4', delta: '3 paid · 1 open', positive: true },
-          { label: 'Total paid losses', value: '₩14.2bn', delta: 'incl. Khanun ₩9.6bn', positive: false },
-          { label: '3-yr avg loss ratio', value: '66%', delta: "rising to 74% in '25", positive: false },
+          { label: 'Period', value: '2026.07.01–2027.06.30', delta: '1 year', positive: true },
+          { label: 'Cover', value: 'Death benefit XL', delta: 'Group term life', positive: true },
+          { label: 'Basis', value: 'XL', delta: 'Excess of Loss', positive: true },
+          { label: 'Cedent', value: 'Hanwha Life', delta: '한화생명', positive: true },
         ],
-        source: 'Claims Bordereaux 2023–2025 · Quarterly statements',
+        source: 'Slip p.1 §Period & Reassured',
       },
     },
   },
   {
     question: {
-      ko: 'Hours Clause 조건은 어떻게 돼?',
-      en: 'What are the Hours Clause terms?',
+      ko: '주요 면책·특별 조항은?',
+      en: 'What are the key exclusions and special clauses?',
     },
     answer: {
       ko: {
-        text: 'Hours Clause는 풍수해(windstorm) 기준 연속 168시간입니다.\n\n하나의 사고(loss occurrence)로 간주되는 손해의 시간적 범위를 정하는 조항으로, 168시간 내 발생한 동일 원인 손해는 1건의 사고로 합산되어 사고당 한도와 자기보유가 1회만 적용됩니다. 지진의 경우 별도로 72시간이 적용됩니다.',
+        text: '주요 면책·특별 조항은 다음과 같습니다.\n\n자살은 계약(또는 부활) 후 2년 이내 발생 시 면책되며, 전쟁·테러·내란으로 인한 사망은 담보에서 제외됩니다. 집단사고(catastrophe)는 1사고당 한도가 적용되어 단일 사고에서 다수 사망이 발생하더라도 ₩100억 한도로 제한됩니다. 위험 직업·위험등급 가입자에 대해서는 별도 인수기준과 할증이 적용됩니다.',
         evidence: [
-          { label: '풍수해 (Windstorm)', value: '168시간', delta: '연속 기준', positive: true },
-          { label: '지진 (Earthquake)', value: '72시간', delta: '연속 기준', positive: true },
-          { label: '적용 기준', value: '동일 원인', delta: '1 Loss Occurrence 합산', positive: true },
+          { label: '자살 면책', value: '계약 후 2년', delta: '부활 시 재기산', positive: true },
+          { label: '전쟁·테러', value: '면책', delta: 'War & Terrorism 제외', positive: false },
+          { label: '집단사고 (Cat)', value: '1사고 한도', delta: '₩100억 cap', positive: true },
+          { label: '직업·위험등급', value: '별도 인수기준', delta: '할증 적용', positive: true },
         ],
-        source: 'Treaty Wording Art.6 §Hours Clause',
+        source: 'Reinsurance Wording Art.7 §Exclusions & Special Conditions',
       },
       en: {
-        text: 'The Hours Clause is 168 consecutive hours for windstorm.\n\nIt defines the time window within which losses count as a single loss occurrence: same-cause losses within 168 hours are aggregated into one occurrence, so the per-occurrence limit and retention apply only once. Earthquake carries a separate 72-hour clause.',
+        text: 'The key exclusions and special clauses are as follows.\n\nSuicide is excluded if it occurs within 2 years of inception (or reinstatement). Death caused by war, terrorism or civil commotion is excluded. A catastrophe (single-event) limit applies, so even multiple deaths from one event are capped at the ₩10bn limit. Hazardous occupations and substandard risk classes are subject to separate underwriting terms and loadings.',
         evidence: [
-          { label: 'Windstorm', value: '168 hrs', delta: 'consecutive', positive: true },
-          { label: 'Earthquake', value: '72 hrs', delta: 'consecutive', positive: true },
-          { label: 'Aggregation basis', value: 'Same cause', delta: 'one loss occurrence', positive: true },
+          { label: 'Suicide exclusion', value: '2-year', delta: 'resets on reinstatement', positive: true },
+          { label: 'War & terrorism', value: 'Excluded', delta: 'no cover', positive: false },
+          { label: 'Catastrophe', value: 'Per-event cap', delta: '₩10bn limit', positive: true },
+          { label: 'Occupation / class', value: 'Separate terms', delta: 'loadings apply', positive: true },
         ],
-        source: 'Treaty Wording Art.6 §Hours Clause',
+        source: 'Reinsurance Wording Art.7 §Exclusions & Special Conditions',
       },
     },
   },
@@ -109,10 +113,10 @@ export function suggested(lang: Lang): string[] {
 
 export const FALLBACK: L<Answer> = {
   ko: {
-    text: '해당 질문은 현재 선택된 Korean Re Property Cat XoL 특약 문서를 기준으로 답변드릴 수 있습니다. 한도, 면책, 클레임 이력, 특별 조항 중 어떤 항목이 궁금하신가요?\n\n예: "이 특약의 사고당 한도와 면책금액은?"',
+    text: '현재 연결된 한화생명 Term Life XL 슬립을 기준으로 답변드립니다. 보유·한도 조건, 보험기간·담보 범위, 면책·특별 조항 중 어떤 항목이 궁금하신가요?\n\n예: "이 출재 건의 보유·한도 조건은?"',
   },
   en: {
-    text: 'I can answer that based on the currently selected Korean Re Property Cat XoL treaty documents. Which would you like to explore — limits, retention, claims history, or special clauses?\n\ne.g. "What are this treaty\'s per-occurrence limit and retention?"',
+    text: 'I answer based on the connected Hanwha Life Term Life XL slip. Which would you like to explore — retention & limit, period & scope of cover, or exclusions & special clauses?\n\ne.g. "What are this cession\'s retention and limit?"',
   },
 };
 
@@ -123,22 +127,37 @@ export const STR = {
   recentChats: { ko: '최근 대화', en: 'Recent chats' },
   userName: { ko: '김중개', en: 'J. Kim' },
   userRole: { ko: '재보험팀 · Broker', en: 'Reinsurance · Broker' },
-  placeholder: { ko: '특약·클레임 문서에 대해 질문하세요…', en: 'Ask about treaty & claims documents…' },
+  placeholder: { ko: '이 출재 슬립에 대해 질문하세요…', en: 'Ask about this cession slip…' },
   placeholderShort: { ko: '질문을 입력하세요…', en: 'Type a question…' },
   footerNote: {
-    ko: '현재 문서: Korean Re Property Cat XoL Slip 2026 · 모든 답변에 원문 인용이 함께 표시됩니다.',
-    en: 'Current document: Korean Re Property Cat XoL Slip 2026 · Every answer includes source citations.',
+    ko: '현재 문서: 한화생명 Term Life XL Slip 2026 (갱신 파이프라인 연동) · 모든 답변에 원문 인용이 함께 표시됩니다.',
+    en: 'Source: Hanwha Life Term Life XL Slip 2026 (from renewal pipeline) · Every answer includes citations.',
   },
-  emptyTitle: { ko: '계약·클레임 문서에 물어보세요', en: 'Ask your treaty & claims documents' },
+  emptyTitle: { ko: '연결된 출재 슬립에 물어보세요', en: 'Ask the connected cession slip' },
   emptySubtitle: {
-    ko: 'Korean Re Property Cat XoL Slip 기준으로 답변합니다',
-    en: 'Answers are grounded in the Korean Re Property Cat XoL Slip',
+    ko: '한화생명 Term Life XL Slip 기준으로 답변합니다',
+    en: 'Answers are grounded in the Hanwha Life Term Life XL slip',
   },
   evidenceHeader: { ko: '원문 근거', en: 'Source evidence' },
+  sourceConnecting: { ko: '갱신 파이프라인에서 문서 연결 중', en: 'Connecting document from renewal pipeline' },
+  sourceReady: { ko: '문서 연결 완료', en: 'Document connected' },
+  sourceReadyHint: { ko: '이제 이 슬립에 대해 질문할 수 있습니다', en: 'You can now ask about this slip' },
 } satisfies Record<string, L>;
 
 /** 사이드바 최근 대화 목록 */
 export const HISTORY: L<string[]> = {
-  ko: ['Korean Re Cat XoL 특약', 'KB Marine Hull 갱신', '태풍 카눈 클레임', 'Casualty Wording 검토'],
-  en: ['Korean Re Cat XoL Treaty', 'KB Marine Hull renewal', 'Typhoon Khanun claims', 'Casualty wording review'],
+  ko: ['한화생명 Term Life XL', '단체 정기보험 XL 조건', '생명재보험 면책 조항', 'CI 출재 검토'],
+  en: ['Hanwha Life Term Life XL', 'Group term life XL terms', 'Life reinsurance exclusions', 'CI cession review'],
 };
+
+/** ai-chat 소스 문서 — 인박스에서 갱신 파이프라인에 등록된 첨부파일 */
+export const SOURCE_DOC = {
+  file: 'HW_TermLife_XL_Slip_2026.pdf',
+  label: { ko: '한화생명 Term Life XL', en: 'Hanwha Life Term Life XL' } as L,
+};
+
+/** 소스 연결 세팅 단계 — 파이프라인에서 불러오기 → 분석·인덱싱 */
+export const SOURCE_STEPS: L[] = [
+  { ko: '갱신 파이프라인에서 첨부파일 불러오기', en: 'Fetching attachment from renewal pipeline' },
+  { ko: '문서 분석·인덱싱', en: 'Analyzing & indexing document' },
+];

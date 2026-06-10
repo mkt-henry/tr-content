@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, FileBarChart2 } from 'lucide-react';
+import { CheckCircle2, FileBarChart2, FileText, Link2, Loader2, Sparkles } from 'lucide-react';
 import { useChat, type ChatMessage } from './state';
 import { pick, useLang } from '../_shared/i18n';
-import { STR, suggested } from './data';
+import { SOURCE_DOC, SOURCE_STEPS, STR, suggested } from './data';
 import { cn } from '../../../lib/cn';
 
 /** 메시지 목록 + 추천 질문 (데스크탑/모바일 공용) */
 export function Messages({ compact }: { compact?: boolean }) {
-  const { messages, thinking, send } = useChat();
+  const { messages, thinking, send, sourcePhase, sourceStep } = useChat();
   const lang = useLang();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -21,29 +21,65 @@ export function Messages({ compact }: { compact?: boolean }) {
   return (
     <div ref={scrollRef} className="demo-scroll min-h-0 flex-1 overflow-y-auto">
       {messages.length === 0 ? (
-        <div className={cn('flex h-full flex-col items-center justify-center gap-6 px-6', compact && 'gap-4')}>
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-300">
-            <Sparkles className="h-6 w-6" />
+        sourcePhase === 'connecting' ? (
+          // 소스 문서 연결 세팅 — 파이프라인 등록 첨부파일 불러오기 → 분석·인덱싱
+          <div className={cn('flex h-full flex-col items-center justify-center gap-5 px-6', compact && 'gap-4')}>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-300">
+              <Link2 className="h-6 w-6" />
+            </div>
+            <div className="text-center">
+              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[15px]' : 'text-[18px]')}>
+                {pick(STR.sourceConnecting, lang)}
+              </h3>
+              <p className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] text-zinc-500">
+                <FileText className="h-3.5 w-3.5 text-teal-400" />
+                {SOURCE_DOC.file}
+              </p>
+            </div>
+            <div className="flex w-full max-w-xs flex-col gap-2.5">
+              {SOURCE_STEPS.map((step, i) => {
+                const done = i < sourceStep;
+                return (
+                  <div key={i} className="flex items-center gap-2 text-[12.5px]">
+                    {done ? (
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                    ) : (
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin text-teal-400" />
+                    )}
+                    <span className={cn(done ? 'text-emerald-300/90' : 'text-zinc-300')}>{pick(step, lang)}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="text-center">
-            <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[16px]' : 'text-[20px]')}>
-              {pick(STR.emptyTitle, lang)}
-            </h3>
-            <p className="mt-1.5 text-[12px] text-zinc-500">{pick(STR.emptySubtitle, lang)}</p>
+        ) : (
+          <div className={cn('flex h-full flex-col items-center justify-center gap-6 px-6', compact && 'gap-4')}>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-300">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div className="text-center">
+              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[16px]' : 'text-[20px]')}>
+                {pick(STR.emptyTitle, lang)}
+              </h3>
+              <p className="mt-1.5 text-[12px] text-zinc-500">{pick(STR.emptySubtitle, lang)}</p>
+              <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-emerald-400/80">
+                <CheckCircle2 className="h-3 w-3" /> {pick(SOURCE_DOC.label, lang)} {pick(STR.sourceReady, lang)}
+              </p>
+            </div>
+            <div className={cn('flex w-full max-w-md flex-col gap-2', compact && 'max-w-none')}>
+              {suggested(lang).map((q, i) => (
+                <button
+                  key={i}
+                  data-demo-id={`suggest-${i}`}
+                  onClick={() => send(q)}
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[12.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className={cn('flex w-full max-w-md flex-col gap-2', compact && 'max-w-none')}>
-            {suggested(lang).map((q, i) => (
-              <button
-                key={i}
-                data-demo-id={`suggest-${i}`}
-                onClick={() => send(q)}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[12.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        </div>
+        )
       ) : (
         <div className={cn('mx-auto flex max-w-2xl flex-col gap-5 px-5 py-6', compact && 'px-4 py-4 gap-4')}>
           {messages.map((m) => (

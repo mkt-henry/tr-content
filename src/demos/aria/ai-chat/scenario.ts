@@ -11,7 +11,10 @@ const q = (i: number) => () => QA[i].question[getLang()];
 export const evidenceScenario: Scenario = {
   id: 'chat-evidence',
   steps: [
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 700 },
+    // 갱신 파이프라인에 등록된 첨부파일을 소스로 연결 (불러오기 → 분석·인덱싱)
+    { kind: 'do', run: () => st().connectSource() },
+    { kind: 'wait', ms: 2700 },
     { kind: 'type', target: 'chat-input', text: q(0), cps: 14, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 400 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
@@ -26,7 +29,10 @@ export const evidenceScenario: Scenario = {
 export const naturalScenario: Scenario = {
   id: 'chat-natural',
   steps: [
-    { kind: 'wait', ms: 900 },
+    { kind: 'wait', ms: 700 },
+    // 갱신 파이프라인에 등록된 첨부파일을 소스로 연결 (불러오기 → 분석·인덱싱)
+    { kind: 'do', run: () => st().connectSource() },
+    { kind: 'wait', ms: 2700 },
     { kind: 'cursor', target: 'suggest-0', ms: 700 },
     { kind: 'wait', ms: 300 },
     { kind: 'click', target: 'suggest-2', run: () => st().send(q(2)()) },

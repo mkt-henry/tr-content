@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getLang } from '../_shared/i18n';
-import { FALLBACK, QA, type Evidence } from './data';
+import { FALLBACK, QA, SOURCE_STEPS, type Evidence } from './data';
 
 export interface ChatMessage {
   id: number;
@@ -15,7 +15,13 @@ interface ChatState {
   messages: ChatMessage[];
   input: string;
   thinking: boolean;
+  /** 소스 문서(파이프라인 등록 첨부파일) 연결 상태 */
+  sourcePhase: 'connecting' | 'ready';
+  /** 연결 완료 단계 수 (0~SOURCE_STEPS.length) */
+  sourceStep: number;
   setInput: (v: string) => void;
+  /** 파이프라인 등록 첨부파일을 소스로 연결 — 불러오기 → 분석·인덱싱 → ready */
+  connectSource: () => void;
   /** 질문 전송 — 자동/수동 공용. text 생략 시 현재 input 사용 */
   send: (text?: string) => void;
   reset: () => void;
@@ -30,7 +36,23 @@ export const useChat = create<ChatState>((set, get) => ({
   messages: [],
   input: '',
   thinking: false,
+  sourcePhase: 'connecting',
+  sourceStep: 0,
   setInput: (input) => set({ input }),
+  connectSource: () => {
+    const id = ++runId;
+    set({ sourcePhase: 'connecting', sourceStep: 0 });
+    void (async () => {
+      for (let s = 1; s <= SOURCE_STEPS.length; s++) {
+        await sleep(900);
+        if (id !== runId) return;
+        set({ sourceStep: s });
+      }
+      if (id !== runId) return;
+      await sleep(350);
+      set({ sourcePhase: 'ready' });
+    })();
+  },
   send: (text) => {
     const question = (text ?? get().input).trim();
     if (!question || get().thinking) return;
@@ -72,6 +94,6 @@ export const useChat = create<ChatState>((set, get) => ({
   },
   reset: () => {
     runId++;
-    set({ messages: [], input: '', thinking: false });
+    set({ messages: [], input: '', thinking: false, sourcePhase: 'connecting', sourceStep: 0 });
   },
 }));
