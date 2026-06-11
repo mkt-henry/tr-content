@@ -6,6 +6,7 @@ import { pick, useLang } from '../_shared/i18n';
 import { STR } from './data';
 import { useInbox } from './state';
 import { DetailPane, EmailList, SummaryBar } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Mobile(_: DemoComponentProps) {
   const { phase, startTriage, selectedId, selectEmail } = useInbox();
@@ -17,7 +18,10 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-amber-500/90 text-[#27180a]">
           <Inbox className="h-3.5 w-3.5" />
         </div>
-        <span className="text-[13px] font-semibold text-zinc-100">ARIA Inbox</span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3" />
+          <span className="text-[13px] font-semibold text-zinc-100">Inbox</span>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <button
             data-demo-id="triage-run"

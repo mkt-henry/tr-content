@@ -5,6 +5,7 @@ import { ChatMessages } from './ChatMessages';
 import { SourceMenu } from './SourceMenu';
 import type { ChatStoreHook } from './store';
 import { cn } from '../../../../lib/cn';
+import { AriaWordmark } from '../AriaWordmark';
 
 /** ARIA 채팅 데스크탑 셸 — 모든 채팅 데모 공용. 동작 차이는 store/시나리오로만 */
 export function ChatDesktop({ useStore }: { useStore: ChatStoreHook }) {
@@ -26,9 +27,10 @@ export function ChatDesktop({ useStore }: { useStore: ChatStoreHook }) {
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/90 text-[#06211f]">
             <Sparkles className="h-4 w-4" />
           </div>
-          <span className="text-[14px] font-semibold text-zinc-100">
-            ARIA <span className="text-[10px] font-normal text-zinc-500">by Treasurer</span>
-          </span>
+          <div className="flex items-center gap-1.5">
+            <AriaWordmark className="h-3.5" />
+            <span className="text-[10px] font-normal text-zinc-500">by AlphaLenz</span>
+          </div>
         </div>
         <button className="mx-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[12.5px] text-zinc-300 hover:bg-white/[0.07]">
           <Plus className="h-4 w-4" /> {pick(STR.newChat, lang)}

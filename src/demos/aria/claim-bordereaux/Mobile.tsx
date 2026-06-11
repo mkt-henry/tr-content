@@ -5,6 +5,7 @@ import { pick, useLang } from '../_shared/i18n';
 import { STR } from './data';
 import { useBordereaux } from './state';
 import { BordereauxGrid, SidePanel, ValidationSummary } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Mobile(_: DemoComponentProps) {
   const { phase, validate } = useBordereaux();
@@ -16,7 +17,10 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-indigo-500/90 text-white">
           <Table2 className="h-3.5 w-3.5" />
         </div>
-        <span className="text-[13px] font-semibold text-zinc-100">ARIA Bordereaux</span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3" />
+          <span className="text-[13px] font-semibold text-zinc-100">Bordereaux</span>
+        </div>
         <button
           data-demo-id="validate-run"
           onClick={validate}

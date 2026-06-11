@@ -5,6 +5,7 @@ import { ChatMessages } from './ChatMessages';
 import { SourceMenu } from './SourceMenu';
 import type { ChatStoreHook } from './store';
 import { cn } from '../../../../lib/cn';
+import { AriaWordmark } from '../AriaWordmark';
 
 /** ARIA 채팅 모바일 셸 — 모든 채팅 데모 공용 */
 export function ChatMobile({ useStore }: { useStore: ChatStoreHook }) {
@@ -23,7 +24,7 @@ export function ChatMobile({ useStore }: { useStore: ChatStoreHook }) {
           <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-teal-500/90 text-[#06211f]">
             <Sparkles className="h-3.5 w-3.5" />
           </div>
-          <span className="text-[13px] font-semibold text-zinc-100">ARIA</span>
+          <AriaWordmark className="h-3" />
         </div>
       </header>
 

@@ -90,7 +90,7 @@ export const MODEL_CHIP: L = { ko: 'ARIA-R1 · 추론 높음', en: 'ARIA-R1 · H
 /** 앱 UI 문자열 */
 export const STR = {
   appTitle: { ko: '문서 비교 Matrix', en: 'Document Comparison Matrix' },
-  byline: { ko: 'ARIA by Treasurer', en: 'ARIA by Treasurer' },
+  byline: { ko: 'ARIA by AlphaLenz', en: 'ARIA by AlphaLenz' },
   documents: { ko: '문서', en: 'Documents' },
   extracting: { ko: '추출 중', en: 'Extracting' },
   extractProgress: { ko: '추출', en: 'extracted' },

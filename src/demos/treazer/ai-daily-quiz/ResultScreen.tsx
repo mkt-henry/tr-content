@@ -6,7 +6,6 @@ import { Coin } from '../_shared/ui';
 import { CountUp } from '../../../ui/CountUp';
 import { useAiDailyQuiz } from './state';
 import {
-  SOLVABLE_ARTICLE,
   STR,
   CURRENCY,
   valuation,
@@ -39,9 +38,9 @@ function GoldTemplate({ template, value }: { template: string; value: number }) 
 // ---------------------------------------------------------------------------
 
 export function ResultScreen() {
-  const { earnedGold, answers, comboMode, lang, goToFeed, gold } = useAiDailyQuiz();
+  const { earnedGold, answers, comboMode, lang, goToFeed, gold, quizCount } = useAiDailyQuiz();
 
-  const total = SOLVABLE_ARTICLE.quizzes.length;
+  const total = quizCount;
   const correctCount = Object.values(answers).filter((a) => a.correct).length;
 
   const cur = CURRENCY[lang];

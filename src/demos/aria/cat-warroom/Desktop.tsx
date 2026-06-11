@@ -6,6 +6,7 @@ import { EVENT, STR } from './data';
 import { useWarroom } from './state';
 import { WarroomMap } from './map';
 import { AlertBanner, AlertDraftsPanel, EventCard, ExposureList, SummaryCard } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const { phase, revealedIds } = useWarroom();
@@ -18,9 +19,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/90 text-white">
           <Radar className="h-4 w-4" />
         </div>
-        <span className="text-[14px] font-semibold text-zinc-100">
-          ARIA Warroom <span className="text-[10px] font-normal text-zinc-500">by Treasurer</span>
-        </span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3.5" />
+          <span className="text-[14px] font-semibold text-zinc-100">Warroom</span>
+          <span className="text-[10px] font-normal text-zinc-500">by AlphaLenz</span>
+        </div>
         <span
           className={cn(
             'rounded-md px-2 py-0.5 text-[10.5px] font-medium',

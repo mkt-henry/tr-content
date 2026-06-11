@@ -91,7 +91,7 @@ export const TERMS_STATS: TermsStat[] = [
 /** 앱 UI 문자열 */
 export const STR = {
   appTitle: { ko: '갱신 파이프라인', en: 'Renewal Pipeline' },
-  poweredBy: { ko: 'ARIA by Treasurer', en: 'ARIA by Treasurer' },
+  poweredBy: { ko: 'ARIA by AlphaLenz', en: 'ARIA by AlphaLenz' },
   seasonDesktop: { ko: '2026 1/1 갱신 시즌 · {n}건 추적 중', en: '2026 1/1 renewal season · tracking {n}' },
   seasonMobile: { ko: '2026 1/1 갱신 시즌 · {n}건', en: '2026 1/1 renewal season · {n} deals' },
   done: { ko: '완료', en: 'Done' },

@@ -5,6 +5,7 @@ import { pick, useLang } from '../_shared/i18n';
 import { STR } from './data';
 import { useSlipCheck } from './state';
 import { DocPanel, FindingsPanel, FindingsSummary } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Mobile(_: DemoComponentProps) {
   const { phase, startScan } = useSlipCheck();
@@ -16,7 +17,10 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-violet-500/90 text-white">
           <FileCheck className="h-3.5 w-3.5" />
         </div>
-        <span className="text-[13px] font-semibold text-zinc-100">ARIA Verify</span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3" />
+          <span className="text-[13px] font-semibold text-zinc-100">Verify</span>
+        </div>
         <button
           data-demo-id="check-run"
           onClick={startScan}

@@ -54,8 +54,13 @@ export const projects: ProjectDefinition[] = [
   {
     id: 'findle',
     name: 'Findle',
-    tagline: '',
-    description: '데모 준비 중입니다.',
+    tagline: "Today's news becomes today's lesson",
+    description:
+      '학생 대상 게임형 금융 리터러시 앱 Findle의 데모 스튜디오 — 뉴스 기반 AI 데일리 퀴즈, AI 퀴즈 생성, 클래스 리더보드·뱃지, 리워드 교환, 교사 대시보드를 자동 재생으로 시연하세요. 모든 데모는 더미 데이터로 실제처럼 동작합니다.',
+    languages: [
+      { id: 'ko', label: '한국어', flag: '🇰🇷' },
+      { id: 'en', label: 'English', flag: '🇺🇸' },
+    ],
   },
   {
     id: 'alphalenz',

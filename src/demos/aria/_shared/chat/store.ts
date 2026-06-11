@@ -1,6 +1,6 @@
 import { create, type StoreApi, type UseBoundStore } from 'zustand';
 import { getLang } from '../i18n';
-import { getPipeline, GLOBAL_FALLBACK, GLOBAL_QA, type Evidence } from './data';
+import { getPipeline, GLOBAL_FALLBACK, GLOBAL_QA, type AnswerChart, type Evidence } from './data';
 
 export interface ChatMessage {
   id: number;
@@ -8,6 +8,7 @@ export interface ChatMessage {
   text: string;
   streaming?: boolean;
   evidence?: Evidence[];
+  chart?: AnswerChart;
   source?: string;
 }
 
@@ -94,7 +95,9 @@ export function createChatStore(opts: { defaultSourceId: string | null }): ChatS
         await sleep(250);
         set((s) => ({
           messages: s.messages.map((m) =>
-            m.id === assistantId ? { ...m, streaming: false, evidence: answer.evidence, source: answer.source } : m,
+            m.id === assistantId
+              ? { ...m, streaming: false, evidence: answer.evidence, chart: answer.chart, source: answer.source }
+              : m,
           ),
         }));
       })();

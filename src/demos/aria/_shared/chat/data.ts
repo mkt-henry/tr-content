@@ -7,9 +7,27 @@ export interface Evidence {
   positive?: boolean;
 }
 
+/** XL(초과손해) 회수 곡선 — 손해액(x)에 따른 재보험 회수액(y) 페이아웃 함수 */
+export interface XlRecoveryChart {
+  kind: 'xl-recovery';
+  title: string;
+  unit: string;        // 금액 단위 표기 (예: '억', 'bn')
+  retention: number;   // 보유 = attachment point
+  limit: number;       // 재보험 한도 = 최대 회수액 (보유 초과분)
+  axisX: string;       // x축 라벨 (총 손해액)
+  axisY: string;       // y축 라벨 (재보험 회수액)
+  attachWord: string;  // attachment 표기어 (예: '보유')
+  exhaustWord: string; // exhaustion 표기어 (예: '한도소진')
+  caption?: string;    // 하단 보조 설명 (예: Sum at Risk)
+}
+
+export type AnswerChart = XlRecoveryChart;
+
 export interface Answer {
   text: string;
   evidence?: Evidence[];
+  /** 답변에 곁들이는 시각 요소 (그래프 등) */
+  chart?: AnswerChart;
   source?: string;
 }
 
@@ -61,6 +79,18 @@ const termLifeXL: Pipeline = {
             { label: 'Limit (한도)', value: '₩100억', delta: '보유 초과분', positive: true },
             { label: 'Sum at Risk', value: '약 ₩800억', delta: 'TSI 기준', positive: true },
           ],
+          chart: {
+            kind: 'xl-recovery',
+            title: 'XL 회수 곡선 — 손해액별 재보험 회수',
+            unit: '억',
+            retention: 30,
+            limit: 100,
+            axisX: '총 손해액 (Gross Loss)',
+            axisY: '재보험 회수액',
+            attachWord: '보유',
+            exhaustWord: '한도소진',
+            caption: '보유(₩30억) 초과분을 한도(₩100억)까지 1:1 회수 · Sum at Risk 약 ₩800억',
+          },
           source: 'Slip p.2 §Cover · Reinsurance Wording Art.3',
         },
         en: {
@@ -71,6 +101,18 @@ const termLifeXL: Pipeline = {
             { label: 'Limit', value: '₩10bn', delta: 'above retention', positive: true },
             { label: 'Sum at Risk', value: '~₩80bn', delta: 'TSI basis', positive: true },
           ],
+          chart: {
+            kind: 'xl-recovery',
+            title: 'XL recovery curve — recovery by loss size',
+            unit: 'bn',
+            retention: 3,
+            limit: 10,
+            axisX: 'Gross loss',
+            axisY: 'Reinsurer recovery',
+            attachWord: 'Retention',
+            exhaustWord: 'Limit exhausted',
+            caption: 'Recovers 1:1 above retention (₩3bn) up to the limit (₩10bn) · Sum at Risk ~₩80bn',
+          },
           source: 'Slip p.2 §Cover · Reinsurance Wording Art.3',
         },
       },

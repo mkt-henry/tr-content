@@ -5,7 +5,9 @@ import {
   INITIAL_GOLD,
   INITIAL_GOLD_PRICE,
   PRODUCTS,
+  makeSeries,
   spotPerGram,
+  type Candle,
   type Currency,
   type Period,
   type StoreProduct,
@@ -40,9 +42,13 @@ interface GoldStoreState {
   chartMode: 'line' | 'candle';
   /** 선택된 차트 기간 */
   period: Period;
+  /** 'Now' 기간의 라이브 OHLC 시계열 — liveTick마다 형성·스크롤 */
+  nowSeries: Candle[];
 
   /** 시세를 한 틱 미세 변동 (시나리오 do step에서 호출) */
   tickPrice: () => void;
+  /** Now 라이브 틱 — 시세 변동 + 형성 중 캔들 갱신(3틱마다 커밋·스크롤) */
+  liveTick: () => void;
   openPrice: () => void;
   closePrice: () => void;
   setChartMode: (m: 'line' | 'candle') => void;
@@ -110,6 +116,7 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
   avgCost: INITIAL_AVG_COST,
   chartMode: 'candle',
   period: '1m',
+  nowSeries: makeSeries('now'),
 
   tickPrice: () => {
     const { goldPrice } = get();
@@ -120,6 +127,32 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
       goldPrice: next,
       trend: next > goldPrice ? 'up' : next < goldPrice ? 'down' : 'flat',
       tick: get().tick + 1,
+    });
+  },
+
+  liveTick: () => {
+    const { goldPrice, nowSeries, tick } = get();
+    // 시세 미세 양방향 변동 (약한 우상향 바이어스) → 평가액·수익률 실시간 변동
+    const drift = (Math.random() - 0.45) * 0.0012;
+    const next = Math.round(goldPrice * (1 + drift));
+
+    // 형성 중인 마지막 캔들을 소폭 랜덤워크로 갱신
+    const s = nowSeries.slice();
+    const last = { ...s[s.length - 1] };
+    const move = (Math.random() - 0.47) * 0.05;
+    last.c = Math.min(0.97, Math.max(0.05, last.c + move));
+    last.h = Math.min(1, Math.max(last.h, last.c));
+    last.l = Math.max(0, Math.min(last.l, last.c));
+    s[s.length - 1] = last;
+
+    // 3틱마다 캔들 커밋 → 새 형성 캔들 시작, 가장 오래된 봉 제거(좌로 스크롤)
+    const committed = (tick + 1) % 3 === 0 ? [...s.slice(1), { o: last.c, c: last.c, h: last.c, l: last.c }] : s;
+
+    set({
+      goldPrice: next,
+      trend: next > goldPrice ? 'up' : next < goldPrice ? 'down' : 'flat',
+      tick: tick + 1,
+      nowSeries: committed,
     });
   },
 
@@ -170,6 +203,7 @@ export const useGoldStore = create<GoldStoreState>((set, get) => ({
       avgCost: INITIAL_AVG_COST,
       chartMode: 'candle',
       period: '1m',
+      nowSeries: makeSeries('now'),
     });
   },
 }));

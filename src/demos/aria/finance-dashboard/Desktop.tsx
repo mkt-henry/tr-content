@@ -5,6 +5,7 @@ import { KPIS, STR } from './data';
 import { KpiCard, RevenueChart, SegmentBars, EventsList, PipelineWidget } from './widgets';
 import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const { loaded, period, setPeriod, load } = useDash();
@@ -18,9 +19,10 @@ export function Desktop(_: DemoComponentProps) {
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/90 text-[13px] font-bold text-[#04190f]">
             A
           </div>
-          <span className="text-[13.5px] font-semibold text-zinc-100">
-            ARIA <span className="text-[10px] font-normal text-zinc-500">by Treasurer</span>
-          </span>
+          <div className="flex items-center gap-1.5">
+            <AriaWordmark className="h-3" />
+            <span className="text-[10px] font-normal text-zinc-500">by AlphaLenz</span>
+          </div>
         </div>
         <nav className="space-y-0.5 px-2.5">
           <NavItem icon={LayoutDashboard} label={pick(STR.navForecast, lang)} active />

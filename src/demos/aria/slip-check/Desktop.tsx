@@ -5,6 +5,7 @@ import { pick, useLang } from '../_shared/i18n';
 import { STR } from './data';
 import { useSlipCheck } from './state';
 import { DocPanel, FindingsPanel, FindingsSummary } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const { phase, startScan } = useSlipCheck();
@@ -17,9 +18,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/90 text-white">
           <FileCheck className="h-4 w-4" />
         </div>
-        <span className="text-[14px] font-semibold text-zinc-100">
-          ARIA Verify <span className="text-[10px] font-normal text-zinc-500">by Treasurer</span>
-        </span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3.5" />
+          <span className="text-[14px] font-semibold text-zinc-100">Verify</span>
+          <span className="text-[10px] font-normal text-zinc-500">by AlphaLenz</span>
+        </div>
         <button
           data-demo-id="check-run"
           onClick={startScan}

@@ -5,6 +5,7 @@ import { useRenewals } from './state';
 import { RENEWALS, STAGES, STR } from './data';
 import { fmt, pick, useLang } from '../_shared/i18n';
 import { RenewalCardItem, BriefingPanel } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const selectedCardId = useRenewals((s) => s.selectedCardId);
@@ -16,8 +17,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500/90 text-ink-950">
           <CalendarClock className="h-4 w-4" />
         </div>
-        <h2 className="text-[13.5px] font-semibold text-zinc-100">
-          {pick(STR.appTitle, lang)} <span className="ml-1 text-[10px] font-normal text-zinc-500">{pick(STR.poweredBy, lang)}</span>
+        <h2 className="flex items-baseline text-[13.5px] font-semibold text-zinc-100">
+          {pick(STR.appTitle, lang)}
+          <span className="ml-1.5 flex items-center gap-1 text-[10px] font-normal text-zinc-500">
+            <AriaWordmark className="h-2.5" /> by AlphaLenz
+          </span>
         </h2>
         <span className="ml-auto font-mono text-[10.5px] text-zinc-600">{fmt(pick(STR.seasonDesktop, lang), { n: RENEWALS.length })}</span>
       </header>

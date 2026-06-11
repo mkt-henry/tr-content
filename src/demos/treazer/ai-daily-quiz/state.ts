@@ -20,6 +20,7 @@ interface State {
   flash: boolean;               // 골드 필 플래시 트리거
 
   // quiz-runner state
+  quizCount: number;            // 이번 플로우에서 풀 문항 수 (variant가 지정, 기본=전체)
   currentQuiz: number;          // 현재 표시 중인 quiz index (0-based)
   selectedOption: number | null; // 현재 quiz에서 고른 보기, submit 전
   submitted: boolean;           // 현재 quiz가 제출(정답 공개)됐는지 여부
@@ -33,6 +34,7 @@ interface State {
   finish: () => void;
   setLang: (lang: Lang) => void;
   setComboMode: (on: boolean) => void;
+  setQuizCount: (n: number) => void;
   reset: () => void;
 }
 
@@ -48,6 +50,7 @@ export const useAiDailyQuiz = create<State>((set, get) => ({
   comboMode: false,
   flash: false,
 
+  quizCount: SOLVABLE_ARTICLE.quizzes.length,
   currentQuiz: 0,
   selectedOption: null,
   submitted: false,
@@ -86,7 +89,7 @@ export const useAiDailyQuiz = create<State>((set, get) => ({
 
   nextQuiz: () => {
     const s = get();
-    const last = SOLVABLE_ARTICLE.quizzes.length - 1;
+    const last = s.quizCount - 1;
     if (s.currentQuiz < last) {
       set({ currentQuiz: s.currentQuiz + 1, selectedOption: null, submitted: false });
     } else {
@@ -97,6 +100,7 @@ export const useAiDailyQuiz = create<State>((set, get) => ({
   finish: () => set({ screen: 'result' }),
   setLang: (lang) => set({ lang }),
   setComboMode: (on) => set({ comboMode: on }),
+  setQuizCount: (n) => set({ quizCount: n }),
 
   reset: () => {
     runId++;
@@ -108,6 +112,7 @@ export const useAiDailyQuiz = create<State>((set, get) => ({
       answers: {},
       combo: 0,
       flash: false,
+      quizCount: SOLVABLE_ARTICLE.quizzes.length, // 기본=전체. v1 등 일부 variant가 scenario 첫 스텝에서 줄인다
       currentQuiz: 0,
       selectedOption: null,
       submitted: false,

@@ -7,7 +7,7 @@ const st = () => useSourceChat.getState();
 /** 지정 파이프라인의 i번째 추천 질문 — 재생 시점의 프로젝트 언어로 평가 */
 const q = (id: string, i: number) => () => getPipeline(id)!.qa[i].question[getLang()];
 
-/** v1 — "+" 버튼으로 출처 첨부: Term Life XL을 붙이고 한 건을 여러 각도로 깊게 분석 */
+/** v1 — "+" 버튼으로 출처 첨부: Term Life XL을 붙이고 2개 질문(첫 답변에 XL 구조 차트) */
 export const addSourceScenario: Scenario = {
   id: 'source-add',
   steps: [
@@ -20,13 +20,13 @@ export const addSourceScenario: Scenario = {
     { kind: 'cursor', target: 'source-pick-termlife', ms: 700 },
     { kind: 'click', target: 'source-pick-termlife', run: () => st().setSource('termlife') },
     { kind: 'wait', ms: 900 },
-    // 1) 보유·한도
+    // 1) 보유·한도 — 답변에 XL 레이어 타워 차트가 함께 표시됨
     { kind: 'type', target: 'chat-input', text: q('termlife', 0), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
     { kind: 'wait', ms: 6500 },
-    { kind: 'cursor', target: 'evidence-card', ms: 700 },
-    { kind: 'wait', ms: 1400 },
+    { kind: 'cursor', target: 'answer-chart', ms: 700 },
+    { kind: 'wait', ms: 1800 },
     // 2) 보험기간·담보 범위
     { kind: 'type', target: 'chat-input', text: q('termlife', 1), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
@@ -34,12 +34,6 @@ export const addSourceScenario: Scenario = {
     { kind: 'wait', ms: 6500 },
     { kind: 'cursor', target: 'evidence-card', ms: 700 },
     { kind: 'wait', ms: 1400 },
-    // 3) 면책·특별 조항
-    { kind: 'type', target: 'chat-input', text: q('termlife', 2), cps: 16, set: (v) => st().setInput(v) },
-    { kind: 'wait', ms: 350 },
-    { kind: 'click', target: 'chat-send', run: () => st().send() },
-    { kind: 'wait', ms: 6500 },
-    { kind: 'wait', ms: 1200 },
   ],
 };
 

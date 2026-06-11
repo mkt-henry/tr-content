@@ -231,11 +231,11 @@ export function money(amount: number, c: Currency): string {
   })}`;
 }
 
-/** 데모 시작 시 보유 골드 */
-export const INITIAL_GOLD = 8077;
+/** 데모 시작 시 보유 골드 — 꾸준히 모아온 잔액 (표시 평가액 ≈ GOLD × perGold × ratio ≈ S$48) */
+export const INITIAL_GOLD = 1_284_000;
 
 /**
- * 1 GOLD당 금 그램 — 실제 앱 기준 (8,077 G ≈ 0.00040385 g).
+ * 1 GOLD당 금 그램 — 실제 앱 기준 (8,077 G ≈ 0.00040385 g 환산비, 보유량과 독립).
  * grams / GOLD_GRAMS_PER_UNIT = 골드 가격.
  */
 export const GOLD_GRAMS_PER_UNIT = 0.00040385 / 8077;

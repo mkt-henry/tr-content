@@ -9,8 +9,8 @@ const TARGET = PRODUCTS.find((p) => p.id === 'highlands') ?? PRODUCTS[0];
 
 /**
  * v1 — "포인트가 아니라 진짜 금": 스토어 골드 카드 → Gold Price 화면 진입.
- * 시세가 틱할 때마다 내 골드 평가액·수익률이 함께 오르는 걸 보여주고,
- * "모은 시점 대비 +X%" 평가손익을 클로즈업하며 마무리한다.
+ * 'Now' 기간을 켜면 캔들이 위아래로 소폭 형성·스크롤되고(라이브 틱 인터벌),
+ * 시세 변동에 따라 내 골드 평가액·수익률이 실시간으로 흔들리는 걸 클로즈업한다.
  */
 export const realGoldScenario: Scenario = {
   id: 'gold-store-real-gold',
@@ -24,29 +24,22 @@ export const realGoldScenario: Scenario = {
     { kind: 'click', target: 'gold-card', run: () => st().openPrice() },
     { kind: 'wait', ms: 1100 },
 
-    // 내 골드 평가 카드 강조
+    // 내 골드 평가 카드 강조 (보유 평가액)
     { kind: 'cursor', target: 'my-valuation', ms: 800 },
     { kind: 'wait', ms: 700 },
 
-    // 시세 틱 — 평가액·수익률이 함께 상승
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 800 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 800 },
+    // 'Now' 기간 선택 → 라이브 캔들·평가액 변동 시작 (인터벌 구동)
+    { kind: 'cursor', target: 'period-now', ms: 600 },
+    { kind: 'click', target: 'period-now', run: () => st().setPeriod('now') },
+    { kind: 'wait', ms: 1500 },
 
-    // 차트로 시선 이동 + 기간 전환으로 우상향 추세 확인
+    // 차트에서 캔들이 위아래로 움직이는 것을 관찰
     { kind: 'cursor', target: 'gold-chart', ms: 700 },
-    { kind: 'click', target: 'period-1y', run: () => st().setPeriod('1y') },
-    { kind: 'wait', ms: 1000 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 800 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 800 },
+    { kind: 'wait', ms: 2800 },
 
-    // 핵심: 모은 시점 대비 평가손익 클로즈업
+    // 평가액·수익률이 실시간으로 변동하는 것 클로즈업
     { kind: 'cursor', target: 'valuation-return', ms: 900 },
-    { kind: 'do', run: () => st().tickPrice() },
-    { kind: 'wait', ms: 2400 },
+    { kind: 'wait', ms: 3200 },
   ],
 };
 

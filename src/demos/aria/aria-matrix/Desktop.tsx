@@ -6,6 +6,7 @@ import { DOCUMENTS, COLUMNS, CELLS, MODEL_CHIP, STR, extractedSummary, addColumn
 import { CitationBadge, CitationPopover } from '../../../ui/Citation';
 import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const m = useMatrix();
@@ -27,9 +28,11 @@ export function Desktop(_: DemoComponentProps) {
             <Grid3X3 className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-[13.5px] font-semibold text-zinc-100">
-              {pick(STR.appTitle, lang)}{' '}
-              <span className="ml-1 text-[10px] font-normal text-zinc-500">{pick(STR.byline, lang)}</span>
+            <h2 className="flex items-baseline text-[13.5px] font-semibold text-zinc-100">
+              {pick(STR.appTitle, lang)}
+              <span className="ml-1.5 flex items-center gap-1 text-[10px] font-normal text-zinc-500">
+                <AriaWordmark className="h-2.5" /> by AlphaLenz
+              </span>
             </h2>
           </div>
           {/* V7 스타일 모델 칩 */}

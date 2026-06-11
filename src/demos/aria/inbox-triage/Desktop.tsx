@@ -5,6 +5,7 @@ import { fmt, pick, useLang } from '../_shared/i18n';
 import { EMAILS, STR } from './data';
 import { useInbox } from './state';
 import { DetailPane, EmailList, SummaryBar } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const { phase, startTriage } = useInbox();
@@ -17,9 +18,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/90 text-[#27180a]">
           <Inbox className="h-4 w-4" />
         </div>
-        <span className="text-[14px] font-semibold text-zinc-100">
-          ARIA Inbox <span className="text-[10px] font-normal text-zinc-500">by Treasurer</span>
-        </span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3.5" />
+          <span className="text-[14px] font-semibold text-zinc-100">Inbox</span>
+          <span className="text-[10px] font-normal text-zinc-500">by AlphaLenz</span>
+        </div>
         <span className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[10.5px] text-zinc-500">
           {fmt(pick(STR.unread, lang), { n: EMAILS.length })}
         </span>

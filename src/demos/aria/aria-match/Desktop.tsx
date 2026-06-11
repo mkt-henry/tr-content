@@ -5,6 +5,7 @@ import { useMatch } from './state';
 import { pick, useLang } from '../_shared/i18n';
 import { STR } from './data';
 import { RiskCard, CandidateList, EmailPanel } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const selectedId = useMatch((s) => s.selectedId);
@@ -16,8 +17,11 @@ export function Desktop(_: DemoComponentProps) {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500/90 text-ink-950">
           <Handshake className="h-4 w-4" />
         </div>
-        <h2 className="text-[13.5px] font-semibold text-zinc-100">
-          {pick(STR.appTitle, lang)} <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
+        <h2 className="flex items-baseline text-[13.5px] font-semibold text-zinc-100">
+          {pick(STR.appTitle, lang)}
+          <span className="ml-1.5 flex items-center gap-1 text-[10px] font-normal text-zinc-500">
+            <AriaWordmark className="h-2.5" /> by AlphaLenz
+          </span>
         </h2>
         <span className="ml-auto font-mono text-[10.5px] text-zinc-600">{pick(STR.panelMeta, lang)}</span>
       </header>

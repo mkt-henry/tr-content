@@ -3,6 +3,7 @@ import type { DemoComponentProps } from '../../../registry/types';
 import { SourcePanel, SummaryPanel } from './panels';
 import { STR } from './data';
 import { pick, useLang } from '../_shared/i18n';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Desktop(_: DemoComponentProps) {
   const lang = useLang();
@@ -14,8 +15,11 @@ export function Desktop(_: DemoComponentProps) {
           <Sparkles className="h-4 w-4" />
         </div>
         <div>
-          <h2 className="text-[13.5px] font-semibold text-zinc-100">
-            {pick(STR.headerTitle, lang)} <span className="ml-1 text-[10px] font-normal text-zinc-500">ARIA by Treasurer</span>
+          <h2 className="flex items-baseline text-[13.5px] font-semibold text-zinc-100">
+            {pick(STR.headerTitle, lang)}
+            <span className="ml-1.5 flex items-center gap-1 text-[10px] font-normal text-zinc-500">
+              <AriaWordmark className="h-2.5" /> by AlphaLenz
+            </span>
           </h2>
         </div>
         <button className="ml-auto flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] text-zinc-300 hover:bg-white/[0.08]">

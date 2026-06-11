@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ArrowLeft, ArrowUpRight, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../../lib/cn';
@@ -15,70 +15,117 @@ import {
 } from './data';
 import { useGoldStore, valuation } from './state';
 
-/** 정규화(0~1) series를 폰 폭에 맞춰 그리는 라인(area) 차트 */
-function LineChartSvg({ series }: { series: Candle[] }) {
-  const W = 320;
-  const H = 150;
-  const step = W / (series.length - 1);
-  const y = (v: number) => H - v * H;
-  const line = series.map((d, i) => `${i * step},${y(d.c)}`).join(' ');
-  const area = `0,${H} ${line} ${W},${H}`;
+const CHART_W = 320;
+const CHART_H = 150;
 
+/** series의 실제 저점/고점에 맞춰 세로를 꽉 채우는 y 스케일러 (여백 12%) */
+function makeScale(series: Candle[]) {
+  let min = Math.min(...series.map((d) => d.l));
+  let max = Math.max(...series.map((d) => d.h));
+  const range = max - min || 1;
+  min -= range * 0.12;
+  max += range * 0.12;
+  return (v: number) => CHART_H - ((v - min) / (max - min)) * CHART_H;
+}
+
+/** 마지막(최신) 가격 위에 얹는 라이브 점 — live면 펄스(ping) */
+function LiveDot({ leftPct, topPct, color, live }: { leftPct: number; topPct: number; color: string; live?: boolean }) {
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-[150px] w-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f97316" stopOpacity="0.28" />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={area} fill="url(#goldArea)" />
-      <polyline points={line} fill="none" stroke="#f97316" strokeWidth={2} strokeLinejoin="round" />
-    </svg>
+    <span
+      className="pointer-events-none absolute flex h-2 w-2 items-center justify-center"
+      style={{ left: `${leftPct}%`, top: `${topPct}%`, transform: 'translate(-50%, -50%)' }}
+    >
+      {live && (
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70" style={{ background: color }} />
+      )}
+      <span className="relative inline-flex h-2 w-2 rounded-full ring-2 ring-white" style={{ background: color }} />
+    </span>
   );
 }
 
-/** 정규화(0~1) series를 캔들로 그리는 차트 — 상승봉 emerald / 하락봉 red */
-function CandleChartSvg({ series }: { series: Candle[] }) {
-  const W = 320;
-  const H = 150;
-  const slot = W / series.length;
-  const bw = slot * 0.55;
-  const y = (v: number) => H - v * H;
+/** 오토스케일 라인(area) 차트 + 현재가 점선 + 라이브 점 */
+function LineChartSvg({ series, live }: { series: Candle[]; live?: boolean }) {
+  const W = CHART_W;
+  const H = CHART_H;
+  const step = W / (series.length - 1);
+  const y = makeScale(series);
+  const line = series.map((d, i) => `${i * step},${y(d.c)}`).join(' ');
+  const area = `0,${H} ${line} ${W},${H}`;
+  const lastC = series[series.length - 1].c;
+  const lastY = y(lastC);
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-[150px] w-full" preserveAspectRatio="none">
-      {series.map((d, i) => {
-        const cx = i * slot + slot / 2;
-        const up = d.c >= d.o;
-        const color = up ? '#10b981' : '#ef4444';
-        const top = y(Math.max(d.o, d.c));
-        const bot = y(Math.min(d.o, d.c));
-        return (
-          <g key={i}>
-            <line x1={cx} y1={y(d.h)} x2={cx} y2={y(d.l)} stroke={color} strokeWidth={1} />
-            <rect
-              x={cx - bw / 2}
-              y={top}
-              width={bw}
-              height={Math.max(1, bot - top)}
-              fill={color}
-            />
-          </g>
-        );
-      })}
-    </svg>
+    <div className="relative h-[150px] w-full">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f97316" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <polygon points={area} fill="url(#goldArea)" />
+        <line x1={0} y1={lastY} x2={W} y2={lastY} stroke="#f97316" strokeWidth={1} strokeDasharray="4 4" opacity={0.45} />
+        <polyline points={line} fill="none" stroke="#f97316" strokeWidth={2} strokeLinejoin="round" />
+      </svg>
+      <LiveDot leftPct={100} topPct={(lastY / H) * 100} color="#f97316" live={live} />
+    </div>
+  );
+}
+
+/** 오토스케일 캔들 차트 — 상승봉 emerald / 하락봉 red + 현재가 점선 + 라이브 점 */
+function CandleChartSvg({ series, live }: { series: Candle[]; live?: boolean }) {
+  const W = CHART_W;
+  const H = CHART_H;
+  const slot = W / series.length;
+  const bw = slot * 0.6;
+  const y = makeScale(series);
+  const last = series[series.length - 1];
+  const lastUp = last.c >= last.o;
+  const lastColor = lastUp ? '#10b981' : '#ef4444';
+  const lastX = (series.length - 1) * slot + slot / 2;
+  const lastY = y(last.c);
+
+  return (
+    <div className="relative h-[150px] w-full">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" preserveAspectRatio="none">
+        {/* 현재가 점선 */}
+        <line x1={0} y1={lastY} x2={W} y2={lastY} stroke={lastColor} strokeWidth={1} strokeDasharray="4 4" opacity={0.4} />
+        {series.map((d, i) => {
+          const cx = i * slot + slot / 2;
+          const up = d.c >= d.o;
+          const color = up ? '#10b981' : '#ef4444';
+          const top = y(Math.max(d.o, d.c));
+          const bot = y(Math.min(d.o, d.c));
+          return (
+            <g key={i}>
+              <line x1={cx} y1={y(d.h)} x2={cx} y2={y(d.l)} stroke={color} strokeWidth={1} />
+              <rect x={cx - bw / 2} y={top} width={bw} height={Math.max(1, bot - top)} fill={color} />
+            </g>
+          );
+        })}
+      </svg>
+      <LiveDot leftPct={(lastX / W) * 100} topPct={(lastY / H) * 100} color={lastColor} live={live} />
+    </div>
   );
 }
 
 export function GoldPriceScreen() {
-  const { gold, goldPrice, avgCost, chartMode, period, closePrice, setChartMode, setPeriod, tick } =
+  const { gold, goldPrice, avgCost, chartMode, period, view, nowSeries, closePrice, setChartMode, setPeriod, liveTick, tick } =
     useGoldStore();
   const lang = useLang();
   const cur = CURRENCY[lang];
 
   const v = valuation(gold, goldPrice, avgCost, cur);
-  const series = useMemo(() => makeSeries(period), [period]);
+  // 'Now'는 라이브 시계열(state), 그 외 기간은 정적 시계열
+  const staticSeries = useMemo(() => makeSeries(period), [period]);
+  const series = period === 'now' ? nowSeries : staticSeries;
+
+  // 'Now' 기간 + 시세 화면일 때만 라이브 틱 — 캔들·평가액 실시간 변동
+  useEffect(() => {
+    if (view !== 'price' || period !== 'now') return;
+    const id = setInterval(() => liveTick(), 750);
+    return () => clearInterval(id);
+  }, [view, period, liveTick]);
 
   // 차트 등락(%) — 기간별 현실적 우상향 수치(차트 형태와 분리, 신뢰감 유지)
   const change = PERIOD_CHANGE[period];
@@ -103,7 +150,6 @@ export function GoldPriceScreen() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <span className="text-[17px] font-bold text-zinc-900">{pick(STR.goldPrice, lang)}</span>
       </header>
 
       <div className="demo-scroll flex-1 overflow-y-auto px-4 pb-6">
@@ -188,9 +234,9 @@ export function GoldPriceScreen() {
           {/* 차트 */}
           <div className="mt-3">
             {chartMode === 'line' ? (
-              <LineChartSvg series={series} />
+              <LineChartSvg series={series} live={period === 'now'} />
             ) : (
-              <CandleChartSvg series={series} />
+              <CandleChartSvg series={series} live={period === 'now'} />
             )}
           </div>
 

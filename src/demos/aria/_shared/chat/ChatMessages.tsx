@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, FileBarChart2, Layers, Plus, Slash, Sparkles } from 'lucide-react';
+import { CheckCircle2, FileBarChart2, Layers, Plus, Slash, Sparkles, TrendingUp } from 'lucide-react';
 import { pick, useLang } from '../i18n';
-import { getPipeline, STR, suggested, suggestedGlobal } from './data';
+import { getPipeline, STR, suggested, suggestedGlobal, type XlRecoveryChart } from './data';
 import type { ChatMessage, ChatStoreHook } from './store';
 import { cn } from '../../../../lib/cn';
 
@@ -115,6 +115,96 @@ function Avatar() {
   );
 }
 
+/** XL(초과손해) 회수 곡선 — 총 손해액(x)에 따른 재보험 회수액(y) 페이아웃 함수 */
+function XlRecoveryCurve({ chart }: { chart: XlRecoveryChart }) {
+  const { retention, limit, unit } = chart;
+  const exhaustion = retention + limit; // 한도 소진 지점
+  const xMax = exhaustion * 1.25; // 곡선이 평평해지는 꼬리 여백
+
+  // 플롯 영역 (viewBox 0 0 460 200)
+  const L = 56;
+  const R = 446;
+  const T = 22;
+  const B = 162;
+  const sx = (loss: number) => L + (loss / xMax) * (R - L);
+  const sy = (rec: number) => B - (rec / limit) * (B - T);
+
+  const xA = sx(retention); // attachment
+  const xE = sx(exhaustion); // exhaustion (회수 = limit)
+  const line = `M${L},${B} L${xA},${B} L${xE},${T} L${R},${T}`;
+  const area = `${line} L${R},${B} Z`;
+  const won = (v: number) => `₩${v}${unit}`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      data-demo-id="answer-chart"
+      className="mt-2.5 rounded-xl border border-teal-500/20 bg-teal-950/30 px-3.5 pb-2.5 pt-3"
+    >
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-medium text-teal-300">
+        <TrendingUp className="h-3.5 w-3.5" />
+        {chart.title}
+      </div>
+
+      <svg viewBox="0 0 460 200" className="w-full font-mono" style={{ height: 172 }}>
+        {/* 축 */}
+        <line x1={L} y1={B} x2={R} y2={B} stroke="#ffffff20" />
+        <line x1={L} y1={T} x2={L} y2={B} stroke="#ffffff20" />
+        {/* y 눈금 */}
+        <text x={L - 7} y={T + 4} fill="#71717a" fontSize="9" textAnchor="end">{won(limit)}</text>
+        <text x={L - 7} y={B} fill="#71717a" fontSize="9" textAnchor="end">0</text>
+
+        {/* 회수 영역 */}
+        <motion.path
+          d={area}
+          fill="#14b8a6"
+          fillOpacity={0.15}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        />
+        {/* 회수 곡선 (그려지는 애니메이션) */}
+        <motion.path
+          d={line}
+          fill="none"
+          stroke="#2dd4bf"
+          strokeWidth={2.5}
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        />
+
+        {/* attachment(보유) 마커 */}
+        <line x1={xA} y1={T} x2={xA} y2={B} stroke="#f59e0b" strokeWidth={1} strokeDasharray="3 3" />
+        <circle cx={xA} cy={B} r={3.5} fill="#f59e0b" />
+        <text x={xA} y={B + 16} fill="#f59e0b" fontSize="9" textAnchor="middle">
+          {chart.attachWord} {won(retention)}
+        </text>
+
+        {/* exhaustion(한도소진) 마커 */}
+        <line x1={xE} y1={T} x2={xE} y2={sy(limit)} stroke="#2dd4bf" strokeWidth={1} strokeDasharray="3 3" />
+        <circle cx={xE} cy={T} r={3.5} fill="#2dd4bf" />
+        <text x={xE} y={B + 16} fill="#5eead4" fontSize="9" textAnchor="middle">
+          {chart.exhaustWord} {won(exhaustion)}
+        </text>
+
+        {/* 축 라벨 */}
+        <text x={(L + R) / 2} y="196" fill="#52525b" fontSize="9" textAnchor="middle">→ {chart.axisX}</text>
+        <text x={L + 4} y={T - 8} fill="#71717a" fontSize="9">{chart.axisY}</text>
+      </svg>
+
+      {chart.caption && (
+        <p className="mt-1.5 border-t border-teal-500/15 pt-2 text-[10.5px] leading-snug text-zinc-500">
+          {chart.caption}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
 function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?: boolean }) {
   const lang = useLang();
   if (m.role === 'user') {
@@ -138,6 +228,9 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
         >
           {m.text}
         </div>
+
+        {/* 시각 요소 — XL 회수 곡선 차트 */}
+        {m.chart && !m.streaming && m.chart.kind === 'xl-recovery' && <XlRecoveryCurve chart={m.chart} />}
 
         {/* 근거 데이터 카드 */}
         {m.evidence && (

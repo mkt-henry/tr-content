@@ -6,6 +6,7 @@ import { EVENT, STR } from './data';
 import { useWarroom } from './state';
 import { WarroomMap } from './map';
 import { AlertBanner, AlertDraftsPanel, EventCard, ExposureList, SummaryCard } from './widgets';
+import { AriaWordmark } from '../_shared/AriaWordmark';
 
 export function Mobile(_: DemoComponentProps) {
   const { phase, revealedIds } = useWarroom();
@@ -17,7 +18,10 @@ export function Mobile(_: DemoComponentProps) {
         <div className="flex h-6.5 w-6.5 items-center justify-center rounded-lg bg-rose-500/90 text-white">
           <Radar className="h-3.5 w-3.5" />
         </div>
-        <span className="text-[13px] font-semibold text-zinc-100">ARIA Warroom</span>
+        <div className="flex items-center gap-1.5">
+          <AriaWordmark className="h-3" />
+          <span className="text-[13px] font-semibold text-zinc-100">Warroom</span>
+        </div>
         <span
           className={cn(
             'ml-auto rounded-md px-2 py-0.5 text-[10px] font-medium',
