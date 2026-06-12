@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, FolderTree, X, Hourglass, Images } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Plus, FolderTree, X, Hourglass, Images, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { projects, getFeaturesByProject } from '../registry';
 import { getAssetsByProject } from '../registry/assets';
 import { useShellStore } from '../store/shellStore';
@@ -11,7 +11,8 @@ import { VariantCard } from './FeatureCard';
 export function Gallery() {
   const [showGuide, setShowGuide] = useState(false);
   const [showAssets, setShowAssets] = useState(false);
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  /** 라이트박스에 띄운 에셋 인덱스 (null이면 닫힘) */
+  const [lightbox, setLightbox] = useState<number | null>(null);
   const projectId = useShellStore((s) => s.projectId);
   const setProject = useShellStore((s) => s.setProject);
   const projectLang = useShellStore((s) => s.projectLang);
@@ -23,6 +24,28 @@ export function Gallery() {
   const cards = features.flatMap((f) => f.variants.map((variant) => ({ feature: f, variant })));
   const assets = getAssetsByProject(project.id);
   const lang = projectLang[project.id] ?? project.languages?.[0]?.id;
+
+  // 라이트박스 이전/다음 (순환)
+  const showPrev = useCallback(
+    () => setLightbox((i) => (i === null ? i : (i - 1 + assets.length) % assets.length)),
+    [assets.length],
+  );
+  const showNext = useCallback(
+    () => setLightbox((i) => (i === null ? i : (i + 1) % assets.length)),
+    [assets.length],
+  );
+
+  // 라이트박스 키보드 조작 — ←/→ 이동, Esc 닫기
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null);
+      else if (e.key === 'ArrowLeft') showPrev();
+      else if (e.key === 'ArrowRight') showNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, showPrev, showNext]);
 
   return (
     <div
@@ -214,14 +237,34 @@ export function Gallery() {
               이미지가 자동으로 표시됩니다. 클릭하면 원본 크기로 볼 수 있습니다.
             </p>
             <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {assets.map((a) => (
+              {assets.map((a, i) => (
                 <button
                   key={a.url}
                   type="button"
-                  onClick={() => setLightbox(a.url)}
+                  onClick={() => setLightbox(i)}
                   className="group overflow-hidden rounded-xl border border-white/10 bg-black/30 text-left transition-colors hover:border-brass-500/40"
                 >
-                  <img src={a.url} alt={a.name} className="aspect-video w-full object-cover" />
+                  <div className="relative aspect-video w-full overflow-hidden bg-[#0d0c10]">
+                    {/* 전체 이미지가 잘리지 않게 contain + 체크무늬 배경 */}
+                    <span
+                      className="absolute inset-0 opacity-[0.04]"
+                      style={{
+                        backgroundImage:
+                          'linear-gradient(45deg, #fff 25%, transparent 25%), linear-gradient(-45deg, #fff 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%)',
+                        backgroundSize: '14px 14px',
+                        backgroundPosition: '0 0, 0 7px, 7px -7px, -7px 0',
+                      }}
+                    />
+                    <img
+                      src={a.url}
+                      alt={a.name}
+                      loading="lazy"
+                      className="relative h-full w-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                      <ZoomIn className="h-6 w-6 text-brass-200" />
+                    </span>
+                  </div>
                   <span className="block truncate px-3 py-2 font-mono text-[11px] text-zinc-400 group-hover:text-brass-300">
                     {a.name}
                   </span>
@@ -232,19 +275,68 @@ export function Gallery() {
         </div>
       )}
 
-      {/* 에셋 원본 확대 */}
-      {lightbox && (
+      {/* 에셋 원본 확대 — ◀ ▶ / 키보드로 이동 */}
+      {lightbox !== null && assets[lightbox] && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-8 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/90 p-8 backdrop-blur-sm"
           onClick={() => setLightbox(null)}
         >
-          <img src={lightbox} alt="" className="max-h-full max-w-full rounded-lg object-contain shadow-2xl" />
           <button
             onClick={() => setLightbox(null)}
-            className="absolute right-6 top-6 text-zinc-400 hover:text-zinc-100"
+            aria-label="닫기"
+            className="absolute right-6 top-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06] text-zinc-300 transition-colors hover:bg-white/[0.12] hover:text-zinc-100"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </button>
+
+          {assets.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showPrev();
+                }}
+                aria-label="이전 이미지"
+                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 transition-colors hover:bg-white/[0.14] hover:text-white"
+              >
+                <ChevronLeft className="h-7 w-7" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showNext();
+                }}
+                aria-label="다음 이미지"
+                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 transition-colors hover:bg-white/[0.14] hover:text-white"
+              >
+                <ChevronRight className="h-7 w-7" />
+              </button>
+            </>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={assets[lightbox].url}
+              src={assets[lightbox].url}
+              alt={assets[lightbox].name}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[80vh] max-w-[86vw] rounded-lg object-contain shadow-2xl"
+            />
+          </AnimatePresence>
+
+          <div
+            className="mt-5 flex items-center gap-3 rounded-full bg-white/[0.06] px-4 py-1.5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="font-mono text-[12px] text-zinc-200">{assets[lightbox].name}</span>
+            <span className="font-mono text-[11px] tabular-nums text-zinc-500">
+              {lightbox + 1} / {assets.length}
+            </span>
+          </div>
         </div>
       )}
     </div>

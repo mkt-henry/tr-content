@@ -16,6 +16,8 @@ interface ReportEmailState {
   recipientId: string | null;
   /** AI 의도 분석 결과 공개 여부 (analyzing 중 로더→결과 전환) */
   analysisReady: boolean;
+  /** 전달 이메일 모달 열림 여부 */
+  modalOpen: boolean;
   emailSubject: string;
   emailBody: string;
   emailStatus: EmailStatus;
@@ -23,6 +25,10 @@ interface ReportEmailState {
   toggleSource: (id: string) => void;
   /** 선택 자료로 보고서 생성 → reportReady */
   generate: () => void;
+  /** CTA → 전달 이메일 모달 오픈 */
+  openEmailModal: () => void;
+  /** 모달 닫기 (진행 상태는 유지) */
+  closeEmailModal: () => void;
   /** 수신자 선택 → 의도 분석 → 맞춤 이메일 스트리밍 → done */
   selectRecipient: (id: string) => void;
   reset: () => void;
@@ -42,6 +48,7 @@ const initial = {
   sections: [] as ReportSectionId[],
   recipientId: null as string | null,
   analysisReady: false,
+  modalOpen: false,
   emailSubject: '',
   emailBody: '',
   emailStatus: 'idle' as EmailStatus,
@@ -70,25 +77,34 @@ export const useRenewalReport = create<ReportEmailState>((set, get) => ({
       sections: [],
       recipientId: null,
       analysisReady: false,
+      modalOpen: false,
       emailSubject: '',
       emailBody: '',
       emailStatus: 'idle',
     });
 
     void (async () => {
-      await sleep(800);
+      await sleep(750);
       if (id !== runId) return;
       set({ statusText: STR.statusReport[lang] });
       for (const sec of REPORT_SECTIONS) {
-        await sleep(560);
+        await sleep(430);
         if (id !== runId) return;
         set((s) => ({ sections: [...s.sections, sec] }));
       }
-      await sleep(600);
+      await sleep(550);
       if (id !== runId) return;
       set({ phase: 'reportReady', statusText: STR.statusPickRecipient[lang] });
     })();
   },
+
+  openEmailModal: () => {
+    const p = get().phase;
+    if (p !== 'reportReady' && p !== 'analyzing' && p !== 'email' && p !== 'done') return;
+    set({ modalOpen: true });
+  },
+
+  closeEmailModal: () => set({ modalOpen: false }),
 
   selectRecipient: (recipientId) => {
     const p = get().phase;

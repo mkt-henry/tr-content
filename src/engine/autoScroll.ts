@@ -16,6 +16,11 @@ const NEAR_BOTTOM = 60;
 export function startAutoFollow(signal: AbortSignal): void {
   if (typeof window === 'undefined' || signal.aborted) return;
 
+  // 새 재생 시작 시 이전 실행에서 남은 수동 스크롤 양보 플래그를 초기화
+  document
+    .querySelectorAll<HTMLElement>('.demo-scroll-follow[data-follow-pause]')
+    .forEach((el) => delete el.dataset.followPause);
+
   // 컨테이너별 "추적 중" 여부 — 기본 true(시작 시 하단 근처로 간주)
   const following = new WeakMap<HTMLElement, boolean>();
   let raf = 0;
@@ -24,6 +29,8 @@ export function startAutoFollow(signal: AbortSignal): void {
     if (signal.aborted) return;
     const els = document.querySelectorAll<HTMLElement>('.demo-scroll-follow');
     els.forEach((el) => {
+      // 시나리오의 수동 검토 스크롤 중에는 추적을 양보한다
+      if (el.dataset.followPause === '1') return;
       const overflow = el.scrollHeight - el.clientHeight;
       if (overflow <= 4) {
         // 콘텐츠가 화면에 다 들어오면 추적 대기 상태로 리셋

@@ -13,6 +13,8 @@ export type Step =
   | { kind: 'type'; target?: string; text: StepText; cps?: number; set: (value: string) => void }
   /** LLM 응답처럼 청크 단위 스트리밍 (store append 호출) */
   | { kind: 'stream'; text: StepText; cps?: number; append: (chunk: string) => void }
+  /** 스크롤 컨테이너(data-demo-id)를 위/아래 또는 특정 자식(toId)으로 부드럽게 스크롤. 검토 플로우용. */
+  | { kind: 'scroll'; target: string; to?: 'top' | 'bottom'; toId?: string; ms?: number }
   /** 임의 store 조작 */
   | { kind: 'do'; run: () => void };
 

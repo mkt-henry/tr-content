@@ -15,6 +15,8 @@ export interface MetricRow {
 export interface PanelMember {
   name: string;
   share: number; // %
+  rating: string; // S&P 신용등급
+  role?: L; // 리드/팔로우
 }
 
 /** 전년 대비 변경 한 줄 */
@@ -31,6 +33,9 @@ export const DEAL = {
   renewalDate: '2026.07.01',
   cedent: { ko: '한화생명', en: 'Hanwha Life' } as L,
   period: { ko: '2026.07.01 – 2027.06.30', en: '2026.07.01 – 2027.06.30' } as L,
+  reportNo: 'ALZ-RR-2026-0142',
+  issued: '2026.06.12',
+  classType: { ko: '생명 초과손해액 (XL)', en: 'Life Excess of Loss (XL)' } as L,
 };
 
 export const OVERVIEW: MetricRow[] = [
@@ -41,11 +46,82 @@ export const OVERVIEW: MetricRow[] = [
 ];
 
 export const PANEL: PanelMember[] = [
-  { name: 'Korean Re', share: 40 },
-  { name: 'Gen Re', share: 30 },
-  { name: 'Hannover Re', share: 20 },
-  { name: 'SCOR', share: 10 },
+  { name: 'Korean Re', share: 40, rating: 'A', role: { ko: '리드', en: 'Lead' } },
+  { name: 'Gen Re', share: 30, rating: 'AA+' },
+  { name: 'Hannover Re', share: 20, rating: 'AA-' },
+  { name: 'SCOR', share: 10, rating: 'AA-' },
 ];
+
+/** 패널 가중평균 신용도 (표시용) */
+export const PANEL_SECURITY: L = { ko: '가중평균 S&P AA-', en: 'Weighted avg S&P AA-' };
+
+// ---------------------------------------------------------------------------
+// Executive Summary — 서술형 핵심 요약 (문단 배열)
+// ---------------------------------------------------------------------------
+
+export const EXEC_SUMMARY: L<string[]> = {
+  ko: [
+    '한화생명 Term Life XL 2026 갱신을 재보험사 4사 패널로 완료했습니다. 최근 3년 손해율이 71%→49%로 꾸준히 개선되며, 갱신 요율은 시장 평균(+8%) 대비 양호한 +6.5% 수준에서 확정됐습니다.',
+    '출재사가 요청한 Cat 사고당 한도는 ₩80억에서 ₩100억으로 상향 반영했고, 주요 약관 조건은 전년 수준을 유지해 커버 공백이 없습니다. Hannover Re를 신규 편입해 패널 수용력과 평균 신용도를 함께 강화했습니다.',
+  ],
+  en: [
+    'The Hanwha Life Term Life XL 2026 renewal has been placed across a four-reinsurer panel. With the three-year loss ratio improving steadily from 71% to 49%, the renewal rate was settled at +6.5% — favourable versus the market average of +8%.',
+    'The cedent-requested Cat per-event limit was raised from ₩8.0bn to ₩10.0bn while key wording terms were held at prior-year levels, leaving no cover gap. Adding Hannover Re strengthened both panel capacity and average security.',
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Loss Experience — 최근 3년 손해율 (요율 근거)
+// ---------------------------------------------------------------------------
+
+export interface LossYear {
+  year: string;
+  ratio: number; // 손해율 %
+}
+
+export const LOSS_RUN = {
+  years: [
+    { year: '2023', ratio: 71 },
+    { year: '2024', ratio: 58 },
+    { year: '2025', ratio: 49 },
+  ] as LossYear[],
+  avg: 59, // 3년 평균 손해율 %
+  benchmark: 75, // 포트폴리오 벤치마크 손해율 %
+};
+
+// ---------------------------------------------------------------------------
+// Program Structure — 보유 → 재보험 레이어 → 한도 (타워)
+// ---------------------------------------------------------------------------
+
+export interface StructureLayer {
+  id: string;
+  label: L;
+  band: L;
+  span: number; // 타워 높이 비중
+  kind: 'retention' | 'reinsured';
+}
+
+export const STRUCTURE = {
+  layers: [
+    {
+      id: 'reinsured',
+      label: { ko: '재보험 레이어', en: 'Reinsured layer' },
+      band: { ko: '₩30억 초과 ₩70억', en: '₩7.0bn xs ₩3.0bn' },
+      span: 70,
+      kind: 'reinsured',
+    },
+    {
+      id: 'retention',
+      label: { ko: '자기보유', en: 'Retention' },
+      band: { ko: '₩0 – ₩30억', en: '₩0 – ₩3.0bn' },
+      span: 30,
+      kind: 'retention',
+    },
+  ] as StructureLayer[],
+  limit: { ko: '한도 ₩100억', en: 'Limit ₩10.0bn' } as L,
+  catLimit: { ko: 'Cat 1사고당 ₩100억', en: 'Cat per-event ₩10.0bn' } as L,
+  sumAtRisk: { ko: 'Sum at Risk 약 ₩800억', en: 'Sum at Risk ~₩80bn' } as L,
+};
 
 export const CHANGES: ChangeRow[] = [
   {
@@ -278,8 +354,17 @@ export function getRecipient(id: string | null): Recipient | undefined {
   return RECIPIENTS.find((r) => r.id === id);
 }
 
-/** 좌측 보고서 섹션 등장 순서 */
-export const REPORT_SECTIONS = ['cover', 'overview', 'panel', 'changes', 'conclusion'] as const;
+/** 보고서 섹션 등장 순서 */
+export const REPORT_SECTIONS = [
+  'cover',
+  'summary',
+  'overview',
+  'lossrun',
+  'structure',
+  'panel',
+  'changes',
+  'conclusion',
+] as const;
 export type ReportSectionId = (typeof REPORT_SECTIONS)[number];
 
 // ---------------------------------------------------------------------------
@@ -307,6 +392,31 @@ export const STR = {
   changesTitle: { ko: '전년 대비 주요 변경', en: 'Key changes vs. prior year' },
   conclusionTitle: { ko: '결론 · 권고', en: 'Conclusion & recommendation' },
   coverTag: { ko: '갱신 결과 보고서', en: 'Renewal Result Report' },
+
+  // 신규 섹션
+  summaryTitle: { ko: 'Executive Summary', en: 'Executive Summary' },
+  lossTitle: { ko: '손해실적 · 최근 3년', en: 'Loss experience · 3-year' },
+  lossAvgLabel: { ko: '3년 평균', en: '3-yr avg' },
+  lossBenchLabel: { ko: '포트폴리오 벤치마크', en: 'Portfolio benchmark' },
+  lossImproving: { ko: '개선 추세', en: 'Improving' },
+  lossNote: {
+    ko: '손해율 개선이 요율 인상 폭(+6.5%)을 시장 평균 이하로 억제',
+    en: 'Improving loss ratio held the rate increase (+6.5%) below the market average',
+  },
+  structureTitle: { ko: '프로그램 구조', en: 'Program structure' },
+  panelSecurityLabel: { ko: '패널 보안성', en: 'Panel security' },
+  ratingTag: { ko: 'S&P', en: 'S&P' },
+
+  // 표지 메타
+  reportNoLabel: { ko: '보고서 번호', en: 'Report no.' },
+  issuedLabel: { ko: '발행일', en: 'Issued' },
+  classLabel: { ko: '담보 종류', en: 'Class' },
+  statusPlaced: { ko: '플레이스먼트 완료', en: 'Placement complete' },
+
+  // 이메일 CTA · 모달
+  emailCta: { ko: '이메일로 전달', en: 'Send via email' },
+  emailModalTitle: { ko: '전달 이메일 작성', en: 'Compose delivery email' },
+  closeLabel: { ko: '닫기', en: 'Close' },
 
   // 근거 자료 선택
   sourcesTitle: { ko: '근거 자료 선택', en: 'Select source materials' },

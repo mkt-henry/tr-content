@@ -27,8 +27,10 @@ function GoldTemplate({ template, value }: { template: string; value: number }) 
   return (
     <>
       {before}
-      <CountUp value={value} />
-      {after}
+      <span className="whitespace-nowrap">
+        <CountUp value={value} />
+        {after}
+      </span>
     </>
   );
 }
@@ -66,9 +68,9 @@ export function ResultScreen() {
         </div>
 
         {/* 2. Earned gold */}
-        <div className="flex items-center gap-2 rounded-2xl bg-amber-50 px-5 py-3 ring-1 ring-amber-200">
+        <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-50 px-4 py-3 ring-1 ring-amber-200">
           <Coin className="h-6 w-6 shrink-0 text-[11px]" />
-          <span className="text-[20px] font-extrabold tabular-nums text-amber-600">
+          <span className="text-balance text-center text-[16px] font-extrabold leading-snug tabular-nums text-amber-600">
             <GoldTemplate template={pick(STR.resultGold, lang)} value={earnedGold} />
           </span>
         </div>
@@ -94,14 +96,18 @@ export function ResultScreen() {
           </p>
 
           {/* Since-collecting gain row */}
-          <div className="mt-2 flex items-center gap-1 rounded-xl bg-emerald-950/60 px-3 py-1.5 ring-1 ring-emerald-800/50">
-            <span className="text-[11px] text-emerald-300">{pick(STR.sinceCollecting, lang)}</span>
-            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
-            <span className="text-[13px] font-bold tabular-nums text-emerald-400">
-              +{(v.ret * 100).toFixed(1)}%
+          <div className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-950/60 px-3 py-1.5 ring-1 ring-emerald-800/50">
+            <span className="min-w-0 flex-1 text-[11px] leading-tight text-emerald-300">
+              {pick(STR.sinceCollecting, lang)}
             </span>
-            <span className="text-[12px] tabular-nums text-emerald-500">
-              (+{money(v.profit, cur)})
+            <span className="flex shrink-0 items-center gap-1">
+              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+              <span className="text-[13px] font-bold tabular-nums text-emerald-400">
+                +{(v.ret * 100).toFixed(1)}%
+              </span>
+              <span className="whitespace-nowrap text-[12px] tabular-nums text-emerald-500">
+                (+{money(v.profit, cur)})
+              </span>
             </span>
           </div>
 

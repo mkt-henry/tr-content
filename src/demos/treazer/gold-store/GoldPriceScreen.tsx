@@ -176,11 +176,13 @@ export function GoldPriceScreen() {
           {/* 평가손익 — 모은 시점 대비 */}
           <div
             data-demo-id="valuation-return"
-            className="mt-3 flex items-center justify-between rounded-xl bg-emerald-500/12 px-3.5 py-2.5"
+            className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-emerald-500/12 px-3.5 py-2.5"
           >
-            <span className="text-[11px] text-emerald-300/90">{pick(STR.sinceBought, lang)}</span>
-            <span className="flex items-center gap-1.5 text-emerald-400">
-              <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
+            <span className="min-w-0 flex-1 text-[11px] leading-tight text-emerald-300/90">
+              {pick(STR.sinceBought, lang)}
+            </span>
+            <span className="flex shrink-0 items-center gap-1.5 text-emerald-400">
+              <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={2.5} />
               <motion.span
                 key={tick}
                 initial={{ y: 4, opacity: 0.5 }}
@@ -189,7 +191,7 @@ export function GoldPriceScreen() {
               >
                 +{(v.ret * 100).toFixed(1)}%
               </motion.span>
-              <span className="text-[12px] font-semibold tabular-nums">
+              <span className="whitespace-nowrap text-[12px] font-semibold tabular-nums">
                 (+{money(v.profit, cur)})
               </span>
             </span>

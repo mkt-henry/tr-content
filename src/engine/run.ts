@@ -72,6 +72,73 @@ async function clickPulse(signal: AbortSignal) {
   await delay(120, signal);
 }
 
+function easeInOut(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+/**
+ * 컨테이너 scrollTop을 dest까지 ms 동안 부드럽게 이동.
+ * delay()와 동일하게 일시정지/속도/abort를 반영한다(가상 경과시간 기반).
+ */
+function scrollOver(el: HTMLElement, dest: number, ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) return resolve();
+    const start = el.scrollTop;
+    const dist = dest - start;
+    if (Math.abs(dist) < 1 || ms <= 0) {
+      el.scrollTop = dest;
+      return resolve();
+    }
+    let elapsed = 0;
+    let last = Date.now();
+    let raf = 0;
+    const onAbort = () => {
+      cancelAnimationFrame(raf);
+      resolve();
+    };
+    const frame = () => {
+      if (signal.aborted) return resolve();
+      const now = Date.now();
+      const { status, speed } = usePlaybackStore.getState();
+      const rate = speed > 0 ? speed : 1;
+      if (status !== 'paused') elapsed += (now - last) * rate;
+      last = now;
+      const t = Math.min(1, elapsed / ms);
+      el.scrollTop = start + dist * easeInOut(t);
+      if (t >= 1) {
+        signal.removeEventListener('abort', onAbort);
+        return resolve();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    raf = requestAnimationFrame(frame);
+  });
+}
+
+async function scrollContainer(
+  target: string,
+  opts: { to?: 'top' | 'bottom'; toId?: string; ms?: number },
+  signal: AbortSignal,
+) {
+  const el = document.querySelector<HTMLElement>(`[data-demo-id="${target}"]`);
+  if (!el) return;
+  // 수동 검토 스크롤 중에는 auto-follow가 하단으로 끌어당기지 않도록 양보시킨다
+  el.dataset.followPause = '1';
+  const max = Math.max(0, el.scrollHeight - el.clientHeight);
+  let dest = opts.to === 'top' ? 0 : max;
+  if (opts.toId) {
+    const child = el.querySelector<HTMLElement>(`[data-demo-id="${opts.toId}"]`);
+    if (child) {
+      const cRect = el.getBoundingClientRect();
+      const tRect = child.getBoundingClientRect();
+      dest = el.scrollTop + (tRect.top - cRect.top) - 12;
+    }
+  }
+  dest = Math.max(0, Math.min(max, dest));
+  await scrollOver(el, dest, opts.ms ?? 800, signal);
+}
+
 /** 시나리오 스텝을 순차 실행한다. 모든 상태 변화는 데모 store action을 통해서만 일어난다. */
 export async function runScenario(scenario: Scenario, signal: AbortSignal): Promise<void> {
   for (const step of scenario.steps) {
@@ -118,6 +185,9 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         }
         break;
       }
+      case 'scroll':
+        await scrollContainer(step.target, { to: step.to, toId: step.toId, ms: step.ms }, signal);
+        break;
       case 'do':
         step.run();
         break;
