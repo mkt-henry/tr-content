@@ -56,13 +56,13 @@ async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
   // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
   el.scrollIntoView({ block: 'nearest' });
   const r = el.getBoundingClientRect();
-  const ps = usePlaybackStore.getState();
-  ps.setCursor({
+  const { setCursor, setSpotlight } = usePlaybackStore.getState();
+  setCursor({
     x: r.left + r.width / 2,
     y: r.top + r.height / 2,
     visible: true,
   });
-  ps.setSpotlight(target);
+  setSpotlight(target);
   await delay(ms, signal);
 }
 
