@@ -56,11 +56,13 @@ async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
   // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
   el.scrollIntoView({ block: 'nearest' });
   const r = el.getBoundingClientRect();
-  usePlaybackStore.getState().setCursor({
+  const ps = usePlaybackStore.getState();
+  ps.setCursor({
     x: r.left + r.width / 2,
     y: r.top + r.height / 2,
     visible: true,
   });
+  ps.setSpotlight(target);
   await delay(ms, signal);
 }
 
@@ -172,6 +174,7 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         break;
       }
       case 'stream': {
+        usePlaybackStore.getState().setSpotlight(null);
         const text = resolveText(step.text);
         const interval = 1000 / (step.cps ?? 40);
         let i = 0;
@@ -186,6 +189,7 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         break;
       }
       case 'scroll':
+        usePlaybackStore.getState().setSpotlight(null);
         await scrollContainer(step.target, { to: step.to, toId: step.toId, ms: step.ms }, signal);
         break;
       case 'do':
