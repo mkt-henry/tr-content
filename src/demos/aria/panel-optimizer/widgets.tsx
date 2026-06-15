@@ -150,7 +150,7 @@ export function SummaryMetrics() {
     </div>
   );
   return (
-    <div data-demo-id="summary-metrics" className="mt-2.5 grid grid-cols-2 gap-2">
+    <div className="mt-2.5 grid grid-cols-2 gap-2">
       {cell(pick(STR.blendedRol, lang), `${p.blendedRol.toFixed(2)}%`)}
       {cell(pick(STR.avgRating, lang), p.avgRating)}
       {cell(pick(STR.premium, lang), `₩${p.premiumEok.toFixed(1)}억`)}
@@ -173,7 +173,7 @@ export function RationaleList() {
       <ul className="space-y-1.5">
         {p.rationale.map((r, i) => (
           <motion.li
-            key={i}
+            key={r.ko}
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 + i * 0.1 }}
