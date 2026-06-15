@@ -9,7 +9,7 @@ import {
   Play,
   RotateCcw,
   Smartphone,
-  Sparkles,
+  ZoomIn,
   PanelTop,
   Video,
 } from 'lucide-react';
@@ -139,8 +139,8 @@ export function ControlBar({ feature, variant, status, onPlay, onPause, onResume
           ))}
         </select>
 
-        <BarButton onClick={toggleSpotlight} label="인터랙션 강조" active={spotlightEnabled}>
-          <Sparkles className="h-4 w-4" />
+        <BarButton onClick={toggleSpotlight} label="인터랙션 줌" active={spotlightEnabled}>
+          <ZoomIn className="h-4 w-4" />
         </BarButton>
 
         {hasBranding && (

@@ -8,7 +8,7 @@ import { Background } from './Background';
 import { BrowserChrome } from './BrowserChrome';
 import { ControlBar } from './ControlBar';
 import { FakeCursor } from './FakeCursor';
-import { Spotlight } from './Spotlight';
+import { Camera } from './Camera';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
 import { cn } from '../lib/cn';
@@ -186,7 +186,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           >
             {browserChrome && <BrowserChrome url={url} device="desktop" />}
             <div className="relative min-h-0 flex-1">
-              <Comp device="desktop" />
+              <Camera>
+                <Comp device="desktop" />
+              </Camera>
             </div>
           </motion.div>
         ) : (
@@ -216,7 +218,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             >
               {/* 모바일은 네이티브 앱 화면이므로 주소창(BrowserChrome) 비표시 */}
               <div className="relative min-h-0 flex-1">
-                <Comp device="mobile" />
+                <Camera>
+                  <Comp device="mobile" />
+                </Camera>
               </div>
               {phoneFrame && (
                 <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-30 h-1 w-28 -translate-x-1/2 rounded-full bg-white/30" />
@@ -274,7 +278,6 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
         )}
       </AnimatePresence>
 
-      <Spotlight />
       <FakeCursor />
     </div>
   );
