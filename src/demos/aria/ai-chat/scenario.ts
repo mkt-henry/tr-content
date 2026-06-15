@@ -17,14 +17,14 @@ export const evidenceScenario: Scenario = {
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
     { kind: 'wait', ms: 8800 },
-    { kind: 'cursor', target: 'evidence-card', ms: 700 },
+    { kind: 'cursor', target: 'evidence-card', ms: 700, zoom: true },
     { kind: 'wait', ms: 1600 },
     // 2) 이어서 면책 비교 — 같은 데이터로 다른 각도 분석
     { kind: 'type', target: 'chat-input', text: q(2), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
     { kind: 'wait', ms: 8800 },
-    { kind: 'cursor', target: 'evidence-card', ms: 700 },
+    { kind: 'cursor', target: 'evidence-card', ms: 700, zoom: true },
     { kind: 'wait', ms: 1500 },
   ],
 };
@@ -37,7 +37,7 @@ export const naturalScenario: Scenario = {
     // 1) 마감 우선순위 (추천 질문)
     { kind: 'cursor', target: 'suggest-0', ms: 700 },
     { kind: 'wait', ms: 300 },
-    { kind: 'click', target: 'suggest-0', run: () => st().send(q(0)()) },
+    { kind: 'click', target: 'suggest-0', run: () => st().send(q(0)()), zoom: true },
     { kind: 'wait', ms: 8000 },
     // 2) 출재 구조 비교
     { kind: 'type', target: 'chat-input', text: q(1), cps: 16, set: (v) => st().setInput(v) },

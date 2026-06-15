@@ -18,21 +18,21 @@ export const addSourceScenario: Scenario = {
     { kind: 'click', target: 'source-add', run: () => st().toggleMenu(true) },
     { kind: 'wait', ms: 600 },
     { kind: 'cursor', target: 'source-pick-termlife', ms: 700 },
-    { kind: 'click', target: 'source-pick-termlife', run: () => st().setSource('termlife') },
+    { kind: 'click', target: 'source-pick-termlife', run: () => st().setSource('termlife'), zoom: true },
     { kind: 'wait', ms: 900 },
     // 1) 보유·한도 — 답변에 XL 레이어 타워 차트가 함께 표시됨
     { kind: 'type', target: 'chat-input', text: q('termlife', 0), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
     { kind: 'wait', ms: 6500 },
-    { kind: 'cursor', target: 'answer-chart', ms: 700 },
+    { kind: 'cursor', target: 'answer-chart', ms: 700, zoom: true },
     { kind: 'wait', ms: 1800 },
     // 2) 보험기간·담보 범위
     { kind: 'type', target: 'chat-input', text: q('termlife', 1), cps: 16, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 350 },
     { kind: 'click', target: 'chat-send', run: () => st().send() },
     { kind: 'wait', ms: 6500 },
-    { kind: 'cursor', target: 'evidence-card', ms: 700 },
+    { kind: 'cursor', target: 'evidence-card', ms: 700, zoom: true },
     { kind: 'wait', ms: 1400 },
   ],
 };
@@ -47,7 +47,7 @@ export const slashSourceScenario: Scenario = {
     { kind: 'type', target: 'chat-input', text: () => '/samsung', cps: 12, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 700 },
     { kind: 'cursor', target: 'source-pick-samsung-ci', ms: 700 },
-    { kind: 'click', target: 'source-pick-samsung-ci', run: () => st().setSource('samsung-ci') },
+    { kind: 'click', target: 'source-pick-samsung-ci', run: () => st().setSource('samsung-ci'), zoom: true },
     { kind: 'wait', ms: 900 },
     // 삼성 CI — 출재율·보유 (추천 질문)
     { kind: 'cursor', target: 'suggest-0', ms: 600 },
@@ -57,7 +57,7 @@ export const slashSourceScenario: Scenario = {
     { kind: 'type', target: 'chat-input', text: () => '/kyobo', cps: 12, set: (v) => st().setInput(v) },
     { kind: 'wait', ms: 700 },
     { kind: 'cursor', target: 'source-pick-kyobo-gpa', ms: 700 },
-    { kind: 'click', target: 'source-pick-kyobo-gpa', run: () => st().setSource('kyobo-gpa') },
+    { kind: 'click', target: 'source-pick-kyobo-gpa', run: () => st().setSource('kyobo-gpa'), zoom: true },
     { kind: 'wait', ms: 900 },
     // 교보 PA — 출재율·사고당 한도
     { kind: 'type', target: 'chat-input', text: q('kyobo-gpa', 0), cps: 16, set: (v) => st().setInput(v) },

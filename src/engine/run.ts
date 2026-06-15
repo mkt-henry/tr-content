@@ -51,7 +51,11 @@ function jitter(base: number) {
   return base * (0.6 + Math.random() * 0.8);
 }
 
-async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
+/**
+ * 가짜 커서를 target으로 이동한다.
+ * zoom=true면 그 대상을 카메라 줌인 대상으로 지정(핵심 강조), 아니면 줌 해제(기본 줌아웃).
+ */
+async function moveCursorTo(target: string, signal: AbortSignal, ms = 650, zoom = false) {
   const el = document.querySelector<HTMLElement>(`[data-demo-id="${target}"]`);
   if (!el) return;
   // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
@@ -63,7 +67,7 @@ async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
   const point = natural ?? { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   const { setCursor, setSpotlight } = usePlaybackStore.getState();
   setCursor({ x: point.x, y: point.y, visible: true });
-  setSpotlight(target);
+  setSpotlight(zoom ? target : null);
   await delay(ms, signal);
 }
 
@@ -151,17 +155,17 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         await delay(step.ms, signal);
         break;
       case 'cursor':
-        await moveCursorTo(step.target, signal, step.ms);
+        await moveCursorTo(step.target, signal, step.ms, step.zoom);
         break;
       case 'click':
-        await moveCursorTo(step.target, signal);
+        await moveCursorTo(step.target, signal, 650, step.zoom);
         await clickPulse(signal);
         if (signal.aborted) return;
         step.run?.();
         break;
       case 'type': {
         if (step.target) {
-          await moveCursorTo(step.target, signal);
+          await moveCursorTo(step.target, signal, 650, step.zoom);
           await clickPulse(signal);
         }
         const interval = 1000 / (step.cps ?? 16);
