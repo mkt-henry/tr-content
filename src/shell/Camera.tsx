@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { usePlaybackStore } from '../engine/playbackStore';
 import { CAMERA_LAYER_ATTR, localCenter } from '../lib/cameraGeom';
 
-const ZOOM = 1.4; // 활성 컨트롤 줌인 배율
+const ZOOM = 1.6; // 활성 컨트롤 줌인 배율
 const EASE = 0.2; // origin 추종 보간 계수 (클수록 빠르게 따라붙음)
 
 /**
