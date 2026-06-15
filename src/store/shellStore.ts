@@ -9,6 +9,12 @@ interface ShellState {
   /** null이면 갤러리 화면 */
   featureId: string | null;
   variantId: string | null;
+  /** 프로젝트별 갤러리 모드 — 'video'(기본) | 'cardnews' */
+  galleryMode: Record<string, 'video' | 'cardnews'>;
+  setGalleryMode: (projectId: string, mode: 'video' | 'cardnews') => void;
+  /** null이 아니면 카드뉴스 뷰어 화면 */
+  cardnewsId: string | null;
+  openCardnews: (deckId: string) => void;
   device: DeviceMode;
   /** 모바일일 때 폰 목업 프레임 표시 여부 */
   phoneFrame: boolean;
@@ -43,8 +49,13 @@ export const useShellStore = create<ShellState>((set) => ({
   setProject: (projectId) => set({ projectId }),
   setProjectLang: (projectId, lang) =>
     set((s) => ({ projectLang: { ...s.projectLang, [projectId]: lang } })),
+  galleryMode: {},
+  cardnewsId: null,
+  setGalleryMode: (projectId, mode) =>
+    set((s) => ({ galleryMode: { ...s.galleryMode, [projectId]: mode } })),
+  openCardnews: (deckId) => set({ cardnewsId: deckId }),
   open: (featureId, variantId) => set({ featureId, variantId }),
-  backToGallery: () => set({ featureId: null, variantId: null }),
+  backToGallery: () => set({ featureId: null, variantId: null, cardnewsId: null }),
   setDevice: (device) => set({ device }),
   toggleDevice: () => set((s) => ({ device: s.device === 'desktop' ? 'mobile' : 'desktop' })),
   togglePhoneFrame: () => set((s) => ({ phoneFrame: !s.phoneFrame })),
