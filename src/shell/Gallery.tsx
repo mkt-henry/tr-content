@@ -8,7 +8,7 @@ import { cn } from '../lib/cn';
 import { VariantCard } from './FeatureCard';
 import { getDecksByProject, hasCardnews } from '../cardnews/registry';
 import { CardNewsGallery } from './cardnews/CardNewsGallery';
-import type { Lang } from '../cardnews/types';
+import { toLang } from '../cardnews/lang';
 
 /** 런처: 프로젝트 탭 → 기능 카드 그리드 → 버전/소구점 선택 → 스테이지 진입 */
 export function Gallery() {
@@ -31,7 +31,7 @@ export function Gallery() {
   const galleryMode = useShellStore((s) => s.galleryMode);
   const setGalleryMode = useShellStore((s) => s.setGalleryMode);
   const showCardnews = hasCardnews(project.id);
-  const mode = (showCardnews && galleryMode[project.id]) || 'video';
+  const mode: 'video' | 'cardnews' = showCardnews ? (galleryMode[project.id] ?? 'video') : 'video';
   const decks = getDecksByProject(project.id);
 
   // 라이트박스 이전/다음 (순환)
@@ -159,7 +159,7 @@ export function Gallery() {
         )}
 
         {mode === 'cardnews' ? (
-          <CardNewsGallery decks={decks} lang={(lang as Lang) ?? 'ko'} />
+          <CardNewsGallery decks={decks} lang={toLang(lang)} />
         ) : (
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {cards.map((c, i) => (

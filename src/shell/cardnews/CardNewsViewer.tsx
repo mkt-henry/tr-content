@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const PREVIEW_SIZE = Math.min(560, Math.floor(0.62 * 860));
 import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images } from 'lucide-react';
-import type { CardNewsDeck, Lang } from '../../cardnews/types';
+import type { CardNewsDeck } from '../../cardnews/types';
+import { toLang } from '../../cardnews/lang';
 import { useShellStore } from '../../store/shellStore';
 import { getProject } from '../../registry';
 import { Slide, ScaledSlide } from './Slide';
@@ -14,7 +15,7 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const setProjectLang = useShellStore((s) => s.setProjectLang);
   const project = getProject(deck.project);
   const langs = project?.languages ?? [{ id: 'ko', label: '한국어', flag: '🇰🇷' }, { id: 'en', label: 'English', flag: '🇺🇸' }];
-  const lang = ((projectLang[deck.project] as Lang) ?? 'ko');
+  const lang = toLang(projectLang[deck.project]);
   const accent = deck.accent ?? '#7c5cff';
   const total = deck.slides.length;
 
