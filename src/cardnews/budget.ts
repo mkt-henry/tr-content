@@ -14,8 +14,11 @@ const LANGS: Lang[] = ['ko', 'en'];
 function over(field: LangText, max: { ko: number; en: number }): string[] {
   const out: string[] = [];
   for (const l of LANGS) {
-    const len = field[l]?.length ?? 0;
-    if (len > max[l]) out.push(`${l} ${len}/${max[l]}자 초과: "${field[l]}"`);
+    if (!field[l]) {
+      out.push(`${l} 번역 누락`);
+    } else if (field[l].length > max[l]) {
+      out.push(`${l} ${field[l].length}/${max[l]}자 초과: "${field[l]}"`);
+    }
   }
   return out;
 }
@@ -25,8 +28,8 @@ export function lintDeck(deck: CardNewsDeck): string[] {
   const w: string[] = [];
   deck.slides.forEach((s, i) => {
     const p = `slide ${i + 1} (${s.type})`;
-    if ('eyebrow' in s && s.eyebrow) over(s.eyebrow, BUDGET.eyebrow).forEach((m) => w.push(`${p} eyebrow — ${m}`));
-    if ('headline' in s && s.headline) over(s.headline, BUDGET.headline).forEach((m) => w.push(`${p} headline — ${m}`));
+    over(s.eyebrow, BUDGET.eyebrow).forEach((m) => w.push(`${p} eyebrow — ${m}`));
+    if (s.headline) over(s.headline, BUDGET.headline).forEach((m) => w.push(`${p} headline — ${m}`));
     if ('body' in s && s.body) over(s.body, BUDGET.body).forEach((m) => w.push(`${p} body — ${m}`));
     if ('note' in s && s.note) over(s.note, BUDGET.body).forEach((m) => w.push(`${p} note — ${m}`));
     if (s.type === 'contrast') {
