@@ -1,7 +1,7 @@
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 
-const OPT = { pixelRatio: 1, cacheBust: true, width: 1080, height: 1080 } as const;
+const OPT = { pixelRatio: 1, cacheBust: true, width: 1080, height: 1080, skipFonts: true } as const;
 
 async function nodeToPng(node: HTMLElement): Promise<string> {
   return toPng(node, OPT);
