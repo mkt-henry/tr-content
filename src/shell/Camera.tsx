@@ -56,7 +56,7 @@ export function Camera({ children }: { children: ReactNode }) {
     <motion.div
       ref={ref}
       {...{ [CAMERA_LAYER_ATTR]: true }}
-      className="h-full w-full"
+      className="relative h-full w-full"
       initial={{ scale: 1 }}
       animate={{ scale: active ? ZOOM : 1 }}
       transition={{ type: 'spring', stiffness: 150, damping: 22, mass: 0.7 }}
