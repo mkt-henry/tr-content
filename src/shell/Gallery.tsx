@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Plus, FolderTree, X, Hourglass, Images, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { Plus, FolderTree, X, Hourglass, Images, ChevronLeft, ChevronRight, ZoomIn, Film, Layers } from 'lucide-react';
 import { projects, getFeaturesByProject } from '../registry';
 import { getAssetsByProject } from '../registry/assets';
 import { useShellStore } from '../store/shellStore';
 import { cn } from '../lib/cn';
 import { VariantCard } from './FeatureCard';
+import { getDecksByProject, hasCardnews } from '../cardnews/registry';
+import { CardNewsGallery } from './cardnews/CardNewsGallery';
+import type { Lang } from '../cardnews/types';
 
 /** 런처: 프로젝트 탭 → 기능 카드 그리드 → 버전/소구점 선택 → 스테이지 진입 */
 export function Gallery() {
@@ -24,6 +27,12 @@ export function Gallery() {
   const cards = features.flatMap((f) => f.variants.map((variant) => ({ feature: f, variant })));
   const assets = getAssetsByProject(project.id);
   const lang = projectLang[project.id] ?? project.languages?.[0]?.id;
+
+  const galleryMode = useShellStore((s) => s.galleryMode);
+  const setGalleryMode = useShellStore((s) => s.setGalleryMode);
+  const showCardnews = hasCardnews(project.id);
+  const mode = (showCardnews && galleryMode[project.id]) || 'video';
+  const decks = getDecksByProject(project.id);
 
   // 라이트박스 이전/다음 (순환)
   const showPrev = useCallback(
@@ -134,38 +143,57 @@ export function Gallery() {
           </div>
         </motion.header>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c, i) => (
-            <VariantCard key={`${c.feature.id}:${c.variant.id}`} feature={c.feature} variant={c.variant} index={i} />
-          ))}
+        {showCardnews && (
+          <div className="mt-7 inline-flex gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
+            <button type="button" onClick={() => setGalleryMode(project.id, 'video')}
+              className={cn('flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors',
+                mode === 'video' ? 'bg-brass-500/20 text-brass-200' : 'text-zinc-500 hover:text-zinc-300')}>
+              <Film className="h-4 w-4" /> 영상
+            </button>
+            <button type="button" onClick={() => setGalleryMode(project.id, 'cardnews')}
+              className={cn('flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors',
+                mode === 'cardnews' ? 'bg-violet-500/20 text-violet-200' : 'text-zinc-500 hover:text-zinc-300')}>
+              <Layers className="h-4 w-4" /> 카드뉴스
+            </button>
+          </div>
+        )}
 
-          {features.length === 0 && (
-            <motion.div
+        {mode === 'cardnews' ? (
+          <CardNewsGallery decks={decks} lang={(lang as Lang) ?? 'ko'} />
+        ) : (
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {cards.map((c, i) => (
+              <VariantCard key={`${c.feature.id}:${c.variant.id}`} feature={c.feature} variant={c.variant} index={i} />
+            ))}
+
+            {features.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] text-zinc-500"
+              >
+                <Hourglass className="h-7 w-7" />
+                <span className="text-sm font-medium">데모 준비 중</span>
+                <span className="text-xs text-zinc-600">아직 등록된 데모가 없습니다</span>
+              </motion.div>
+            )}
+
+            {/* 새 데모 추가 가이드 */}
+            <motion.button
+              type="button"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] text-zinc-500"
+              transition={{ duration: 0.5, delay: 0.1 + features.length * 0.08 }}
+              onClick={() => setShowGuide(true)}
+              className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 text-zinc-500 transition-colors hover:border-brass-500/40 hover:text-brass-300"
             >
-              <Hourglass className="h-7 w-7" />
-              <span className="text-sm font-medium">데모 준비 중</span>
-              <span className="text-xs text-zinc-600">아직 등록된 데모가 없습니다</span>
-            </motion.div>
-          )}
-
-          {/* 새 데모 추가 가이드 */}
-          <motion.button
-            type="button"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 + features.length * 0.08 }}
-            onClick={() => setShowGuide(true)}
-            className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 text-zinc-500 transition-colors hover:border-brass-500/40 hover:text-brass-300"
-          >
-            <Plus className="h-7 w-7" />
-            <span className="text-sm font-medium">새 데모 추가</span>
-            <span className="text-xs text-zinc-600">폴더 하나로 자동 등록</span>
-          </motion.button>
-        </div>
+              <Plus className="h-7 w-7" />
+              <span className="text-sm font-medium">새 데모 추가</span>
+              <span className="text-xs text-zinc-600">폴더 하나로 자동 등록</span>
+            </motion.button>
+          </div>
+        )}
       </div>
 
       {showGuide && (
