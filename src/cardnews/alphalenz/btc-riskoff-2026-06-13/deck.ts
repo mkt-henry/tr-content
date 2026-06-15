@@ -8,8 +8,8 @@ const deck: CardNewsDeck = {
   date: '2026-06-13',
   slides: [
     { type: 'cover',
-      eyebrow: { ko: 'AlphaLenz · 앵글 리포트', en: 'AlphaLenz · Angle Report' },
-      headline: { ko: '모두가 저점을 외칠 때,\nAI는 다르게 봤다', en: "Everyone said 'buy the dip.'\nAI disagreed." },
+      eyebrow: { ko: 'AlphaLenz 앵글 리포트', en: 'AlphaLenz · Angle Report' },
+      headline: { ko: '모두가 저점을 외칠 때\nAI는 달리 봤다', en: "Everyone said 'buy the dip.'\nAI disagreed." },
       tag: { ko: '비트코인 · 위험회피 · 2026.06.13', en: 'Bitcoin · Risk-off · 2026.06.13' } },
     { type: 'thesis',
       eyebrow: { ko: '핵심 결론', en: 'The verdict' },
