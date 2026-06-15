@@ -4,6 +4,7 @@ import { Chart, TONE } from './charts';
 
 const SIZE = 1080;
 const text: React.CSSProperties = { wordBreak: 'keep-all', overflowWrap: 'break-word' };
+const headlineGlow = 'radial-gradient(ellipse 90% 60% at 70% -10%,rgba(124,92,255,.28),transparent 60%),linear-gradient(160deg,#11132a,#0a0b14)';
 
 function Frame({ children, accent, bg }: { children: React.ReactNode; accent: string; bg?: string }) {
   return (
@@ -35,14 +36,14 @@ const Foot = ({ n, total }: { n: number; total: number }) => (
 export const Slide = forwardRef<HTMLDivElement, {
   slide: SlideT; lang: Lang; index: number; total: number; accent: string;
 }>(({ slide: s, lang, index, total, accent }, ref) => {
-  const headlineGlow = 'radial-gradient(ellipse 90% 60% at 70% -10%,rgba(124,92,255,.28),transparent 60%),linear-gradient(160deg,#11132a,#0a0b14)';
   let body: React.ReactNode;
 
   switch (s.type) {
     case 'cover':
       body = (<>
         <div style={{ position: 'relative' }}><Eyebrow>{s.eyebrow[lang]}</Eyebrow>
-          <h1 style={{ ...text, fontSize: 88, fontWeight: 800, lineHeight: 1.2, margin: '24px 0 0' }}>{s.headline[lang]}</h1></div>
+          <h1 style={{ ...text, fontSize: 88, fontWeight: 800, lineHeight: 1.2, margin: '24px 0 0' }}>{s.headline[lang]}</h1>
+          {s.chart && <div style={{ marginTop: 40 }}><Chart spec={s.chart} lang={lang} /></div>}</div>
         <div style={{ position: 'relative' }}>
           <span style={{ display: 'inline-block', fontSize: 34, fontWeight: 700, background: 'rgba(124,92,255,.16)', color: '#c4b5fd', padding: '16px 36px', borderRadius: 999 }}>{s.tag[lang]}</span>
           <div style={{ marginTop: 40 }}><Foot n={index} total={total} /></div>

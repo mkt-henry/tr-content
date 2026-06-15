@@ -27,8 +27,9 @@ export function Chart({ spec, lang }: { spec: ChartSpec; lang: Lang }) {
   if (spec.kind === 'areaSpark') {
     const w = 920, h = 320;
     const max = Math.max(...spec.points), min = Math.min(...spec.points);
+    const denom = (spec.points.length - 1) || 1;
     const pts = spec.points.map((v, i) => {
-      const x = (i / (spec.points.length - 1)) * w;
+      const x = (i / denom) * w;
       const y = h - ((v - min) / (max - min || 1)) * h;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
@@ -41,7 +42,7 @@ export function Chart({ spec, lang }: { spec: ChartSpec; lang: Lang }) {
     );
   }
   if (spec.kind === 'donut') {
-    const total = spec.segments.reduce((a, s) => a + s.weight, 0);
+    const total = spec.segments.reduce((a, s) => a + s.weight, 0) || 1;
     const C = 2 * Math.PI * 110;
     let offset = 0;
     return (
