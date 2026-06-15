@@ -9,6 +9,7 @@ import {
   Play,
   RotateCcw,
   Smartphone,
+  Sparkles,
   PanelTop,
   Video,
 } from 'lucide-react';
@@ -45,6 +46,8 @@ export function ControlBar({ feature, variant, status, onPlay, onPause, onResume
   const paused = status === 'paused';
   const speed = usePlaybackStore((s) => s.speed);
   const setSpeed = usePlaybackStore((s) => s.setSpeed);
+  const spotlightEnabled = usePlaybackStore((s) => s.spotlightEnabled);
+  const toggleSpotlight = usePlaybackStore((s) => s.toggleSpotlight);
 
   // 프로젝트 단위 언어 전환 — 지원 프로젝트(Treazer 등)의 데모에서만 노출
   const projectId = getProjectIdOfFeature(feature.id);
@@ -135,6 +138,10 @@ export function ControlBar({ feature, variant, status, onPlay, onPause, onResume
             </option>
           ))}
         </select>
+
+        <BarButton onClick={toggleSpotlight} label="인터랙션 강조" active={spotlightEnabled}>
+          <Sparkles className="h-4 w-4" />
+        </BarButton>
 
         {hasBranding && (
           <>
