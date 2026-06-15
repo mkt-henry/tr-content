@@ -133,4 +133,3 @@ export function ScaledSlide(props: { slide: SlideT; lang: Lang; index: number; t
   );
 }
 
-export { SIZE as SLIDE_SIZE };

@@ -16,9 +16,10 @@ function over(field: LangText, max: { ko: number; en: number }): string[] {
   for (const l of LANGS) {
     if (!field[l]) {
       out.push(`${l} 번역 누락`);
-    } else if (field[l].length > max[l]) {
-      out.push(`${l} ${field[l].length}/${max[l]}자 초과: "${field[l]}"`);
+      continue;
     }
+    const len = field[l].replace(/\n/g, '').length;
+    if (len > max[l]) out.push(`${l} ${len}/${max[l]}자 초과: "${field[l]}"`);
   }
   return out;
 }
