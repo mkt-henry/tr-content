@@ -44,7 +44,7 @@ export function ChatMobile({ useStore }: { useStore: ChatStoreHook }) {
             <div className="mb-2 flex items-center gap-2">
               <span
                 data-demo-id="source-chip"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 py-1 pl-2 pr-1 text-[11px] text-teal-200"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 py-1 pl-2 pr-1 text-[14px] text-teal-200"
               >
                 <FileText className="h-3.5 w-3.5" />
                 {pick(pipeline.label, lang)}
@@ -82,7 +82,7 @@ export function ChatMobile({ useStore }: { useStore: ChatStoreHook }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={pick(STR.placeholderShort, lang)}
-              className="h-9 min-w-0 flex-1 bg-transparent text-[13px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
+              className="h-9 min-w-0 flex-1 bg-transparent text-[16px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
             />
             <button
               type="submit"

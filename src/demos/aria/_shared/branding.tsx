@@ -16,7 +16,7 @@ function HeroWordmark({ portrait }: { portrait?: boolean }) {
       alt="ARIA"
       draggable={false}
       className="h-auto select-none"
-      style={{ width: portrait ? '58%' : 'min(34%, 420px)' }}
+      style={{ width: portrait ? '66%' : 'min(52%, 760px)' }}
     />
   );
 }
@@ -46,7 +46,7 @@ function AriaIntro({ portrait }: { portrait?: boolean }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, duration: 0.5 }}
-          className="mt-5 text-[12px] font-semibold uppercase tracking-[0.22em]"
+          className="mt-6 text-[clamp(14px,1.7vw,26px)] font-semibold uppercase tracking-[0.22em]"
           style={{ color: 'rgba(150,178,240,0.92)' }}
         >
           Reinsurance Intelligence
@@ -71,7 +71,7 @@ function AriaOutro({ portrait }: { portrait?: boolean }) {
       >
         <HeroWordmark portrait={portrait} />
         <p
-          className="mt-5 text-[12px] font-semibold uppercase tracking-[0.22em]"
+          className="mt-6 text-[clamp(14px,1.7vw,26px)] font-semibold uppercase tracking-[0.22em]"
           style={{ color: 'rgba(150,178,240,0.92)' }}
         >
           Reinsurance Intelligence
@@ -80,7 +80,7 @@ function AriaOutro({ portrait }: { portrait?: boolean }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.4 }}
-          className="mt-7 text-[12px] font-medium tracking-[0.04em] text-white/45"
+          className="mt-8 text-[clamp(13px,1.4vw,22px)] font-medium tracking-[0.04em] text-white/45"
         >
           by <span className="font-semibold text-white/80">AlphaLenz</span>
         </motion.p>

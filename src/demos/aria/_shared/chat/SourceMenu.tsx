@@ -21,12 +21,12 @@ export function SourceMenu({
         compact ? 'w-full' : 'w-80',
       )}
     >
-      <p className="flex items-center gap-1.5 border-b border-white/[0.06] px-3 py-2 text-[10.5px] font-medium uppercase tracking-wider text-zinc-500">
+      <p className="flex items-center gap-1.5 border-b border-white/[0.06] px-3 py-2 text-[13px] font-medium uppercase tracking-wider text-zinc-500">
         <Layers className="h-3 w-3 text-teal-400" /> {pick(STR.sourceMenuTitle, lang)}
       </p>
       <div className="max-h-64 overflow-y-auto p-1.5">
         {items.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[12px] text-zinc-600">{pick(STR.slashHint, lang)}</p>
+          <p className="px-3 py-4 text-center text-[15.5px] text-zinc-600">{pick(STR.slashHint, lang)}</p>
         ) : (
           items.map((p) => (
             <button
@@ -39,15 +39,15 @@ export function SourceMenu({
                 <FileText className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-zinc-200">
+                <p className="flex items-center gap-1.5 text-[15.5px] font-medium text-zinc-200">
                   <span className="truncate">{pick(p.label, lang)}</span>
                   {p.urgent && (
-                    <span className="shrink-0 rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-rose-300">
+                    <span className="shrink-0 rounded bg-rose-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-rose-300">
                       {pick(STR.urgentTag, lang)}
                     </span>
                   )}
                 </p>
-                <p className="mt-0.5 truncate text-[10.5px] text-zinc-500">
+                <p className="mt-0.5 truncate text-[13px] text-zinc-500">
                   <span className="font-mono text-teal-400/70">/{p.slash}</span> · {pick(p.meta, lang)}
                 </p>
               </div>

@@ -28,10 +28,10 @@ export function ChatMessages({ useStore, compact }: { useStore: ChatStoreHook; c
               <Sparkles className="h-6 w-6" />
             </div>
             <div className="text-center">
-              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[16px]' : 'text-[20px]')}>
+              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[20px]' : 'text-[25px]')}>
                 {pick(STR.emptyTitle, lang)}
               </h3>
-              <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-emerald-400/80">
+              <p className="mt-1.5 inline-flex items-center gap-1 text-[14px] text-emerald-400/80">
                 <CheckCircle2 className="h-3 w-3" /> {pick(pipeline.label, lang)} {pick(STR.sourceReady, lang)}
               </p>
             </div>
@@ -41,7 +41,7 @@ export function ChatMessages({ useStore, compact }: { useStore: ChatStoreHook; c
                   key={i}
                   data-demo-id={`suggest-${i}`}
                   onClick={() => send(q)}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[12.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[15.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
                 >
                   {q}
                 </button>
@@ -55,10 +55,10 @@ export function ChatMessages({ useStore, compact }: { useStore: ChatStoreHook; c
               <Sparkles className="h-6 w-6" />
             </div>
             <div className="text-center">
-              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[16px]' : 'text-[20px]')}>
+              <h3 className={cn('font-semibold text-zinc-200', compact ? 'text-[20px]' : 'text-[25px]')}>
                 {pick(STR.globalTitle, lang)}
               </h3>
-              <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-teal-300/80">
+              <p className="mt-1 inline-flex items-center gap-1 text-[14px] text-teal-300/80">
                 <Layers className="h-3 w-3" /> {pick(STR.globalReady, lang)}
               </p>
             </div>
@@ -68,13 +68,13 @@ export function ChatMessages({ useStore, compact }: { useStore: ChatStoreHook; c
                   key={i}
                   data-demo-id={`suggest-${i}`}
                   onClick={() => send(q)}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[12.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left text-[15.5px] text-zinc-300 transition-colors hover:border-teal-500/40 hover:bg-teal-500/[0.06] hover:text-teal-200"
                 >
                   {q}
                 </button>
               ))}
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-zinc-500">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 text-[14px] text-zinc-500">
               <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5">
                 <Plus className="h-3 w-3 text-teal-300" /> {pick(STR.addSource, lang)}
               </span>
@@ -143,7 +143,7 @@ function XlRecoveryCurve({ chart }: { chart: XlRecoveryChart }) {
       data-demo-id="answer-chart"
       className="mt-2.5 rounded-xl border border-teal-500/20 bg-teal-950/30 px-3.5 pb-2.5 pt-3"
     >
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-medium text-teal-300">
+      <div className="mb-1.5 flex items-center gap-2 text-[14px] font-medium text-teal-300">
         <TrendingUp className="h-3.5 w-3.5" />
         {chart.title}
       </div>
@@ -153,8 +153,8 @@ function XlRecoveryCurve({ chart }: { chart: XlRecoveryChart }) {
         <line x1={L} y1={B} x2={R} y2={B} stroke="#ffffff20" />
         <line x1={L} y1={T} x2={L} y2={B} stroke="#ffffff20" />
         {/* y 눈금 */}
-        <text x={L - 7} y={T + 4} fill="#71717a" fontSize="9" textAnchor="end">{won(limit)}</text>
-        <text x={L - 7} y={B} fill="#71717a" fontSize="9" textAnchor="end">0</text>
+        <text x={L - 7} y={T + 4} fill="#71717a" fontSize="11" textAnchor="end">{won(limit)}</text>
+        <text x={L - 7} y={B} fill="#71717a" fontSize="11" textAnchor="end">0</text>
 
         {/* 회수 영역 */}
         <motion.path
@@ -180,24 +180,24 @@ function XlRecoveryCurve({ chart }: { chart: XlRecoveryChart }) {
         {/* attachment(보유) 마커 */}
         <line x1={xA} y1={T} x2={xA} y2={B} stroke="#f59e0b" strokeWidth={1} strokeDasharray="3 3" />
         <circle cx={xA} cy={B} r={3.5} fill="#f59e0b" />
-        <text x={xA} y={B + 16} fill="#f59e0b" fontSize="9" textAnchor="middle">
+        <text x={xA} y={B + 16} fill="#f59e0b" fontSize="11" textAnchor="middle">
           {chart.attachWord} {won(retention)}
         </text>
 
         {/* exhaustion(한도소진) 마커 */}
         <line x1={xE} y1={T} x2={xE} y2={sy(limit)} stroke="#2dd4bf" strokeWidth={1} strokeDasharray="3 3" />
         <circle cx={xE} cy={T} r={3.5} fill="#2dd4bf" />
-        <text x={xE} y={B + 16} fill="#5eead4" fontSize="9" textAnchor="middle">
+        <text x={xE} y={B + 16} fill="#5eead4" fontSize="11" textAnchor="middle">
           {chart.exhaustWord} {won(exhaustion)}
         </text>
 
         {/* 축 라벨 */}
-        <text x={(L + R) / 2} y="196" fill="#52525b" fontSize="9" textAnchor="middle">→ {chart.axisX}</text>
-        <text x={L + 4} y={T - 8} fill="#71717a" fontSize="9">{chart.axisY}</text>
+        <text x={(L + R) / 2} y="196" fill="#52525b" fontSize="11" textAnchor="middle">→ {chart.axisX}</text>
+        <text x={L + 4} y={T - 8} fill="#71717a" fontSize="11">{chart.axisY}</text>
       </svg>
 
       {chart.caption && (
-        <p className="mt-1.5 border-t border-teal-500/15 pt-2 text-[10.5px] leading-snug text-zinc-500">
+        <p className="mt-1.5 border-t border-teal-500/15 pt-2 text-[13px] leading-snug text-zinc-500">
           {chart.caption}
         </p>
       )}
@@ -210,7 +210,7 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
   if (m.role === 'user') {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-teal-600/90 px-4 py-2.5 text-[13px] leading-relaxed text-white">
+        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-teal-600/90 px-4 py-2.5 text-[16px] leading-relaxed text-white">
           {m.text}
         </div>
       </motion.div>
@@ -222,7 +222,7 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
       <div className="min-w-0 flex-1">
         <div
           className={cn(
-            'whitespace-pre-wrap rounded-2xl rounded-tl-md bg-white/[0.05] px-4 py-3 text-[13px] leading-relaxed text-zinc-200',
+            'whitespace-pre-wrap rounded-2xl rounded-tl-md bg-white/[0.05] px-4 py-3 text-[16px] leading-relaxed text-zinc-200',
             m.streaming && 'stream-caret',
           )}
         >
@@ -241,7 +241,7 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
             data-demo-id="evidence-card"
             className="mt-2.5 overflow-hidden rounded-xl border border-teal-500/20 bg-teal-950/30"
           >
-            <div className="flex items-center gap-2 border-b border-teal-500/15 px-3.5 py-2 text-[11px] font-medium text-teal-300">
+            <div className="flex items-center gap-2 border-b border-teal-500/15 px-3.5 py-2 text-[14px] font-medium text-teal-300">
               <FileBarChart2 className="h-3.5 w-3.5" />
               {pick(STR.evidenceHeader, lang)}
               {m.source && <span className="ml-auto font-normal text-teal-400/60">{m.source}</span>}
@@ -249,10 +249,10 @@ function MessageBubble({ message: m, compact }: { message: ChatMessage; compact?
             <div className={cn('grid', compact ? 'grid-cols-1' : 'grid-cols-2')}>
               {m.evidence.map((e, i) => (
                 <div key={i} className="border-b border-r border-teal-500/10 px-3.5 py-2.5 last:border-b-0">
-                  <p className="text-[10.5px] text-zinc-500">{e.label}</p>
-                  <p className="mt-0.5 font-mono text-[13px] font-medium text-zinc-100">{e.value}</p>
+                  <p className="text-[13px] text-zinc-500">{e.label}</p>
+                  <p className="mt-0.5 font-mono text-[16px] font-medium text-zinc-100">{e.value}</p>
                   {e.delta && (
-                    <p className={cn('text-[10.5px] font-medium', e.positive ? 'text-emerald-400' : 'text-rose-400')}>
+                    <p className={cn('text-[13px] font-medium', e.positive ? 'text-emerald-400' : 'text-rose-400')}>
                       {e.delta}
                     </p>
                   )}
