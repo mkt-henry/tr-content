@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePlaybackStore } from '../engine/playbackStore';
 
@@ -21,28 +21,37 @@ export function Spotlight() {
   const spotlightId = usePlaybackStore((s) => s.spotlightId);
   const enabled = usePlaybackStore((s) => s.spotlightEnabled);
   const [rect, setRect] = useState<FocusRect | null>(null);
+  // 직전 rect — 값이 안 바뀌면 setRect를 건너뛰어 매 프레임 리렌더를 막는다
+  const prevRect = useRef<FocusRect | null>(null);
 
   const active = enabled && !!spotlightId;
 
   useEffect(() => {
     if (!active) {
+      prevRect.current = null;
       setRect(null);
       return;
     }
     let raf = 0;
+    const apply = (next: FocusRect | null) => {
+      const p = prevRect.current;
+      if (next && p && p.x === next.x && p.y === next.y && p.w === next.w && p.h === next.h) return;
+      prevRect.current = next;
+      setRect(next);
+    };
     const track = () => {
-      raf = requestAnimationFrame(track);
       const el = document.querySelector(`[data-demo-id="${spotlightId}"]`);
       if (!el) {
-        setRect(null);
-        return;
+        apply(null);
+      } else {
+        const r = el.getBoundingClientRect();
+        apply(
+          r.width === 0 && r.height === 0
+            ? null
+            : { x: r.left - PAD, y: r.top - PAD, w: r.width + PAD * 2, h: r.height + PAD * 2 },
+        );
       }
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 && r.height === 0) {
-        setRect(null);
-        return;
-      }
-      setRect({ x: r.left - PAD, y: r.top - PAD, w: r.width + PAD * 2, h: r.height + PAD * 2 });
+      raf = requestAnimationFrame(track); // 요소가 다시 나타날 수 있으니 계속 폴링
     };
     raf = requestAnimationFrame(track);
     return () => cancelAnimationFrame(raf);
@@ -53,7 +62,7 @@ export function Spotlight() {
       {rect && (
         <motion.div
           className="pointer-events-none fixed left-0 top-0 z-[90] rounded-xl"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 0, x: rect.x, y: rect.y, width: rect.w, height: rect.h }}
           animate={{ opacity: 1, x: rect.x, y: rect.y, width: rect.w, height: rect.h }}
           exit={{ opacity: 0 }}
           transition={{
