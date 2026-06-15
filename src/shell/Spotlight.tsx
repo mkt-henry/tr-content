@@ -35,6 +35,7 @@ export function Spotlight() {
     let raf = 0;
     const apply = (next: FocusRect | null) => {
       const p = prevRect.current;
+      if (next === null && p === null) return;
       if (next && p && p.x === next.x && p.y === next.y && p.w === next.w && p.h === next.h) return;
       prevRect.current = next;
       setRect(next);
