@@ -18,6 +18,7 @@ export function usePlayback() {
     const s = usePlaybackStore.getState();
     s.setStatus('idle');
     s.setCursor({ visible: false, pressed: false });
+    s.setSpotlight(null);
   }, []);
 
   /** 일시정지 — 재생 세션은 유지한 채 진행만 멈춘다 (delay가 status를 보고 카운트다운 정지) */
@@ -47,6 +48,7 @@ export function usePlayback() {
         const st = usePlaybackStore.getState();
         st.setStatus('done');
         st.setCursor({ visible: false });
+        st.setSpotlight(null);
         abortRef.current = null;
       }
     },
