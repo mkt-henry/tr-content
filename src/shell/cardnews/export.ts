@@ -11,7 +11,9 @@ function download(dataUrl: string, filename: string) {
   const a = document.createElement('a');
   a.href = dataUrl;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
 }
 
 /** 슬라이드 한 장 PNG */

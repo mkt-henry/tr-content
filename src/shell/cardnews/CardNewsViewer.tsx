@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+
+const PREVIEW_SIZE = Math.min(560, Math.floor(0.62 * 860));
 import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images } from 'lucide-react';
 import type { CardNewsDeck, Lang } from '../../cardnews/types';
 import { useShellStore } from '../../store/shellStore';
@@ -28,7 +30,7 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') prev();
       else if (e.key === 'ArrowRight') next();
-      else if (e.key === 'Escape') back();
+      else if (e.key === 'Escape') useShellStore.getState().backToGallery();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -36,7 +38,9 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
-    try { await fn(); } finally { setBusy(false); }
+    try { await fn(); }
+    catch (err) { console.error('[cardnews:export]', err); }
+    finally { setBusy(false); }
   };
   const nodes = () => exportRefs.current.filter(Boolean) as HTMLElement[];
 
@@ -63,7 +67,7 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
       {/* 슬라이드 + 좌우 네비 */}
       <div className="flex flex-1 items-center justify-center gap-5">
         <button onClick={prev} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronLeft className="h-7 w-7" /></button>
-        <ScaledSlide slide={deck.slides[i]} lang={lang} index={i} total={total} accent={accent} display={Math.min(560, 0.62 * 860)} />
+        <ScaledSlide slide={deck.slides[i]} lang={lang} index={i} total={total} accent={accent} display={PREVIEW_SIZE} />
         <button onClick={next} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronRight className="h-7 w-7" /></button>
       </div>
 
