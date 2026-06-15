@@ -1,5 +1,6 @@
 import type { Scenario, StepText } from './types';
 import { usePlaybackStore } from './playbackStore';
+import { cameraNaturalCenter } from '../lib/cameraGeom';
 
 /** 스텝 텍스트 평가 — 함수면 실행 시점(언어 등 런타임 상태)에 풀어낸다 */
 function resolveText(text: StepText): string {
@@ -51,17 +52,17 @@ function jitter(base: number) {
 }
 
 async function moveCursorTo(target: string, signal: AbortSignal, ms = 650) {
-  const el = document.querySelector(`[data-demo-id="${target}"]`);
+  const el = document.querySelector<HTMLElement>(`[data-demo-id="${target}"]`);
   if (!el) return;
   // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
   el.scrollIntoView({ block: 'nearest' });
+  // 카메라 줌과 무관한 "본래 위치"로 커서를 둔다 — 줌 상태에서 측정해도 정렬 유지.
+  // 카메라 레이어가 없으면 일반 화면 좌표로 폴백.
+  const natural = cameraNaturalCenter(el);
   const r = el.getBoundingClientRect();
+  const point = natural ?? { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   const { setCursor, setSpotlight } = usePlaybackStore.getState();
-  setCursor({
-    x: r.left + r.width / 2,
-    y: r.top + r.height / 2,
-    visible: true,
-  });
+  setCursor({ x: point.x, y: point.y, visible: true });
   setSpotlight(target);
   await delay(ms, signal);
 }
