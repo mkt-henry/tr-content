@@ -19,9 +19,11 @@ interface PlaybackState {
   setSpeed: (speed: number) => void;
   /** 현재 강조 중인 data-demo-id (없으면 null) */
   spotlightId: string | null;
+  /** 현재 표시할 액션 캡션 (없으면 null) */
+  spotlightCaption: string | null;
   /** 인터랙션 강조 토글. 기본 켬 */
   spotlightEnabled: boolean;
-  setSpotlight: (id: string | null) => void;
+  setSpotlight: (id: string | null, caption?: string | null) => void;
   toggleSpotlight: () => void;
 }
 
@@ -33,7 +35,8 @@ export const usePlaybackStore = create<PlaybackState>((set) => ({
   setCursor: (patch) => set((s) => ({ cursor: { ...s.cursor, ...patch } })),
   setSpeed: (speed) => set({ speed }),
   spotlightId: null,
+  spotlightCaption: null,
   spotlightEnabled: true,
-  setSpotlight: (spotlightId) => set({ spotlightId }),
+  setSpotlight: (spotlightId, spotlightCaption = null) => set({ spotlightId, spotlightCaption }),
   toggleSpotlight: () => set((s) => ({ spotlightEnabled: !s.spotlightEnabled })),
 }));
