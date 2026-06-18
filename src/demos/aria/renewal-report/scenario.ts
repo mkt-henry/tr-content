@@ -12,23 +12,51 @@ const st = () => useRenewalReport.getState();
 export const renewalReportScenario: Scenario = {
   id: 'renewal-report-flow',
   steps: [
-    { kind: 'wait', ms: 800 },
-    // [줌1] 근거 자료를 직접 선택할 수 있음을 강조
+    { kind: 'wait', ms: 2400 }, // 연동 소스에서 자료 로드 완료 대기 (로드 ~1.9s + 버퍼)
+    // [줌1] 로드된 자료 중 특정 파일을 직접 선택
     {
       kind: 'cursor',
-      target: 'source-toggle-notes',
-      ms: 800,
+      target: 'source-toggle-slip',
+      ms: 700,
       zoom: true,
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
     {
       kind: 'click',
-      target: 'source-toggle-notes',
-      run: () => st().toggleSource('notes'),
+      target: 'source-toggle-slip',
+      run: () => st().toggleSource('slip'),
       zoom: true,
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
-    { kind: 'wait', ms: 1300 }, // 캡션 읽기
+    {
+      kind: 'cursor',
+      target: 'source-toggle-lossrun',
+      ms: 600,
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    {
+      kind: 'click',
+      target: 'source-toggle-lossrun',
+      run: () => st().toggleSource('lossrun'),
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    {
+      kind: 'cursor',
+      target: 'source-toggle-quotes',
+      ms: 600,
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    {
+      kind: 'click',
+      target: 'source-toggle-quotes',
+      run: () => st().toggleSource('quotes'),
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    { kind: 'wait', ms: 900 }, // 선택 결과 보기
     // [줌아웃] 보고서 생성 — 줌 없이 전체가 자동 생성되는 모습
     { kind: 'cursor', target: 'generate-btn', ms: 600 },
     { kind: 'click', target: 'generate-btn', run: () => st().generate() },
