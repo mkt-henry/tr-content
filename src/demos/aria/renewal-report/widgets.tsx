@@ -267,16 +267,16 @@ function ReportView() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="shrink-0 border-t border-white/[0.06] bg-[#141318]/90 p-3.5 backdrop-blur"
+            className="shrink-0 border-t border-white/[0.06] bg-[#141318]/90 p-3 backdrop-blur"
           >
             <button
               data-demo-id="email-cta"
               onClick={() => openEmailModal()}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-brass-500 text-[13px] font-semibold text-ink-950 shadow-[0_6px_20px_-6px_rgba(192,141,82,0.6)] transition-all hover:bg-brass-400"
+              className="mx-auto flex h-8 items-center justify-center gap-1.5 rounded-lg bg-brass-500 px-4 text-[12px] font-semibold text-ink-950 shadow-[0_6px_20px_-6px_rgba(192,141,82,0.6)] transition-all hover:bg-brass-400"
             >
-              <Mail className="h-4 w-4" />
+              <Mail className="h-3.5 w-3.5" />
               {pick(STR.emailCta, lang)}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </motion.div>
         )}
