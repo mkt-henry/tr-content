@@ -184,19 +184,35 @@ export const ATTACHMENT = {
 // 근거 자료 — 사용자가 선택/첨부하여 보고서 생성 근거로 사용
 // ---------------------------------------------------------------------------
 
-export interface SourceDoc {
-  id: string;
+export type SourceGroupId = 'drive' | 'portal' | 'mail';
+export type SourceExt = 'pdf' | 'docx' | 'xlsx' | 'csv' | 'eml';
+
+export interface SourceGroup {
+  id: SourceGroupId;
   label: L;
-  meta: L;
-  defaultOn: boolean;
 }
 
-export const SOURCES: SourceDoc[] = [
-  { id: 'slip', label: { ko: 'Term Life XL 슬립', en: 'Term Life XL slip' }, meta: { ko: 'HW_TermLife_XL_Slip_2026.pdf', en: 'HW_TermLife_XL_Slip_2026.pdf' }, defaultOn: true },
-  { id: 'lossrun', label: { ko: '손해실적 3년', en: '3-year loss run' }, meta: { ko: '2023–2025 Loss run', en: '2023–2025 loss run' }, defaultOn: true },
-  { id: 'quotes', label: { ko: '재보험사 견적 시트', en: 'Reinsurer quote sheets' }, meta: { ko: '4사 Quote sheets', en: '4 reinsurer quotes' }, defaultOn: true },
-  { id: 'prior', label: { ko: '전년 갱신 특약', en: 'Prior-year treaty' }, meta: { ko: '2025 Placement', en: '2025 placement' }, defaultOn: false },
-  { id: 'notes', label: { ko: '브로커 노트', en: 'Broker notes' }, meta: { ko: '메일 스레드 요약', en: 'email thread summary' }, defaultOn: false },
+export interface SourceFile {
+  id: string;
+  group: SourceGroupId;
+  name: L; // 파일명 — 행 제목 + 보고서 칩
+  desc: L; // 한 줄 설명 — 행 보조
+  ext: SourceExt;
+}
+
+export const SOURCE_GROUPS: SourceGroup[] = [
+  { id: 'drive', label: { ko: '사내 드라이브', en: 'Internal drive' } },
+  { id: 'portal', label: { ko: '출재사 포털', en: 'Cedent portal' } },
+  { id: 'mail', label: { ko: '메일함', en: 'Mailbox' } },
+];
+
+export const SOURCE_FILES: SourceFile[] = [
+  { id: 'slip', group: 'drive', name: { ko: 'Term Life XL 슬립.pdf', en: 'TermLifeXL_Slip_2026.pdf' }, desc: { ko: '인수 조건·프로그램 구조', en: 'Cover terms & structure' }, ext: 'pdf' },
+  { id: 'prior', group: 'drive', name: { ko: '2025 갱신 특약.pdf', en: '2025_Placement_Treaty.pdf' }, desc: { ko: '전년 갱신 조건', en: 'Prior-year terms' }, ext: 'pdf' },
+  { id: 'guideline', group: 'drive', name: { ko: '인수지침.docx', en: 'Underwriting_Guideline.docx' }, desc: { ko: '사내 인수 가이드', en: 'Internal UW guideline' }, ext: 'docx' },
+  { id: 'quotes', group: 'portal', name: { ko: '4사 견적시트.xlsx', en: '4_Reinsurer_Quotes.xlsx' }, desc: { ko: '재보험사 견적', en: 'Reinsurer quotes' }, ext: 'xlsx' },
+  { id: 'lossrun', group: 'portal', name: { ko: '손해실적 3년.csv', en: '2023-2025_LossRun.csv' }, desc: { ko: '2023–2025 손해율', en: '2023–2025 loss ratio' }, ext: 'csv' },
+  { id: 'notes', group: 'mail', name: { ko: '브로커 노트(스레드).eml', en: 'Broker_Notes_Thread.eml' }, desc: { ko: '메일 스레드 요약', en: 'Email thread summary' }, ext: 'eml' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -428,6 +444,8 @@ export const STR = {
   sourcesTitle: { ko: '근거 자료 선택', en: 'Select source materials' },
   sourcesHint: { ko: '보고서 생성에 사용할 자료를 선택하세요', en: 'Pick the materials to build the report from' },
   sourceSummary: { ko: '근거 자료 {n}건', en: '{n} source materials' },
+  sourcesLoading: { ko: '근거 자료 불러오는 중…', en: 'Loading source materials…' },
+  sourcesSelected: { ko: '{n}건 선택', en: '{n} selected' },
 
   // 수신자 선택 + AI 의도 분석
   statusPickRecipient: { ko: '전달 대상을 선택하세요', en: 'Select a recipient' },

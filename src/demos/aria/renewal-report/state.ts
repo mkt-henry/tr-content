@@ -1,15 +1,20 @@
 import { create } from 'zustand';
 import { getLang } from '../_shared/i18n';
-import { REPORT_SECTIONS, SOURCES, getRecipient, STR, type ReportSectionId } from './data';
+import { REPORT_SECTIONS, SOURCE_FILES, getRecipient, STR, type ReportSectionId } from './data';
 
 export type Phase = 'sources' | 'report' | 'reportReady' | 'analyzing' | 'email' | 'done';
 export type EmailStatus = 'idle' | 'streaming' | 'done' | 'sending' | 'sent';
+export type SourcesStatus = 'idle' | 'loading' | 'ready';
 
 interface ReportEmailState {
   phase: Phase;
   statusText: string;
   /** 보고서 근거로 선택된 자료 id 목록 */
   selectedSources: string[];
+  /** 연동 소스 로딩 상태 */
+  sourcesStatus: SourcesStatus;
+  /** 현재까지 로드되어 화면에 등장한 파일 id */
+  loadedSourceIds: string[];
   /** 순차적으로 공개되는 보고서 섹션 */
   sections: ReportSectionId[];
   /** 선택된 수신자 id */
@@ -22,6 +27,8 @@ interface ReportEmailState {
   emailBody: string;
   emailStatus: EmailStatus;
 
+  /** 연동 소스에서 자료를 점진적으로 불러온다 (idle일 때만 동작) */
+  loadSources: () => void;
   toggleSource: (id: string) => void;
   /** 선택 자료로 보고서 생성 → reportReady */
   generate: () => void;
@@ -41,12 +48,12 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** reset()/재시작 시 증가시켜 진행 중인 시뮬레이션을 무효화 */
 let runId = 0;
 
-const defaultSources = SOURCES.filter((s) => s.defaultOn).map((s) => s.id);
-
 const initial = {
   phase: 'sources' as Phase,
   statusText: '',
-  selectedSources: defaultSources,
+  selectedSources: [] as string[],
+  sourcesStatus: 'idle' as SourcesStatus,
+  loadedSourceIds: [] as string[],
   sections: [] as ReportSectionId[],
   recipientId: null as string | null,
   analysisReady: false,
@@ -60,12 +67,29 @@ export const useRenewalReport = create<ReportEmailState>((set, get) => ({
   ...initial,
 
   toggleSource: (id) => {
-    if (get().phase !== 'sources') return;
+    if (get().phase !== 'sources' || get().sourcesStatus !== 'ready') return;
+    if (!get().loadedSourceIds.includes(id)) return;
     set((s) => ({
       selectedSources: s.selectedSources.includes(id)
         ? s.selectedSources.filter((x) => x !== id)
         : [...s.selectedSources, id],
     }));
+  },
+
+  loadSources: () => {
+    if (get().sourcesStatus !== 'idle') return;
+    const id = ++runId;
+    set({ sourcesStatus: 'loading', loadedSourceIds: [] });
+    void (async () => {
+      for (const f of SOURCE_FILES) {
+        await sleep(280);
+        if (id !== runId) return;
+        set((s) => ({ loadedSourceIds: [...s.loadedSourceIds, f.id] }));
+      }
+      await sleep(200);
+      if (id !== runId) return;
+      set({ sourcesStatus: 'ready' });
+    })();
   },
 
   generate: () => {

@@ -1,11 +1,13 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
   Briefcase,
   Building2,
   CheckCircle2,
+  FileSpreadsheet,
   FileText,
+  HardDrive,
   Landmark,
   Layers,
   Loader2,
@@ -32,17 +34,34 @@ import {
   PANEL,
   PANEL_SECURITY,
   RECIPIENTS,
-  SOURCES,
+  SOURCE_FILES,
+  SOURCE_GROUPS,
   STR,
   STRUCTURE,
   getRecipient,
   type ReportSectionId,
+  type SourceExt,
+  type SourceFile,
 } from './data';
 
 const RECIPIENT_ICON: Record<string, typeof Building2> = {
   cedent: Building2,
   lead: Landmark,
   exec: Briefcase,
+};
+
+const EXT_ICON: Record<SourceExt, typeof FileText> = {
+  pdf: FileText,
+  docx: FileText,
+  xlsx: FileSpreadsheet,
+  csv: FileSpreadsheet,
+  eml: Mail,
+};
+
+const GROUP_ICON: Record<string, typeof FileText> = {
+  drive: HardDrive,
+  portal: Building2,
+  mail: Mail,
 };
 
 // ===========================================================================
@@ -55,51 +74,117 @@ export function ReportColumn({ compact }: { compact?: boolean }) {
   return <ReportView />;
 }
 
+/** 파일 한 줄 — 로드 전 스켈레톤, 로드되면 등장 + 선택 토글 */
+function SourceFileRow({
+  file,
+  loaded,
+  selected,
+  onToggle,
+  compact,
+}: {
+  file: SourceFile;
+  loaded: boolean;
+  selected: boolean;
+  onToggle: () => void;
+  compact?: boolean;
+}) {
+  const lang = useLang();
+  if (!loaded) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3.5 py-2.5">
+        <span className="h-4.5 w-4.5 shrink-0 animate-pulse rounded-[5px] bg-white/[0.06]" />
+        <span className="h-4 w-4 shrink-0 animate-pulse rounded bg-white/[0.06]" />
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="h-2.5 w-32 animate-pulse rounded bg-white/[0.06]" />
+          <span className="h-2 w-20 animate-pulse rounded bg-white/[0.04]" />
+        </span>
+      </div>
+    );
+  }
+  const Icon = EXT_ICON[file.ext];
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+      data-demo-id={`source-toggle-${file.id}`}
+      onClick={onToggle}
+      className={cn(
+        'flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-colors',
+        selected
+          ? 'border-brass-500/40 bg-brass-500/[0.08]'
+          : 'border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04]',
+      )}
+    >
+      <span
+        className={cn(
+          'flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-[5px] border',
+          selected ? 'border-brass-400 bg-brass-500 text-ink-950' : 'border-white/20 text-transparent',
+        )}
+      >
+        <CheckCircle2 className="h-3 w-3" />
+      </span>
+      <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-brass-300' : 'text-zinc-600')} />
+      <span className="min-w-0">
+        <span className={cn('block truncate font-medium text-zinc-200', compact ? 'text-[12px]' : 'text-[12.5px]')}>
+          {pick(file.name, lang)}
+        </span>
+        <span className="block truncate text-[10.5px] text-zinc-500">{pick(file.desc, lang)}</span>
+      </span>
+    </motion.button>
+  );
+}
+
 /** 보고서 생성 전 — 근거 자료 선택 */
 function SourcePicker({ compact }: { compact?: boolean }) {
-  const { selectedSources, toggleSource, generate } = useRenewalReport();
+  const { selectedSources, toggleSource, generate, sourcesStatus, loadedSourceIds, loadSources } = useRenewalReport();
   const lang = useLang();
-  const canGenerate = selectedSources.length > 0;
+  const ready = sourcesStatus === 'ready';
+  const canGenerate = ready && selectedSources.length > 0;
+
+  // 마운트/리셋(idle) 시 연동 소스 자동 로드
+  useEffect(() => {
+    loadSources();
+  }, [sourcesStatus, loadSources]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 border-b border-white/[0.06] px-4 py-3">
         <p className={cn('font-semibold text-zinc-100', compact ? 'text-[13px]' : 'text-[14px]')}>
-          {pick(STR.sourcesTitle, lang)}
+          {ready ? pick(STR.sourcesTitle, lang) : pick(STR.sourcesLoading, lang)}
         </p>
-        <p className="mt-0.5 text-[11px] text-zinc-500">{pick(STR.sourcesHint, lang)}</p>
+        <p className="mt-0.5 text-[11px] text-zinc-500">
+          {ready
+            ? `${fmt(pick(STR.sourceSummary, lang), { n: SOURCE_FILES.length })} · ${fmt(pick(STR.sourcesSelected, lang), { n: selectedSources.length })}`
+            : `${loadedSourceIds.length}/${SOURCE_FILES.length}`}
+        </p>
       </div>
 
       <div className="demo-scroll min-h-0 flex-1 overflow-y-auto p-4">
-        <div className="mx-auto flex max-w-xl flex-col gap-2">
-          {SOURCES.map((s) => {
-            const on = selectedSources.includes(s.id);
+        <div className="mx-auto flex max-w-xl flex-col gap-4">
+          {SOURCE_GROUPS.map((g) => {
+            const files = SOURCE_FILES.filter((f) => f.group === g.id);
+            const GIcon = GROUP_ICON[g.id] ?? HardDrive;
             return (
-              <button
-                key={s.id}
-                data-demo-id={`source-toggle-${s.id}`}
-                onClick={() => toggleSource(s.id)}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-colors',
-                  on
-                    ? 'border-brass-500/40 bg-brass-500/[0.08]'
-                    : 'border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04]',
-                )}
-              >
-                <span
-                  className={cn(
-                    'flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-[5px] border',
-                    on ? 'border-brass-400 bg-brass-500 text-ink-950' : 'border-white/20 text-transparent',
-                  )}
-                >
-                  <CheckCircle2 className="h-3 w-3" />
-                </span>
-                <FileText className={cn('h-4 w-4 shrink-0', on ? 'text-brass-300' : 'text-zinc-600')} />
-                <span className="min-w-0">
-                  <span className="block truncate text-[12.5px] font-medium text-zinc-200">{pick(s.label, lang)}</span>
-                  <span className="block truncate font-mono text-[10px] text-zinc-500">{pick(s.meta, lang)}</span>
-                </span>
-              </button>
+              <div key={g.id} className="flex flex-col gap-2">
+                <div className="flex items-center gap-1.5 px-0.5">
+                  <GIcon className="h-3.5 w-3.5 text-brass-300/70" />
+                  <span className="text-[11px] font-semibold text-zinc-300">{pick(g.label, lang)}</span>
+                  <span className="text-[10px] text-zinc-600">{files.length}</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {files.map((f) => (
+                    <SourceFileRow
+                      key={f.id}
+                      file={f}
+                      loaded={loadedSourceIds.includes(f.id)}
+                      selected={selectedSources.includes(f.id)}
+                      onToggle={() => toggleSource(f.id)}
+                      compact={compact}
+                    />
+                  ))}
+                </div>
+              </div>
             );
           })}
         </div>
@@ -131,7 +216,7 @@ function ReportView() {
   const lang = useLang();
   const busy = phase === 'report';
   const ready = phase === 'reportReady' || phase === 'analyzing' || phase === 'email' || phase === 'done';
-  const selectedLabels = SOURCES.filter((s) => selectedSources.includes(s.id));
+  const selectedLabels = SOURCE_FILES.filter((f) => selectedSources.includes(f.id));
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -143,8 +228,8 @@ function ReportView() {
         </span>
         <span className="flex flex-wrap items-center gap-1">
           {selectedLabels.map((s) => (
-            <span key={s.id} className="rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[10px] text-zinc-400">
-              {pick(s.label, lang)}
+            <span key={s.id} className="max-w-[140px] truncate rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[10px] text-zinc-400">
+              {pick(s.name, lang)}
             </span>
           ))}
         </span>
