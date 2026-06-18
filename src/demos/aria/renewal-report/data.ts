@@ -206,10 +206,12 @@ export const SOURCE_GROUPS: SourceGroup[] = [
   { id: 'mail', label: { ko: '메일함', en: 'Mailbox' } },
 ];
 
+// drive 그룹 순서: 데모에서 줌 원점(quotes)에 인접하도록 slip을 그룹 끝에 둔다
+// (선택 트리오 slip·quotes·lossrun을 한 화면 줌 안에 들어오게 함).
 export const SOURCE_FILES: SourceFile[] = [
-  { id: 'slip', group: 'drive', name: { ko: 'Term Life XL 슬립.pdf', en: 'TermLifeXL_Slip_2026.pdf' }, desc: { ko: '인수 조건·프로그램 구조', en: 'Cover terms & structure' }, ext: 'pdf' },
   { id: 'prior', group: 'drive', name: { ko: '2025 갱신 특약.pdf', en: '2025_Placement_Treaty.pdf' }, desc: { ko: '전년 갱신 조건', en: 'Prior-year terms' }, ext: 'pdf' },
   { id: 'guideline', group: 'drive', name: { ko: '인수지침.docx', en: 'Underwriting_Guideline.docx' }, desc: { ko: '사내 인수 가이드', en: 'Internal UW guideline' }, ext: 'docx' },
+  { id: 'slip', group: 'drive', name: { ko: 'Term Life XL 슬립.pdf', en: 'TermLifeXL_Slip_2026.pdf' }, desc: { ko: '인수 조건·프로그램 구조', en: 'Cover terms & structure' }, ext: 'pdf' },
   { id: 'quotes', group: 'portal', name: { ko: '4사 견적시트.xlsx', en: '4_Reinsurer_Quotes.xlsx' }, desc: { ko: '재보험사 견적', en: 'Reinsurer quotes' }, ext: 'xlsx' },
   { id: 'lossrun', group: 'portal', name: { ko: '손해실적 3년.csv', en: '2023-2025_LossRun.csv' }, desc: { ko: '2023–2025 손해율', en: '2023–2025 loss ratio' }, ext: 'csv' },
   { id: 'notes', group: 'mail', name: { ko: '브로커 노트(스레드).eml', en: 'Broker_Notes_Thread.eml' }, desc: { ko: '메일 스레드 요약', en: 'Email thread summary' }, ext: 'eml' },

@@ -17,12 +17,22 @@ export const renewalReportScenario: Scenario = {
     { kind: 'do', run: () => st().loadSources() },
     { kind: 'waitFor', check: () => st().sourcesStatus === 'ready' },
     { kind: 'wait', ms: 500 }, // 로드 완료 후 잠깐
-    // [줌1] 로드된 자료 중 특정 파일을 직접 선택
+    // [줌1] 견적 파일을 중심으로 리스트를 확대하고 그대로 정지 — 화면은 고정, 커서만 이동
+    {
+      kind: 'cursor',
+      target: 'source-toggle-quotes',
+      ms: 700,
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    { kind: 'wait', ms: 500 }, // 줌 정지(settle)
+    // 인접한 3개 파일을 커서만 위·아래로 움직여 선택 (줌 원점은 quotes에 고정)
     {
       kind: 'cursor',
       target: 'source-toggle-slip',
-      ms: 700,
+      ms: 600,
       zoom: true,
+      spotlight: 'source-toggle-quotes',
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
     {
@@ -30,20 +40,7 @@ export const renewalReportScenario: Scenario = {
       target: 'source-toggle-slip',
       run: () => st().toggleSource('slip'),
       zoom: true,
-      caption: () => pick(SPOTLIGHT.select, getLang()),
-    },
-    {
-      kind: 'cursor',
-      target: 'source-toggle-lossrun',
-      ms: 600,
-      zoom: true,
-      caption: () => pick(SPOTLIGHT.select, getLang()),
-    },
-    {
-      kind: 'click',
-      target: 'source-toggle-lossrun',
-      run: () => st().toggleSource('lossrun'),
-      zoom: true,
+      spotlight: 'source-toggle-quotes',
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
     {
@@ -51,6 +48,7 @@ export const renewalReportScenario: Scenario = {
       target: 'source-toggle-quotes',
       ms: 600,
       zoom: true,
+      spotlight: 'source-toggle-quotes',
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
     {
@@ -58,6 +56,23 @@ export const renewalReportScenario: Scenario = {
       target: 'source-toggle-quotes',
       run: () => st().toggleSource('quotes'),
       zoom: true,
+      spotlight: 'source-toggle-quotes',
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    {
+      kind: 'cursor',
+      target: 'source-toggle-lossrun',
+      ms: 600,
+      zoom: true,
+      spotlight: 'source-toggle-quotes',
+      caption: () => pick(SPOTLIGHT.select, getLang()),
+    },
+    {
+      kind: 'click',
+      target: 'source-toggle-lossrun',
+      run: () => st().toggleSource('lossrun'),
+      zoom: true,
+      spotlight: 'source-toggle-quotes',
       caption: () => pick(SPOTLIGHT.select, getLang()),
     },
     { kind: 'wait', ms: 900 }, // 선택 결과 보기

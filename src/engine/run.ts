@@ -1,6 +1,6 @@
 import type { Scenario, StepText } from './types';
 import { usePlaybackStore } from './playbackStore';
-import { cameraNaturalCenter } from '../lib/cameraGeom';
+import { CAMERA_ZOOM, cameraNaturalCenter, cameraZoomedCenter } from '../lib/cameraGeom';
 
 /** 스텝 텍스트 평가 — 함수면 실행 시점(언어 등 런타임 상태)에 풀어낸다 */
 function resolveText(text: StepText): string {
@@ -84,21 +84,37 @@ function waitForCondition(check: () => boolean, timeoutMs: number, signal: Abort
 
 /**
  * 가짜 커서를 target으로 이동한다.
- * zoom=true면 그 대상을 카메라 줌인 대상으로 지정(핵심 강조), 아니면 줌 해제(기본 줌아웃).
+ * zoom=true면 줌인(spotlight). spotlight를 주면 줌 원점은 거기 고정(화면 정지)하고
+ * 커서만 target으로 이동 — 이때 커서는 줌된 좌표계에서 target 위치를 가리킨다.
  */
-async function moveCursorTo(target: string, signal: AbortSignal, ms = 650, zoom = false, caption?: StepText) {
+async function moveCursorTo(
+  target: string,
+  signal: AbortSignal,
+  ms = 650,
+  zoom = false,
+  caption?: StepText,
+  spotlight?: string,
+) {
   const el = document.querySelector<HTMLElement>(`[data-demo-id="${target}"]`);
   if (!el) return;
   // 스크롤 컨테이너 아래에 숨은 타깃을 끌어올린다 — 이미 보이면 no-op
   el.scrollIntoView({ block: 'nearest' });
-  // 카메라 줌과 무관한 "본래 위치"로 커서를 둔다 — 줌 상태에서 측정해도 정렬 유지.
-  // 카메라 레이어가 없으면 일반 화면 좌표로 폴백.
-  const natural = cameraNaturalCenter(el);
+  // 줌 원점: spotlight가 있으면 그 요소, 아니면 target 자신. zoom=false면 줌 해제.
+  const originId = zoom ? (spotlight ?? target) : null;
   const r = el.getBoundingClientRect();
-  const point = natural ?? { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  const fallback = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  let point: { x: number; y: number };
+  if (originId && originId !== target) {
+    // 줌 원점이 커서 대상과 다르면, 고정된 원점 기준 줌된 화면 좌표로 커서를 둔다.
+    const originEl = document.querySelector<HTMLElement>(`[data-demo-id="${originId}"]`);
+    point = (originEl && cameraZoomedCenter(el, originEl, CAMERA_ZOOM)) || cameraNaturalCenter(el) || fallback;
+  } else {
+    // 원점=대상(또는 줌 없음): 본래 위치면 배율과 무관하게 정렬 유지.
+    point = cameraNaturalCenter(el) ?? fallback;
+  }
   const { setCursor, setSpotlight } = usePlaybackStore.getState();
   setCursor({ x: point.x, y: point.y, visible: true });
-  setSpotlight(zoom ? target : null, zoom && caption ? resolveText(caption) : null);
+  setSpotlight(originId, originId && caption ? resolveText(caption) : null);
   await delay(ms, signal);
 }
 
@@ -189,10 +205,10 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         await waitForCondition(step.check, step.timeoutMs ?? 8000, signal);
         break;
       case 'cursor':
-        await moveCursorTo(step.target, signal, step.ms, step.zoom, step.caption);
+        await moveCursorTo(step.target, signal, step.ms, step.zoom, step.caption, step.spotlight);
         break;
       case 'click':
-        await moveCursorTo(step.target, signal, 650, step.zoom, step.caption);
+        await moveCursorTo(step.target, signal, 650, step.zoom, step.caption, step.spotlight);
         await clickPulse(signal);
         if (signal.aborted) return;
         step.run?.();

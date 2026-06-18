@@ -7,10 +7,10 @@ export type Step =
   | { kind: 'wait'; ms: number }
   /** check()가 true가 될 때까지(또는 timeoutMs까지) 대기. 비동기 store 상태(로딩 등)에 동기화할 때. */
   | { kind: 'waitFor'; check: () => boolean; timeoutMs?: number }
-  /** data-demo-id 요소로 가짜 커서 이동. zoom:true면 카메라가 이 대상으로 줌인(핵심 강조). caption은 zoom 시 함께 표시할 액션 라벨. */
-  | { kind: 'cursor'; target: string; ms?: number; zoom?: boolean; caption?: StepText }
-  /** 커서 이동 + 클릭 펄스 + store action 실행. zoom:true면 줌인. caption은 zoom 시 함께 표시할 액션 라벨. */
-  | { kind: 'click'; target: string; run?: () => void; zoom?: boolean; caption?: StepText }
+  /** data-demo-id 요소로 가짜 커서 이동. zoom:true면 카메라가 이 대상으로 줌인(핵심 강조). caption은 zoom 시 함께 표시할 액션 라벨. spotlight를 주면 줌 원점을 그 요소에 고정(화면 정지)하고 커서만 target으로 이동. */
+  | { kind: 'cursor'; target: string; ms?: number; zoom?: boolean; caption?: StepText; spotlight?: string }
+  /** 커서 이동 + 클릭 펄스 + store action 실행. zoom:true면 줌인. caption은 zoom 시 함께 표시할 액션 라벨. spotlight를 주면 줌 원점을 그 요소에 고정하고 커서만 target으로 이동. */
+  | { kind: 'click'; target: string; run?: () => void; zoom?: boolean; caption?: StepText; spotlight?: string }
   /** 한 글자씩 타이핑 시뮬레이션 (store setter 호출). zoom:true면 줌인 */
   | { kind: 'type'; target?: string; text: StepText; cps?: number; set: (value: string) => void; zoom?: boolean }
   /** LLM 응답처럼 청크 단위 스트리밍 (store append 호출) */

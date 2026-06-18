@@ -9,6 +9,9 @@
 /** Camera 레이어 식별용 data 속성 (querySelector 마커) */
 export const CAMERA_LAYER_ATTR = 'data-camera-layer';
 
+/** 활성 줌 배율 — Camera와 엔진(가짜 커서)이 공유한다 */
+export const CAMERA_ZOOM = 1.6;
+
 /**
  * 요소 el의 중심을 layer(카메라 레이어) 로컬 좌표로 계산한다.
  * offsetLeft/Top(레이아웃 좌표) 누적이라 현재 transform(scale)에 영향받지 않는다.
@@ -47,4 +50,26 @@ export function cameraNaturalCenter(el: HTMLElement): { x: number; y: number } |
   const pr = parent.getBoundingClientRect();
   const c = localCenter(el, layer);
   return { x: pr.left + c.x, y: pr.top + c.y };
+}
+
+/**
+ * el의 중심이 "origin을 transform-origin으로 scale=zoom 줌인"한 상태에서 갖는 화면 좌표.
+ * 줌 원점(origin)을 한 곳에 고정한 채 가짜 커서를 다른 요소(el)로 정확히 보낼 때 쓴다
+ * — 화면(카메라)은 정지시키고 커서만 움직이는 연출용. 카메라 레이어 없으면 null.
+ *
+ * 변환: screen_local(P) = O + (P - O)·zoom (O=origin 중심, layer-local). 줌이 settle된
+ * 정지 구간에서 정확하고, scale 애니메이션 중에는 약간의 과도 오차가 있으나 곧 수렴한다.
+ */
+export function cameraZoomedCenter(
+  el: HTMLElement,
+  origin: HTMLElement,
+  zoom: number,
+): { x: number; y: number } | null {
+  const layer = el.closest<HTMLElement>(`[${CAMERA_LAYER_ATTR}]`);
+  const parent = layer?.parentElement;
+  if (!layer || !parent) return null;
+  const pr = parent.getBoundingClientRect();
+  const e = localCenter(el, layer);
+  const o = localCenter(origin, layer);
+  return { x: pr.left + o.x + (e.x - o.x) * zoom, y: pr.top + o.y + (e.y - o.y) * zoom };
 }
