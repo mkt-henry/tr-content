@@ -35,27 +35,28 @@ export function SpotlightCaption() {
     }
     let raf = 0;
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       const el = document.querySelector<HTMLElement>(`[data-demo-id="${id}"]`);
       const layer = el?.closest<HTMLElement>(`[${CAMERA_LAYER_ATTR}]`);
       const frame = layer?.parentElement;
-      if (!el || !frame) return;
-      const r = el.getBoundingClientRect(); // 줌 반영된 화면 박스
-      const f = frame.getBoundingClientRect();
-      const w = boxRef.current?.offsetWidth ?? 0;
-      const h = boxRef.current?.offsetHeight ?? EST_H;
+      if (el && frame) {
+        const r = el.getBoundingClientRect(); // 줌 반영된 화면 박스
+        const f = frame.getBoundingClientRect();
+        const w = boxRef.current?.offsetWidth ?? 0;
+        const h = boxRef.current?.offsetHeight ?? EST_H;
 
-      // 세로: 아래 우선 → 위로 플립 → 프레임 하단 핀
-      let top = r.bottom + GAP;
-      if (top + h + PAD > f.bottom) {
-        const above = r.top - GAP - h;
-        top = above >= f.top + PAD ? above : f.bottom - h - PAD;
+        // 세로: 아래 우선 → 위로 플립 → 프레임 하단 핀
+        let top = r.bottom + GAP;
+        if (top + h + PAD > f.bottom) {
+          const above = r.top - GAP - h;
+          top = above >= f.top + PAD ? above : f.bottom - h - PAD;
+        }
+        // 가로: 대상 중심 정렬 후 프레임 안 클램프
+        let left = r.left + r.width / 2 - w / 2;
+        left = Math.max(f.left + PAD, Math.min(left, f.right - w - PAD));
+
+        setPos({ left, top });
       }
-      // 가로: 대상 중심 정렬 후 프레임 안 클램프
-      let left = r.left + r.width / 2 - w / 2;
-      left = Math.max(f.left + PAD, Math.min(left, f.right - w - PAD));
-
-      setPos({ left, top });
+      raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
@@ -67,7 +68,7 @@ export function SpotlightCaption() {
         <motion.div
           ref={boxRef}
           className="pointer-events-none fixed z-[90] max-w-[80%]"
-          style={{ left: pos?.left ?? 0, top: pos?.top ?? 0 }}
+          style={{ left: pos?.left ?? 0, top: pos?.top ?? 0, visibility: pos ? 'visible' : 'hidden' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: pos ? 1 : 0, y: 0 }}
           exit={{ opacity: 0, y: 6 }}
