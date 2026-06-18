@@ -390,7 +390,7 @@ export const STR = {
   statusDone: { ko: '보고서·전달 이메일 초안 완료', en: 'Report & delivery email ready' },
 
   reportEmptyTitle: { ko: '갱신 결과 보고서가 여기에 생성됩니다', en: 'The renewal result report appears here' },
-  reportEmptySub: { ko: '“보고서 생성”을 누르면 플레이스먼트 데이터로 초안을 만듭니다', en: 'Tap “Generate report” to draft from placement data' },
+  reportEmptySub: { ko: '”보고서 생성”을 누르면 플레이스먼트 데이터로 초안을 만듭니다', en: 'Tap “Generate report” to draft from placement data' },
   reportReadyBadge: { ko: '보고서 완성', en: 'Report ready' },
 
   overviewTitle: { ko: '갱신 개요', en: 'Renewal overview' },
@@ -448,4 +448,27 @@ export const STR = {
   subjectLabel: { ko: '제목', en: 'Subject' },
   attachmentLabel: { ko: '첨부', en: 'Attachment' },
   sendBtn: { ko: '검토 후 발송', en: 'Review & send' },
+} satisfies Record<string, L>;
+
+// ---------------------------------------------------------------------------
+// 데모 영상 — 핵심 소구점 줌인 캡션 (4개 비트)
+// ---------------------------------------------------------------------------
+
+export const SPOTLIGHT = {
+  generate: {
+    ko: '흩어진 근거 자료 5건 → 단일 보고서 초안 자동 생성',
+    en: '5 scattered sources → one report draft, auto-generated',
+  },
+  structure: {
+    ko: '손해율·프로그램 구조·패널 등급까지 자동 구조화',
+    en: 'Loss ratios, program structure, panel ratings — auto-structured',
+  },
+  intent: {
+    ko: '수신자별 목적·맥락·톤 — AI가 전달 의도 분석',
+    en: 'Per-recipient purpose, context & tone — AI infers the intent',
+  },
+  email: {
+    ko: '맥락 맞춤 이메일 초안 + 보고서 첨부 자동 구성',
+    en: 'Context-fit email draft + report attached, automatically',
+  },
 } satisfies Record<string, L>;

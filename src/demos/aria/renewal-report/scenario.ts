@@ -1,5 +1,7 @@
 import type { Scenario } from '../../../engine/types';
+import { getLang, pick } from '../_shared/i18n';
 import { useRenewalReport } from './state';
+import { SPOTLIGHT } from './data';
 
 const st = () => useRenewalReport.getState();
 
@@ -14,7 +16,13 @@ export const renewalReportScenario: Scenario = {
     { kind: 'wait', ms: 700 },
     // 보고서 생성
     { kind: 'cursor', target: 'generate-btn', ms: 600 },
-    { kind: 'click', target: 'generate-btn', run: () => st().generate() },
+    {
+      kind: 'click',
+      target: 'generate-btn',
+      run: () => st().generate(),
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.generate, getLang()),
+    },
     { kind: 'wait', ms: 5200 }, // 분석 + 섹션 8개 스트리밍
     // 생성된 보고서를 위에서부터 훑어 내려가며 전체 내용 검토
     { kind: 'cursor', target: 'report-panel', ms: 600 },
@@ -23,6 +31,13 @@ export const renewalReportScenario: Scenario = {
     { kind: 'scroll', target: 'report-panel', toId: 'section-lossrun', ms: 1300 },
     { kind: 'wait', ms: 1600 }, // 손해실적 차트
     { kind: 'scroll', target: 'report-panel', toId: 'section-structure', ms: 1100 },
+    {
+      kind: 'cursor',
+      target: 'section-structure',
+      ms: 700,
+      zoom: true,
+      caption: () => pick(SPOTLIGHT.structure, getLang()),
+    },
     { kind: 'wait', ms: 1500 }, // 프로그램 구조도
     { kind: 'scroll', target: 'report-panel', toId: 'section-panel', ms: 1100 },
     { kind: 'wait', ms: 1400 }, // 재보험사 패널 + 등급
@@ -37,11 +52,11 @@ export const renewalReportScenario: Scenario = {
     { kind: 'click', target: 'recipient-cedent', run: () => st().selectRecipient('cedent') },
     // AI 의도 분석 카드
     { kind: 'wait', ms: 1500 },
-    { kind: 'cursor', target: 'analysis-card', ms: 700 },
+    { kind: 'cursor', target: 'analysis-card', ms: 700, zoom: true, caption: () => pick(SPOTLIGHT.intent, getLang()) },
     { kind: 'wait', ms: 1200 },
     // 맞춤 이메일 스트리밍
     { kind: 'wait', ms: 4200 },
-    { kind: 'cursor', target: 'attachment-chip', ms: 700 },
+    { kind: 'cursor', target: 'attachment-chip', ms: 700, zoom: true, caption: () => pick(SPOTLIGHT.email, getLang()) },
     { kind: 'wait', ms: 1600 },
   ],
 };
