@@ -8,6 +8,7 @@ import { Background } from './Background';
 import { BrowserChrome } from './BrowserChrome';
 import { ControlBar } from './ControlBar';
 import { FakeCursor } from './FakeCursor';
+import { SpotlightCaption } from './SpotlightCaption';
 import { Camera } from './Camera';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
@@ -279,6 +280,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
       </AnimatePresence>
 
       <FakeCursor />
+      <SpotlightCaption />
     </div>
   );
 }
