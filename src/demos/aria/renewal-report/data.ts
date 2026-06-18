@@ -390,7 +390,7 @@ export const STR = {
   statusDone: { ko: '보고서·전달 이메일 초안 완료', en: 'Report & delivery email ready' },
 
   reportEmptyTitle: { ko: '갱신 결과 보고서가 여기에 생성됩니다', en: 'The renewal result report appears here' },
-  reportEmptySub: { ko: '”보고서 생성”을 누르면 플레이스먼트 데이터로 초안을 만듭니다', en: 'Tap “Generate report” to draft from placement data' },
+  reportEmptySub: { ko: '“보고서 생성”을 누르면 플레이스먼트 데이터로 초안을 만듭니다', en: 'Tap “Generate report” to draft from placement data' },
   reportReadyBadge: { ko: '보고서 완성', en: 'Report ready' },
 
   overviewTitle: { ko: '갱신 개요', en: 'Renewal overview' },
