@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getLang } from '../_shared/i18n';
+import { usePlaybackStore } from '../../../engine/playbackStore';
 import { REPORT_SECTIONS, SOURCE_FILES, getRecipient, STR, type ReportSectionId } from './data';
 
 export type Phase = 'sources' | 'report' | 'reportReady' | 'analyzing' | 'email' | 'done';
@@ -45,6 +46,16 @@ interface ReportEmailState {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * 재생 속도에 맞춰 스케일된 sleep. 자동재생에서 시나리오의 wait는 speed로 가속되는데(run.ts),
+ * 로딩이 실시간이면 1.5x·2x에서 로드 완료 전에 클릭이 떨어진다. 같은 시계로 묶어 마진을 유지한다.
+ * 수동 열람 시엔 speed가 1이라 정상 속도로 로드된다.
+ */
+const scaledSleep = (ms: number) => {
+  const { speed } = usePlaybackStore.getState();
+  return sleep(ms / (speed > 0 ? speed : 1));
+};
+
 /** reset()/재시작 시 증가시켜 진행 중인 시뮬레이션을 무효화 */
 let runId = 0;
 
@@ -82,11 +93,11 @@ export const useRenewalReport = create<ReportEmailState>((set, get) => ({
     set({ sourcesStatus: 'loading', loadedSourceIds: [] });
     void (async () => {
       for (const f of SOURCE_FILES) {
-        await sleep(280);
+        await scaledSleep(280);
         if (id !== runId) return;
         set((s) => ({ loadedSourceIds: [...s.loadedSourceIds, f.id] }));
       }
-      await sleep(200);
+      await scaledSleep(200);
       if (id !== runId) return;
       set({ sourcesStatus: 'ready' });
     })();

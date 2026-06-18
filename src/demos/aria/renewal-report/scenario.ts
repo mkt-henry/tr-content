@@ -12,7 +12,7 @@ const st = () => useRenewalReport.getState();
 export const renewalReportScenario: Scenario = {
   id: 'renewal-report-flow',
   steps: [
-    { kind: 'wait', ms: 2400 }, // 연동 소스에서 자료 로드 완료 대기 (로드 ~1.9s + 버퍼)
+    { kind: 'wait', ms: 2600 }, // 연동 소스 로드 완료 대기 (로드 ~1.9s, speed 스케일되어 마진 유지)
     // [줌1] 로드된 자료 중 특정 파일을 직접 선택
     {
       kind: 'cursor',
