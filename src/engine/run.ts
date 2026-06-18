@@ -52,6 +52,37 @@ function jitter(base: number) {
 }
 
 /**
+ * check()가 true가 될 때까지 50ms 간격으로 폴링한다. 비동기 store 상태(로딩 등)에 동기화.
+ * 일시정지 중에는 timeout 카운트를 멈추고, abort 시 즉시 resolve한다.
+ * (시간 대기가 아니라 "조건"을 기다리므로 speed 배율을 적용하지 않는다.)
+ */
+function waitForCondition(check: () => boolean, timeoutMs: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted || check()) return resolve();
+    let waited = 0;
+    let last = Date.now();
+    let timer: ReturnType<typeof setTimeout>;
+    const onAbort = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const tick = () => {
+      if (signal.aborted) return resolve();
+      const now = Date.now();
+      if (usePlaybackStore.getState().status !== 'paused') waited += now - last;
+      last = now;
+      if (check() || waited >= timeoutMs) {
+        signal.removeEventListener('abort', onAbort);
+        return resolve();
+      }
+      timer = setTimeout(tick, 50);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    tick();
+  });
+}
+
+/**
  * 가짜 커서를 target으로 이동한다.
  * zoom=true면 그 대상을 카메라 줌인 대상으로 지정(핵심 강조), 아니면 줌 해제(기본 줌아웃).
  */
@@ -153,6 +184,9 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
     switch (step.kind) {
       case 'wait':
         await delay(step.ms, signal);
+        break;
+      case 'waitFor':
+        await waitForCondition(step.check, step.timeoutMs ?? 8000, signal);
         break;
       case 'cursor':
         await moveCursorTo(step.target, signal, step.ms, step.zoom, step.caption);

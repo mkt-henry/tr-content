@@ -5,6 +5,8 @@ export type StepText = string | (() => string);
 export type Step =
   /** 지정 시간 대기 */
   | { kind: 'wait'; ms: number }
+  /** check()가 true가 될 때까지(또는 timeoutMs까지) 대기. 비동기 store 상태(로딩 등)에 동기화할 때. */
+  | { kind: 'waitFor'; check: () => boolean; timeoutMs?: number }
   /** data-demo-id 요소로 가짜 커서 이동. zoom:true면 카메라가 이 대상으로 줌인(핵심 강조). caption은 zoom 시 함께 표시할 액션 라벨. */
   | { kind: 'cursor'; target: string; ms?: number; zoom?: boolean; caption?: StepText }
   /** 커서 이동 + 클릭 펄스 + store action 실행. zoom:true면 줌인. caption은 zoom 시 함께 표시할 액션 라벨. */
