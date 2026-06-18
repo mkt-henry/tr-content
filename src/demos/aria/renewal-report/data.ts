@@ -99,6 +99,8 @@ export interface StructureLayer {
   band: L;
   span: number; // 타워 높이 비중
   kind: 'retention' | 'reinsured';
+  caption: L; // 우측 주석 — 분담 주체
+  note: L; // 우측 주석 — 부연 (인수 주체 · 한도 비중)
 }
 
 export const STRUCTURE = {
@@ -109,6 +111,8 @@ export const STRUCTURE = {
       band: { ko: '₩30억 초과 ₩70억', en: '₩7.0bn xs ₩3.0bn' },
       span: 70,
       kind: 'reinsured',
+      caption: { ko: '재보험 전가', en: 'Risk transferred' },
+      note: { ko: '패널 4사 100% 인수 · 한도의 70%', en: '100% placed · 70% of limit' },
     },
     {
       id: 'retention',
@@ -116,6 +120,8 @@ export const STRUCTURE = {
       band: { ko: '₩0 – ₩30억', en: '₩0 – ₩3.0bn' },
       span: 30,
       kind: 'retention',
+      caption: { ko: '출재사 보유', en: 'Cedent retained' },
+      note: { ko: '첫 손해 자기부담 · 한도의 30%', en: 'First-loss net · 30% of limit' },
     },
   ] as StructureLayer[],
   limit: { ko: '한도 ₩100억', en: 'Limit ₩10.0bn' } as L,

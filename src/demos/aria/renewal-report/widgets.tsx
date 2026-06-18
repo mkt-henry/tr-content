@@ -313,6 +313,19 @@ function StructureSection() {
   const lang = useLang();
   const TOWER_H = 168;
 
+  // 타워는 위→아래로 렌더(첫 레이어가 최상단)되므로, 바닥부터 누적해 각 밴드의 세로 중심(%)을 구한다
+  const total = STRUCTURE.layers.reduce((s, l) => s + l.span, 0);
+  const layerNotes = (() => {
+    let acc = 0;
+    return [...STRUCTURE.layers]
+      .reverse()
+      .map((l) => {
+        const center = ((acc + l.span / 2) / total) * 100;
+        acc += l.span;
+        return { ...l, center };
+      });
+  })();
+
   return (
     <SectionShell title={pick(STR.structureTitle, lang)}>
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
@@ -354,11 +367,19 @@ function StructureSection() {
             ))}
           </div>
 
-          {/* 스케일 마커 */}
+          {/* 레이어 주석 — 분담 주체·전가 비율로 우측 여백 채움 */}
           <div className="relative flex-1" style={{ height: TOWER_H }}>
             <ScaleMarker bottom="100%" label={pick(STRUCTURE.limit, lang)} accent />
-            <ScaleMarker bottom="30%" label={lang === 'ko' ? '₩30억' : '₩3.0bn'} />
             <ScaleMarker bottom="0%" label="₩0" />
+            {layerNotes.map((l) => (
+              <LayerNote
+                key={l.id}
+                bottom={`${l.center}%`}
+                caption={pick(l.caption, lang)}
+                note={pick(l.note, lang)}
+                accent={l.kind === 'reinsured'}
+              />
+            ))}
           </div>
         </div>
 
@@ -376,6 +397,33 @@ function ScaleMarker({ bottom, label, accent }: { bottom: string; label: string;
       <span className="h-px w-3 bg-white/15" />
       <span className={cn('font-mono text-[10px]', accent ? 'font-semibold text-brass-300' : 'text-zinc-500')}>{label}</span>
     </div>
+  );
+}
+
+/** 밴드 세로 중심에 맞춘 우측 주석 — 점선 리더로 타워와 연결 */
+function LayerNote({ bottom, caption, note, accent }: { bottom: string; caption: string; note: string; accent?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 6 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute right-0 flex w-[78%] -translate-y-1/2 items-center gap-2"
+      style={{ bottom }}
+    >
+      <span className="h-px flex-1 border-t border-dashed border-white/15" />
+      <span
+        className={cn(
+          'h-1.5 w-1.5 shrink-0 rounded-full',
+          accent ? 'bg-brass-400' : 'bg-zinc-500',
+        )}
+      />
+      <span className="min-w-0 text-right">
+        <span className={cn('block text-[10.5px] font-semibold leading-tight', accent ? 'text-brass-200' : 'text-zinc-300')}>
+          {caption}
+        </span>
+        <span className="block text-[9.5px] leading-tight text-zinc-500">{note}</span>
+      </span>
+    </motion.div>
   );
 }
 
