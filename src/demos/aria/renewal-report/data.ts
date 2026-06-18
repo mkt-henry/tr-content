@@ -448,27 +448,24 @@ export const STR = {
   subjectLabel: { ko: '제목', en: 'Subject' },
   attachmentLabel: { ko: '첨부', en: 'Attachment' },
   sendBtn: { ko: '검토 후 발송', en: 'Review & send' },
+  sendingBtn: { ko: '발송 중…', en: 'Sending…' },
+  sentBtn: { ko: '발송 완료', en: 'Sent' },
+  sentBadge: { ko: '이메일이 전송되었습니다', en: 'Email sent' },
+  statusSending: { ko: '이메일 발송 중…', en: 'Sending email…' },
+  statusSent: { ko: '이메일 발송 완료', en: 'Email sent' },
 } satisfies Record<string, L>;
 
 // ---------------------------------------------------------------------------
-// 데모 영상 — 핵심 소구점 줌인 캡션 (4개 비트)
+// 데모 영상 — 핵심 소구점 줌인 캡션 (2개 비트: 자료 선택 / 이메일 자동 작성)
 // ---------------------------------------------------------------------------
 
 export const SPOTLIGHT = {
-  generate: {
-    ko: '흩어진 근거 자료 5건 → 단일 보고서 초안 자동 생성',
-    en: '5 scattered sources → one report draft, auto-generated',
-  },
-  structure: {
-    ko: '손해율·프로그램 구조·패널 등급까지 자동 구조화',
-    en: 'Loss ratios, program structure, panel ratings — auto-structured',
-  },
-  intent: {
-    ko: '수신자별 목적·맥락·톤 — AI가 전달 의도 분석',
-    en: 'Per-recipient purpose, context & tone — AI infers the intent',
+  select: {
+    ko: '필요한 근거 자료를 직접 선택',
+    en: 'Pick exactly the source materials you need',
   },
   email: {
-    ko: '맥락 맞춤 이메일 초안 + 보고서 첨부 자동 구성',
-    en: 'Context-fit email draft + report attached, automatically',
+    ko: '수신자 맞춤 이메일 자동 작성',
+    en: 'Recipient-tailored email, auto-drafted',
   },
 } satisfies Record<string, L>;

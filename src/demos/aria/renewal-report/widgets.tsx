@@ -652,12 +652,14 @@ function RecipientPicker() {
 
 /** 의도 분석 카드 + 이메일 초안 */
 function DraftView() {
-  const { recipientId, analysisReady, phase, emailSubject, emailBody, emailStatus } = useRenewalReport();
+  const { recipientId, analysisReady, phase, emailSubject, emailBody, emailStatus, send } = useRenewalReport();
   const lang = useLang();
   const r = getRecipient(recipientId);
   if (!r) return null;
   const Icon = RECIPIENT_ICON[r.id] ?? Building2;
   const showEmail = phase === 'email' || phase === 'done';
+  const sending = emailStatus === 'sending';
+  const sent = emailStatus === 'sent';
 
   return (
     <div className="p-4">
@@ -747,25 +749,50 @@ function DraftView() {
 
           <button
             data-demo-id="email-send"
+            onClick={() => send()}
+            disabled={emailStatus !== 'done'}
             className={cn(
               'mt-2.5 flex h-9 w-full items-center justify-center gap-2 rounded-lg text-[12px] font-semibold transition-all',
-              emailStatus === 'done'
-                ? 'bg-brass-500 text-ink-950 shadow-[0_6px_20px_-6px_rgba(192,141,82,0.6)]'
-                : 'bg-white/[0.05] text-zinc-600',
+              emailStatus === 'done' && 'bg-brass-500 text-ink-950 shadow-[0_6px_20px_-6px_rgba(192,141,82,0.6)]',
+              sending && 'bg-white/[0.06] text-zinc-300',
+              sent && 'bg-emerald-500/15 text-emerald-300',
+              emailStatus !== 'done' && !sending && !sent && 'bg-white/[0.05] text-zinc-600',
             )}
           >
-            <Send className="h-3.5 w-3.5" /> {pick(STR.sendBtn, lang)}
+            {sending ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {pick(STR.sendingBtn, lang)}
+              </>
+            ) : sent ? (
+              <>
+                <CheckCircle2 className="h-3.5 w-3.5" /> {pick(STR.sentBtn, lang)}
+              </>
+            ) : (
+              <>
+                <Send className="h-3.5 w-3.5" /> {pick(STR.sendBtn, lang)}
+              </>
+            )}
           </button>
-          <AnimatePresence>
-            {emailStatus === 'done' && (
+          <AnimatePresence mode="wait">
+            {sent ? (
               <motion.p
+                key="sent"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-2 flex items-center justify-center gap-1 text-[10.5px] font-medium text-emerald-400"
+              >
+                <CheckCircle2 className="h-3 w-3" /> {pick(STR.sentBadge, lang)}
+              </motion.p>
+            ) : emailStatus === 'done' ? (
+              <motion.p
+                key="ready"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="mt-2 flex items-center justify-center gap-1 text-[10.5px] text-emerald-400"
               >
                 <CheckCircle2 className="h-3 w-3" /> {pick(STR.emailDoneBadge, lang)}
               </motion.p>
-            )}
+            ) : null}
           </AnimatePresence>
         </motion.div>
       )}

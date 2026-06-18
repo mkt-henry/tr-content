@@ -3,7 +3,7 @@ import { getLang } from '../_shared/i18n';
 import { REPORT_SECTIONS, SOURCES, getRecipient, STR, type ReportSectionId } from './data';
 
 export type Phase = 'sources' | 'report' | 'reportReady' | 'analyzing' | 'email' | 'done';
-export type EmailStatus = 'idle' | 'streaming' | 'done';
+export type EmailStatus = 'idle' | 'streaming' | 'done' | 'sending' | 'sent';
 
 interface ReportEmailState {
   phase: Phase;
@@ -31,6 +31,8 @@ interface ReportEmailState {
   closeEmailModal: () => void;
   /** 수신자 선택 → 의도 분석 → 맞춤 이메일 스트리밍 → done */
   selectRecipient: (id: string) => void;
+  /** 검토 후 발송 → 발송 중 → 발송 완료 */
+  send: () => void;
   reset: () => void;
 }
 
@@ -154,6 +156,19 @@ export const useRenewalReport = create<ReportEmailState>((set, get) => ({
       }
       if (id !== runId) return;
       set({ phase: 'done', emailStatus: 'done', statusText: STR.statusDone[lang] });
+    })();
+  },
+
+  send: () => {
+    // 초안이 완성(done)된 상태에서만 발송 가능
+    if (get().emailStatus !== 'done') return;
+    const id = ++runId;
+    const lang = getLang();
+    set({ emailStatus: 'sending', statusText: STR.statusSending[lang] });
+    void (async () => {
+      await sleep(950);
+      if (id !== runId) return;
+      set({ emailStatus: 'sent', statusText: STR.statusSent[lang] });
     })();
   },
 
