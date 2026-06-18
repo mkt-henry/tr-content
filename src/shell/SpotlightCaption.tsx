@@ -59,8 +59,8 @@ export function SpotlightCaption() {
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="flex items-center gap-2.5 rounded-full border border-brass-400/50 bg-ink-950/95 px-5 py-3 text-[15px] font-semibold leading-none text-zinc-50 shadow-[0_10px_36px_-6px_rgba(192,141,82,0.55)] ring-1 ring-brass-500/20">
-            <Sparkles className="h-4.5 w-4.5 shrink-0 text-brass-300" />
+          <span className="flex items-center gap-3 rounded-2xl border border-brass-400/60 bg-ink-950/95 px-7 py-4 text-[24px] font-bold leading-none text-zinc-50 shadow-[0_14px_48px_-6px_rgba(192,141,82,0.6)] ring-1 ring-brass-500/25">
+            <Sparkles className="h-6 w-6 shrink-0 text-brass-300" />
             {caption}
           </span>
         </motion.div>
