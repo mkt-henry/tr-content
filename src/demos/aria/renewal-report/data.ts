@@ -442,7 +442,6 @@ export const STR = {
 
   // 근거 자료 선택
   sourcesTitle: { ko: '근거 자료 선택', en: 'Select source materials' },
-  sourcesHint: { ko: '보고서 생성에 사용할 자료를 선택하세요', en: 'Pick the materials to build the report from' },
   sourceSummary: { ko: '근거 자료 {n}건', en: '{n} source materials' },
   sourcesLoading: { ko: '근거 자료 불러오는 중…', en: 'Loading source materials…' },
   sourcesSelected: { ko: '{n}건 선택', en: '{n} selected' },
