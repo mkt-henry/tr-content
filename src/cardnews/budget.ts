@@ -26,8 +26,10 @@ function over(field: LangText, max: { ko: number; en: number }): string[] {
 
 /** dev 경고용 — 예산 초과 필드 메시지 목록 반환 */
 export function lintDeck(deck: CardNewsDeck): string[] {
+  // research 테마 전용 카피 예산 검사 — 다른 테마(macro 등)는 자체 레이아웃이라 건너뜀
+  if ((deck.theme ?? 'research') !== 'research') return [];
   const w: string[] = [];
-  deck.slides.forEach((s, i) => {
+  (deck.slides as Extract<CardNewsDeck['slides'][number], { eyebrow: unknown }>[]).forEach((s, i) => {
     const p = `slide ${i + 1} (${s.type})`;
     over(s.eyebrow, BUDGET.eyebrow).forEach((m) => w.push(`${p} eyebrow — ${m}`));
     if (s.headline) over(s.headline, BUDGET.headline).forEach((m) => w.push(`${p} headline — ${m}`));
