@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X, ZoomIn } from 'lucide-react';
 import type { CardNewsDeck, Slide as ResearchSlideData, MacroSlide as MacroSlideData } from '../../cardnews/types';
+import { getVariants } from '../../cardnews/types';
 import { toLang } from '../../cardnews/lang';
 import { useShellStore } from '../../store/shellStore';
 import { getProject } from '../../registry';
@@ -16,14 +17,24 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const langs = project?.languages ?? [{ id: 'ko', label: '한국어', flag: '🇰🇷' }, { id: 'en', label: 'English', flag: '🇺🇸' }];
   const lang = toLang(projectLang[deck.project]);
   const accent = deck.accent ?? '#c2a35a';
-  const total = deck.slides.length;
   const brand = project?.name ?? deck.project;
 
   const isMacro = deck.theme === 'macro';
-  const W = deck.width ?? 1080;
-  const H = deck.height ?? 1080;
+
+  // 플랫폼 variant(링크드인/트위터 등). 단일 덱은 라벨 없는 단일 variant로 정규화됨
+  const variants = getVariants(deck);
+  const [vi, setVi] = useState(0);
+  const variant = variants[vi];
+  const multi = variants.length > 1;
+
+  const W = variant.width;
+  const H = variant.height;
   const dims = { width: W, height: H };
+  const total = variant.slides.length;
+  const caption = variant.caption;
   const fileLang = isMacro ? 'en' : lang;
+  const exportId = multi ? `${deck.id}-${variant.id}` : deck.id;
+  const captionTitle = multi ? `${variant.label} 본문` : (W > H ? 'X(트위터) 본문' : '링크드인 본문');
 
   // research 테마 메타(리포트 번호 + 월/년)
   const [yy, mm, dd] = deck.date.split('-');
@@ -36,11 +47,23 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const [busy, setBusy] = useState(false);
   const [showCaption, setShowCaption] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
+
+  // 확대 시 뷰포트에 맞춘 스케일 (가로 16:9 X 버전에서 특히 크게 보임)
+  const [vp, setVp] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
+  useEffect(() => {
+    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const zoomScale = Math.min((vp.w * 0.94) / W, (vp.h * 0.9) / H);
+
+  const selectVariant = (idx: number) => { setVi(idx); setI(0); };
 
   const copyCaption = async () => {
-    if (!deck.caption) return;
+    if (!caption) return;
     try {
-      await navigator.clipboard.writeText(deck.caption);
+      await navigator.clipboard.writeText(caption);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch (err) { console.error('[cardnews:copy]', err); }
@@ -51,15 +74,16 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const prev = () => setI((v) => (v - 1 + total) % total);
   const next = () => setI((v) => (v + 1) % total);
 
+  // 키보드 네비 — total이 variant 전환으로 바뀌면 재바인딩
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') prev();
-      else if (e.key === 'ArrowRight') next();
-      else if (e.key === 'Escape') useShellStore.getState().backToGallery();
+      if (e.key === 'ArrowLeft') setI((v) => (v - 1 + total) % total);
+      else if (e.key === 'ArrowRight') setI((v) => (v + 1) % total);
+      else if (e.key === 'Escape') { if (zoomed) setZoomed(false); else useShellStore.getState().backToGallery(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [total, zoomed]);
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -67,14 +91,15 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
     catch (err) { console.error('[cardnews:export]', err); }
     finally { setBusy(false); }
   };
-  const nodes = () => exportRefs.current.filter(Boolean) as HTMLElement[];
+  // variant 슬라이드 수만큼만 — 이전 variant의 잔여 ref 제외
+  const nodes = () => exportRefs.current.slice(0, total).filter(Boolean) as HTMLElement[];
 
-  // 화면 표시 스케일 — 정사각/세로 모두 박스 안에 맞춤
+  // 화면 표시 스케일 — 정사각/세로/가로 모두 박스 안에 맞춤
   const scale = Math.min(560 / W, 720 / H);
   const dispW = Math.round(W * scale);
   const dispH = Math.round(H * scale);
 
-  const renderCard = (s: CardNewsDeck['slides'][number], idx: number, refCb?: (el: HTMLDivElement | null) => void) =>
+  const renderCard = (s: typeof variant.slides[number], idx: number, refCb?: (el: HTMLDivElement | null) => void) =>
     isMacro
       ? <MacroSlide ref={refCb} slide={s as MacroSlideData} meta={macroMeta} />
       : <Slide ref={refCb} slide={s as ResearchSlideData} lang={lang} index={idx} total={total} accent={accent} brand={brand} meta={meta} source={source} />;
@@ -103,33 +128,50 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
         )}
       </div>
 
+      {/* 플랫폼 토글 (멀티 variant일 때만) */}
+      {multi && (
+        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
+          {variants.map((v, idx) => (
+            <button key={v.id} onClick={() => selectVariant(idx)}
+              className={`rounded-lg px-4 py-1.5 text-[12px] font-medium ${idx === vi ? 'bg-violet-500/20 text-violet-200' : 'text-zinc-500 hover:text-zinc-300'}`}>
+              {v.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* 슬라이드 + 좌우 네비 */}
       <div className="flex flex-1 items-center justify-center gap-5">
         <button onClick={prev} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronLeft className="h-7 w-7" /></button>
-        <div style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: isMacro ? 16 : 6, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
+        <button type="button" onClick={() => setZoomed(true)} title="클릭하면 확대"
+          className="group relative block cursor-zoom-in"
+          style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: isMacro ? 16 : 6, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
           <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: W, height: H }}>
-            {renderCard(deck.slides[i], i)}
+            {renderCard(variant.slides[i], i)}
           </div>
-        </div>
+          <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+            <ZoomIn className="h-5 w-5" />
+          </span>
+        </button>
         <button onClick={next} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronRight className="h-7 w-7" /></button>
       </div>
 
       {/* 하단 컨트롤 */}
       <div className="flex w-full items-center justify-center gap-3 px-6 py-5">
         <span className="font-mono text-[12px] tabular-nums text-zinc-500">{i + 1} / {total}</span>
-        <button disabled={busy} onClick={() => run(() => exportSlidePng(nodes()[i], deck.id, fileLang, i, dims))}
+        <button disabled={busy} onClick={() => run(() => exportSlidePng(nodes()[i], exportId, fileLang, i, dims))}
           className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
           <Download className="h-4 w-4" /> 이 슬라이드 PNG
         </button>
-        <button disabled={busy} onClick={() => run(() => exportAllPng(nodes(), deck.id, fileLang, dims))}
+        <button disabled={busy} onClick={() => run(() => exportAllPng(nodes(), exportId, fileLang, dims))}
           className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
-          <Images className="h-4 w-4" /> 전체 PNG
+          <Images className="h-4 w-4" /> 전체 PNG (ZIP)
         </button>
-        <button disabled={busy} onClick={() => run(() => exportPdf(nodes(), deck.id, fileLang, dims))}
+        <button disabled={busy} onClick={() => run(() => exportPdf(nodes(), exportId, fileLang, dims))}
           className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-500/20 disabled:opacity-50">
           <FileDown className="h-4 w-4" /> PDF
         </button>
-        {deck.caption && (
+        {caption && (
           <button onClick={() => setShowCaption((v) => !v)}
             className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${showCaption ? 'border-white/30 bg-white/[0.06] text-zinc-100' : 'border-white/10 text-zinc-300 hover:border-white/25'}`}>
             <FileText className="h-4 w-4" /> 게시 본문
@@ -138,10 +180,10 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
       </div>
 
       {/* 게시 본문 패널 — 확인 + 복사 */}
-      {deck.caption && showCaption && (
+      {caption && showCaption && (
         <div className="absolute right-4 top-20 bottom-24 z-20 flex w-[400px] max-w-[90vw] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[#0c0e13]/95 shadow-2xl backdrop-blur">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <span className="text-sm font-medium text-zinc-200">링크드인 본문</span>
+            <span className="text-sm font-medium text-zinc-200">{captionTitle}</span>
             <div className="flex items-center gap-2">
               <button onClick={copyCaption}
                 className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium ${copied ? 'bg-emerald-500/20 text-emerald-300' : 'bg-violet-500/20 text-violet-200 hover:bg-violet-500/30'}`}>
@@ -150,14 +192,30 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
               <button onClick={() => setShowCaption(false)} className="rounded-md p-1.5 text-zinc-400 hover:bg-white/10 hover:text-zinc-200"><X className="h-4 w-4" /></button>
             </div>
           </div>
-          <pre className="flex-1 overflow-auto whitespace-pre-wrap px-4 py-3 text-[13px] leading-relaxed text-zinc-300" style={{ fontFamily: 'inherit' }}>{deck.caption}</pre>
+          <pre className="flex-1 overflow-auto whitespace-pre-wrap px-4 py-3 text-[13px] leading-relaxed text-zinc-300" style={{ fontFamily: 'inherit' }}>{caption}</pre>
         </div>
       )}
 
-      {/* 내보내기용 원본(화면 밖) */}
+      {/* 확대 오버레이 — 뷰포트에 꽉 차게. 아무 곳 클릭 또는 ESC로 닫기 */}
+      {zoomed && (
+        <div onClick={() => setZoomed(false)}
+          className="fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/85 backdrop-blur-sm">
+          <div style={{ width: Math.round(W * zoomScale), height: Math.round(H * zoomScale), overflow: 'hidden', borderRadius: isMacro ? 16 : 6, boxShadow: '0 30px 90px rgba(0,0,0,.6)' }}>
+            <div style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top left', width: W, height: H }}>
+              {renderCard(variant.slides[i], i)}
+            </div>
+          </div>
+          <button onClick={(e) => { e.stopPropagation(); setZoomed(false); }}
+            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-zinc-200 hover:bg-white/20">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      {/* 내보내기용 원본(화면 밖) — variant 전환 시 해당 슬라이드로 재렌더 */}
       <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
-        {deck.slides.map((s, idx) => (
-          <div key={idx}>{renderCard(s, idx, (el) => { exportRefs.current[idx] = el; })}</div>
+        {variant.slides.map((s, idx) => (
+          <div key={`${variant.id}-${idx}`}>{renderCard(s, idx, (el) => { exportRefs.current[idx] = el; })}</div>
         ))}
       </div>
     </div>

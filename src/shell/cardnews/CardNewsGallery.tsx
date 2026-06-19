@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Layers, Hourglass } from 'lucide-react';
 import type { CardNewsDeck, Lang } from '../../cardnews/types';
+import { getVariants } from '../../cardnews/types';
 import { useShellStore } from '../../store/shellStore';
 
 export function CardNewsGallery({ decks, lang }: { decks: CardNewsDeck[]; lang: Lang }) {
@@ -23,7 +24,11 @@ export function CardNewsGallery({ decks, lang }: { decks: CardNewsDeck[]; lang: 
     <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {decks.map((deck, i) => {
         const accent = deck.accent ?? '#7c5cff';
-        const ratio = ratioOf(deck.width ?? 1080, deck.height ?? 1080);
+        const variants = getVariants(deck);
+        // 단일: "7 cards · 4:5" / 멀티: "LinkedIn 4:5 · X 16:9"
+        const badge = variants.length > 1
+          ? variants.map((v) => `${v.label} ${ratioOf(v.width, v.height)}`).join(' · ')
+          : `${variants[0].slides.length} cards · ${ratioOf(variants[0].width, variants[0].height)}`;
         return (
         <motion.button key={deck.id} type="button" onClick={() => openCardnews(deck.id)}
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -32,7 +37,7 @@ export function CardNewsGallery({ decks, lang }: { decks: CardNewsDeck[]; lang: 
           <div className="relative flex h-44 items-center justify-center overflow-hidden"
             style={{ background: `radial-gradient(ellipse 90% 60% at 70% -10%,${accent}33,transparent 60%),linear-gradient(160deg,#15171f,#0a0b0e)` }}>
             <Layers className="h-9 w-9 transition-transform duration-300 group-hover:scale-110" style={{ color: accent }} />
-            <span className="absolute bottom-3 right-3 rounded-md bg-black/40 px-2 py-0.5 text-[10px] font-mono text-zinc-300">{deck.slides.length} cards · {ratio}</span>
+            <span className="absolute bottom-3 right-3 rounded-md bg-black/40 px-2 py-0.5 text-[10px] font-mono text-zinc-300">{badge}</span>
           </div>
           <div className="flex flex-1 flex-col p-5">
             <span className="text-[11px] font-medium" style={{ color: accent }}>앵글 리포트 · {deck.date}</span>

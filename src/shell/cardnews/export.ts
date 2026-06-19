@@ -1,5 +1,6 @@
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
+import JSZip from 'jszip';
 
 export interface Dims { width: number; height: number }
 const SQUARE: Dims = { width: 1080, height: 1080 };
@@ -61,11 +62,18 @@ export async function exportSlidePng(node: HTMLElement, deckId: string, lang: st
   download(await nodeToPng(node, dims), `${deckId}-${lang}-${String(index + 1).padStart(2, '0')}.png`);
 }
 
-/** 모든 슬라이드 PNG 순차 다운로드 */
+/** 모든 슬라이드 PNG를 ZIP 한 개로 묶어 다운로드 */
 export async function exportAllPng(nodes: HTMLElement[], deckId: string, lang: string, dims: Dims = SQUARE) {
+  const zip = new JSZip();
   for (let i = 0; i < nodes.length; i++) {
-    download(await nodeToPng(nodes[i], dims), `${deckId}-${lang}-${String(i + 1).padStart(2, '0')}.png`);
+    const dataUrl = await nodeToPng(nodes[i], dims);
+    const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+    zip.file(`${deckId}-${lang}-${String(i + 1).padStart(2, '0')}.png`, base64, { base64: true });
   }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  download(url, `${deckId}-${lang}.zip`);
+  URL.revokeObjectURL(url);
 }
 
 /** 덱 전체 PDF (슬라이드 1장 = 1페이지) */
