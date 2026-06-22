@@ -35,6 +35,43 @@ interface EdgeProps {
   delay?: number;
 }
 
+/** 3차 베지어 한 축 보간 */
+function bez(p0: number, p1: number, p2: number, p3: number, t: number): number {
+  const u = 1 - t;
+  return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+}
+
+const PARTICLE_SAMPLES = 14;
+
+/** 엣지 곡선을 따라 흐르는 발광 입자 (Edge의 d와 동일한 제어점 사용) */
+function FlowParticles({
+  x1, y1, x2, y2, color, count = 2, reverse = false,
+}: {
+  x1: number; y1: number; x2: number; y2: number; color: string; count?: number; reverse?: boolean;
+}) {
+  const my = (y1 + y2) / 2;
+  const ts = Array.from({ length: PARTICLE_SAMPLES }, (_, i) => i / (PARTICLE_SAMPLES - 1));
+  const order = reverse ? [...ts].reverse() : ts;
+  // 제어점: c1=(x1,my), c2=(x2,my) — Edge의 path와 동일
+  const xs = order.map((t) => bez(x1, x1, x2, x2, t));
+  const ys = order.map((t) => bez(y1, my, my, y2, t));
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <motion.circle
+          key={i}
+          r={0.8}
+          fill={color}
+          initial={{ opacity: 0 }}
+          animate={{ cx: xs, cy: ys, opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: 'linear', delay: i * (1.1 / count) }}
+          style={{ filter: `drop-shadow(0 0 1.2px ${color})` }}
+        />
+      ))}
+    </>
+  );
+}
+
 /** 부드러운 베지어 엣지 + 펄스/흐름 애니메이션 */
 function Edge({ x1, y1, x2, y2, color, active, flow, delay = 0 }: EdgeProps) {
   const my = (y1 + y2) / 2;
@@ -68,6 +105,8 @@ function Edge({ x1, y1, x2, y2, color, active, flow, delay = 0 }: EdgeProps) {
           transition={{ strokeDashoffset: { duration: 1, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.3 } }}
         />
       )}
+      {/* 데이터 흐름 입자 */}
+      {flow && <FlowParticles x1={x1} y1={y1} x2={x2} y2={y2} color={color} count={2} />}
     </g>
   );
 }
@@ -94,9 +133,11 @@ function edgesActive(phase: Phase): { route: boolean; flow: boolean } {
 }
 
 export function AgentGraph({ compact = false }: { compact?: boolean }) {
-  const { phase, workers } = useAgents();
+  const { phase, workers, focus } = useAgents();
   const lang = useLang();
   const { route, flow } = edgesActive(phase);
+  // 카메라가 비추는 agent 키 (없으면 null → 디밍 비활성)
+  const focusKey: string | null = focus?.kind === 'agent' ? `${focus.groupId}:${focus.subIndex}` : null;
 
   return (
     <div className={cn('relative w-full overflow-hidden rounded-xl border', compact ? 'h-[300px]' : 'h-full min-h-[360px]')}
@@ -133,6 +174,20 @@ export function AgentGraph({ compact = false }: { compact?: boolean }) {
             />
           )),
         )}
+        {/* done — 결과가 Orchestrator로 역류·수렴 */}
+        {phase === 'done' &&
+          GROUPS.map((g) => (
+            <FlowParticles
+              key={`conv-${g.id}`}
+              x1={ORCH.x}
+              y1={ORCH.y + 6}
+              x2={groupX(g.x)}
+              y2={GROUP_Y - 5}
+              color={ORCHESTRATOR_COLOR}
+              count={2}
+              reverse
+            />
+          ))}
         {/* 크로스 검증 — 인접 그룹 서브노드 간 가로 연결 (verifying/done) */}
         {(phase === 'verifying' || phase === 'done') &&
           GROUPS.slice(0, -1).map((g, gi) => (
@@ -161,6 +216,7 @@ export function AgentGraph({ compact = false }: { compact?: boolean }) {
         status={phase === 'idle' ? 'idle' : phase === 'done' ? 'done' : 'working'}
         big
         icon={<Cpu className="h-3.5 w-3.5" />}
+        dimmed={focusKey !== null}
       />
 
       {/* 워커 그룹 + 서브 노드 */}
@@ -168,7 +224,7 @@ export function AgentGraph({ compact = false }: { compact?: boolean }) {
         const gStatus = statusOf(workers, g.id, g.subs.length);
         return (
           <div key={g.id}>
-            <Node x={groupX(g.x)} y={GROUP_Y} color={g.color} label={pick(g.label, lang)} status={gStatus} />
+            <Node x={groupX(g.x)} y={GROUP_Y} color={g.color} label={pick(g.label, lang)} status={gStatus} dimmed={focusKey !== null} />
             {g.subs.map((sub, i) => (
               <Node
                 key={i}
@@ -178,6 +234,8 @@ export function AgentGraph({ compact = false }: { compact?: boolean }) {
                 label={pick(sub, lang)}
                 status={workers[`${g.id}:${i}`] ?? 'idle'}
                 small
+                focused={focusKey === `${g.id}:${i}`}
+                dimmed={focusKey !== null && focusKey !== `${g.id}:${i}`}
               />
             ))}
           </div>
@@ -196,32 +254,57 @@ interface NodeProps {
   big?: boolean;
   small?: boolean;
   icon?: React.ReactNode;
+  focused?: boolean;
+  dimmed?: boolean;
 }
 
 /** 절대배치 노드 — % 좌표는 SVG viewBox(0~100)와 동일 좌표계 */
-function Node({ x, y, color, label, status, big, small, icon }: NodeProps) {
+function Node({ x, y, color, label, status, big, small, icon, focused, dimmed }: NodeProps) {
   const active = status !== 'idle';
+  const working = status === 'working';
   return (
     <motion.div
       className="absolute -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${x}%`, top: `${y}%` }}
+      style={{ left: `${x}%`, top: `${y}%`, zIndex: focused ? 20 : 1 }}
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
+      animate={{
+        opacity: dimmed ? 0.32 : 1,
+        scale: focused ? 1.16 : 1,
+        filter: dimmed ? 'blur(0.7px)' : 'blur(0px)',
+      }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div
+      {/* 점등 리플 — 활성 진입 시 한 번 퍼짐 */}
+      {active && (
+        <motion.span
+          className="absolute left-1/2 top-1/2 -z-10 rounded-full"
+          style={{ border: `1px solid ${color}`, x: '-50%', y: '-50%' }}
+          initial={{ width: 8, height: 8, opacity: 0.6 }}
+          animate={{ width: 56, height: 56, opacity: 0 }}
+          transition={{ duration: 1.1, repeat: working ? Infinity : 0, ease: 'easeOut' }}
+        />
+      )}
+      <motion.div
         className={cn(
-          'flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium backdrop-blur-sm transition-all duration-300',
+          'flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium backdrop-blur-sm',
           big ? 'px-3 py-1.5 text-[12px]' : small ? 'px-2 py-0.5 text-[9.5px]' : 'px-2.5 py-1 text-[10.5px]',
         )}
         style={{
           borderColor: active ? color : 'rgba(255,255,255,0.12)',
           background: active ? `${color}22` : 'rgba(255,255,255,0.04)',
           color: active ? '#f4f4f5' : '#a1a1aa',
-          boxShadow: active ? `0 0 16px -4px ${color}` : 'none',
         }}
+        animate={{
+          boxShadow: focused
+            ? `0 0 26px -2px ${color}`
+            : working
+              ? [`0 0 8px -4px ${color}`, `0 0 20px -2px ${color}`, `0 0 8px -4px ${color}`]
+              : active
+                ? `0 0 16px -4px ${color}`
+                : '0 0 0px transparent',
+        }}
+        transition={working && !focused ? { duration: 1.4, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
       >
-        {/* 상태 인디케이터 */}
         {icon ?? (
           <span className="flex h-3 w-3 items-center justify-center">
             {status === 'working' && <Loader2 className="h-3 w-3 animate-spin" style={{ color }} />}
@@ -230,7 +313,7 @@ function Node({ x, y, color, label, status, big, small, icon }: NodeProps) {
           </span>
         )}
         <span className="truncate">{label}</span>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
