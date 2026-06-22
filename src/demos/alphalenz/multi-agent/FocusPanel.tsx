@@ -14,8 +14,8 @@ import { cn } from '../../../lib/cn';
  * - focus가 stage면 Orchestrator 단계 요약(분해/검증/합성)을 보여준다.
  */
 
-/** 한 글자씩 타이핑 — key가 바뀌면(=포커스 전환) 처음부터 재생 */
-function useTypewriter(text: string, cps = 48): string {
+/** 한 글자씩 타이핑 — key가 바뀌면(=포커스 전환) 처음부터 재생. done은 타이핑 완료 여부 */
+function useTypewriter(text: string, cps = 48): { out: string; done: boolean } {
   const [out, setOut] = useState('');
   useEffect(() => {
     setOut('');
@@ -27,7 +27,7 @@ function useTypewriter(text: string, cps = 48): string {
     }, 1000 / cps);
     return () => clearInterval(id);
   }, [text, cps]);
-  return out;
+  return { out, done: out.length >= text.length };
 }
 
 /** 미니 스파크라인 (0~100 정규화, non-scaling stroke) */
@@ -35,8 +35,9 @@ function Spark({ data, color }: { data: number[]; color: string }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
+  const span = data.length - 1 || 1; // 단일 점일 때 0 division(NaN) 방지
   const pts = data
-    .map((v, i) => `${(i / (data.length - 1)) * 100},${26 - ((v - min) / range) * 22 - 2}`)
+    .map((v, i) => `${(i / span) * 100},${26 - ((v - min) / range) * 22 - 2}`)
     .join(' ');
   return (
     <svg viewBox="0 0 100 26" preserveAspectRatio="none" className="h-6 w-full">
@@ -64,7 +65,7 @@ function AgentFocus({ script }: { script: FocusScript }) {
   const group = groupById(script.groupId);
   const color = group?.color ?? AL.accent;
   // focus 키를 thinking 타이핑 재생 트리거로 사용
-  const typed = useTypewriter(pick(script.thinking, lang));
+  const { out: typed, done: typedDone } = useTypewriter(pick(script.thinking, lang));
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -88,7 +89,9 @@ function AgentFocus({ script }: { script: FocusScript }) {
       <div className="rounded-lg border px-3 py-2.5" style={{ borderColor: AL.border, background: 'rgba(255,255,255,0.02)' }}>
         <p className="min-h-[2.6em] text-[12.5px] leading-relaxed text-zinc-300">
           {typed}
-          <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse" style={{ background: color }} />
+          {!typedDone && (
+            <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse" style={{ background: color }} />
+          )}
         </p>
       </div>
 
