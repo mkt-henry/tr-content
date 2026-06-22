@@ -297,3 +297,33 @@ export const STAGE_FOCUS: Record<'routing' | 'verifying' | 'synthesis', StageFoc
     },
   },
 };
+
+/** 그룹 원색을 탈채도 톤으로 — 카드 좌측 2px 틱 전용 (55% 색 + 45% 중간회색) */
+export function mutedTick(hex: string): string {
+  const m = hex.replace('#', '');
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  const mix = (c: number) => Math.round(c * 0.55 + 128 * 0.45);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+
+/** 서브 에이전트별 경량 메타 — 완료 시 지연시간(ms) 표기용. 키 "groupId:subIndex" */
+export const SUB_META: Record<string, { latencyMs: number }> = {
+  'fundamentals:0': { latencyMs: 920 },
+  'fundamentals:1': { latencyMs: 780 },
+  'fundamentals:2': { latencyMs: 1240 },
+  'fundamentals:3': { latencyMs: 660 },
+  'technical:0': { latencyMs: 840 },
+  'technical:1': { latencyMs: 590 },
+  'technical:2': { latencyMs: 1020 },
+  'market:0': { latencyMs: 1130 },
+  'market:1': { latencyMs: 700 },
+  'market:2': { latencyMs: 1480 },
+  'strategy:0': { latencyMs: 1310 },
+  'strategy:1': { latencyMs: 880 },
+  'strategy:2': { latencyMs: 540 },
+  'intelligence:0': { latencyMs: 960 },
+  'intelligence:1': { latencyMs: 720 },
+  'intelligence:2': { latencyMs: 1390 },
+};
