@@ -11,8 +11,8 @@ export const orchestrateScenario: Scenario = {
     { kind: 'cursor', target: 'run-btn', ms: 600 },
     { kind: 'wait', ms: 250 },
     { kind: 'click', target: 'run-btn', run: () => st().start('orchestrate') },
-    // routing(≈2.1s) + working(≈4.5s) + verifying(≈2s) ≈ 8.6s
-    { kind: 'wait', ms: 8800 },
+    // routing(≈2.1s) + working(5×1.56≈7.8s) + verifying(≈2s) ≈ 12.2s
+    { kind: 'wait', ms: 12800 },
     { kind: 'cursor', target: 'result-card', ms: 800 },
     { kind: 'wait', ms: 1600 },
   ],
@@ -26,7 +26,8 @@ export const parallelScenario: Scenario = {
     { kind: 'cursor', target: 'run-btn', ms: 600 },
     { kind: 'wait', ms: 250 },
     { kind: 'click', target: 'run-btn', run: () => st().start('parallel') },
-    { kind: 'wait', ms: 8800 },
+    // routing(≈2.1s) + working(5×1.06≈5.3s) + verifying(≈2s) ≈ 9.4s
+    { kind: 'wait', ms: 10300 },
     { kind: 'cursor', target: 'result-card', ms: 800 },
     { kind: 'wait', ms: 1600 },
   ],
