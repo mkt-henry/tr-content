@@ -8,6 +8,7 @@ import { CountUp } from '../../../ui/CountUp';
 import { cn } from '../../../lib/cn';
 import { useAgents } from './state';
 import { AgentGraph } from './AgentGraph';
+import { FocusPanel } from './FocusPanel';
 import { QUESTION, STR, AGENT_COUNT, CONFIDENCE, INSIGHT, INSIGHT_VERDICT } from './data';
 
 export function Mobile(_: DemoComponentProps) {
@@ -56,6 +57,9 @@ export function Mobile(_: DemoComponentProps) {
 
         {/* 그래프 (compact) */}
         <AgentGraph compact />
+
+        {/* 포커스 패널 — 활성 에이전트 클로즈업 */}
+        <FocusPanel className="min-h-[280px]" />
 
         {/* 인사이트 카드 */}
         {phase === 'done' && (
