@@ -1,5 +1,6 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Loader2, ShieldCheck, Sparkles, Users, MessageCircleQuestion } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Play, Loader2, ShieldCheck, Users, MessageCircleQuestion } from 'lucide-react';
+import { FocusPanel } from './FocusPanel';
 import type { DemoComponentProps } from '../../../registry/types';
 import { TopBar } from '../_shared/Chrome';
 import { AL } from '../_shared/theme';
@@ -64,38 +65,6 @@ function CountBadge() {
   );
 }
 
-/** 추론 진행 로그 */
-function LogPanel() {
-  const { logs } = useAgents();
-  const lang = useLang();
-  return (
-    <div className="flex min-h-0 flex-col rounded-xl border p-4" style={{ borderColor: AL.border, background: AL.cardBg }}>
-      <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-        <Sparkles className="h-3.5 w-3.5 text-violet-400" /> {pick(STR.logTitle, lang)}
-      </p>
-      <div className="demo-scroll flex-1 space-y-2 overflow-y-auto">
-        <AnimatePresence initial={false}>
-          {logs.map((line, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.35 }}
-              className="flex items-start gap-2 text-[12px] text-zinc-300"
-            >
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
-              <span className="leading-snug">{line}</span>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {logs.length === 0 && (
-          <p className="text-[12px] text-zinc-600">{pick({ ko: '분석 시작을 누르면 추론 과정이 표시됩니다.', en: 'Press Run to stream the reasoning trace.' }, lang)}</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 /** 최종 인사이트 카드 */
 function InsightCard() {
   const { phase } = useAgents();
@@ -138,7 +107,7 @@ export function Desktop(_: DemoComponentProps) {
   return (
     <div className="flex h-full flex-col" style={{ background: AL.appBg, color: '#e4e4e7' }}>
       <TopBar activeTab={1} search={STR.search} />
-      <div className="grid min-h-0 flex-1 grid-cols-[1fr_320px] gap-3 p-3">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_440px] gap-3 p-3">
         {/* 좌: 질문 + 그래프 */}
         <div className="flex min-h-0 flex-col gap-3">
           <QuestionBar />
@@ -146,12 +115,10 @@ export function Desktop(_: DemoComponentProps) {
             <AgentGraph />
           </div>
         </div>
-        {/* 우: 카운터 + 로그 + 인사이트 */}
+        {/* 우: 카운터 + 포커스 패널 + 인사이트 */}
         <div className="flex min-h-0 flex-col gap-3">
           <CountBadge />
-          <div className="min-h-0 flex-1">
-            <LogPanel />
-          </div>
+          <FocusPanel className="flex-1" />
           <InsightCard />
         </div>
       </div>
