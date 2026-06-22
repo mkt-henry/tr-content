@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, ShieldCheck, ArrowUpRight, ArrowDownRight, Minus, Cpu } from 'lucide-react';
 import { useAgents } from './state';
-import { FOCUS_SCRIPTS, STAGE_FOCUS, groupById, type FocusScript } from './data';
-import { AL } from '../_shared/theme';
+import { FOCUS_SCRIPTS, STAGE_FOCUS, groupById, mutedTick, type FocusScript } from './data';
+import { CONSOLE } from '../_shared/theme';
 import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 
 /**
- * 포커스(클로즈업) 패널.
- * - state.focus가 agent면 해당 FocusScript의 4요소를 카메라처럼 보여준다:
- *   ① thinking 토큰 스트림(타이핑) ② tool call ③ 미니 산출물 ④ 근거 체인.
- * - focus가 stage면 Orchestrator 단계 요약(분해/검증/합성)을 보여준다.
+ * 포커스(클로즈업) 패널 — 콘솔 팔레트.
+ * - agent 포커스: 4요소(thinking 타이핑 / tool call / 미니 산출물 / 근거 체인).
+ * - stage 포커스: Orchestrator 단계 요약.
  */
 
-/** 한 글자씩 타이핑 — key가 바뀌면(=포커스 전환) 처음부터 재생. done은 타이핑 완료 여부 */
+/** 한 글자씩 타이핑 — key가 바뀌면 처음부터 재생. done은 완료 여부 */
 function useTypewriter(text: string, cps = 48): { out: string; done: boolean } {
   const [out, setOut] = useState('');
   useEffect(() => {
@@ -30,15 +29,13 @@ function useTypewriter(text: string, cps = 48): { out: string; done: boolean } {
   return { out, done: out.length >= text.length };
 }
 
-/** 미니 스파크라인 (0~100 정규화, non-scaling stroke) */
+/** 미니 스파크라인 */
 function Spark({ data, color }: { data: number[]; color: string }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
-  const span = data.length - 1 || 1; // 단일 점일 때 0 division(NaN) 방지
-  const pts = data
-    .map((v, i) => `${(i / span) * 100},${26 - ((v - min) / range) * 22 - 2}`)
-    .join(' ');
+  const span = data.length - 1 || 1;
+  const pts = data.map((v, i) => `${(i / span) * 100},${26 - ((v - min) / range) * 22 - 2}`).join(' ');
   return (
     <svg viewBox="0 0 100 26" preserveAspectRatio="none" className="h-6 w-full">
       <polyline
@@ -54,107 +51,130 @@ function Spark({ data, color }: { data: number[]; color: string }) {
   );
 }
 
-function TrendIcon({ trend, color }: { trend: 'up' | 'down' | 'flat'; color: string }) {
+function TrendIcon({ trend }: { trend: 'up' | 'down' | 'flat' }) {
   const C = trend === 'up' ? ArrowUpRight : trend === 'down' ? ArrowDownRight : Minus;
+  const color = trend === 'down' ? CONSOLE.down : CONSOLE.done;
   return <C className="h-3.5 w-3.5" style={{ color }} />;
+}
+
+/** 콘솔 카드 래퍼 */
+function Panel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('rounded-[3px] border', className)} style={{ borderColor: CONSOLE.hair, background: CONSOLE.card }}>
+      {children}
+    </div>
+  );
+}
+
+/** 대문자 마이크로 라벨 */
+function Micro({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-center gap-1.5 text-[9.5px] font-medium uppercase tracking-wider" style={{ color: CONSOLE.textMicro }}>
+      {children}
+    </p>
+  );
 }
 
 /** agent 포커스 — 4요소 */
 function AgentFocus({ script }: { script: FocusScript }) {
   const lang = useLang();
   const group = groupById(script.groupId);
-  const color = group?.color ?? AL.accent;
-  // focus 키를 thinking 타이핑 재생 트리거로 사용
+  const tick = mutedTick(group?.color ?? CONSOLE.accent);
   const { out: typed, done: typedDone } = useTypewriter(pick(script.thinking, lang));
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full flex-col gap-2.5">
       {/* 헤더 */}
       <div className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}` }} />
-        <p className="text-[13px] font-semibold text-zinc-100">
+        <span className="h-3 w-[2px]" style={{ background: tick }} />
+        <p className="text-[12.5px] font-semibold" style={{ color: CONSOLE.text }}>
           {group ? pick(group.label, lang) : ''}
-          <span className="text-zinc-500"> › </span>
+          <span style={{ color: CONSOLE.textMicro }}> › </span>
           {group ? pick(group.subs[script.subIndex], lang) : ''}
         </p>
         <span
-          className="ml-auto rounded-md px-2 py-0.5 text-[10px] font-medium"
-          style={{ background: `${color}22`, color }}
+          className="ml-auto rounded-[3px] px-1.5 py-0.5 text-[9.5px] font-medium uppercase tracking-wide"
+          style={{ background: CONSOLE.accentFill, color: CONSOLE.accent }}
         >
-          {pick({ ko: '분석중', en: 'Working' }, lang)}
+          {pick({ ko: '실행중', en: 'Working' }, lang)}
         </span>
       </div>
 
       {/* ① thinking 토큰 스트림 */}
-      <div className="rounded-lg border px-3 py-2.5" style={{ borderColor: AL.border, background: 'rgba(255,255,255,0.02)' }}>
-        <p className="min-h-[2.6em] text-[12.5px] leading-relaxed text-zinc-300">
+      <Panel className="px-3 py-2.5">
+        <p className="min-h-[2.6em] text-[12px] leading-relaxed" style={{ color: CONSOLE.textDim }}>
           {typed}
           {!typedDone && (
-            <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse" style={{ background: color }} />
+            <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse" style={{ background: CONSOLE.accent }} />
           )}
         </p>
-      </div>
+      </Panel>
 
-      {/* ② tool call / 데이터 소스 */}
-      <div className="rounded-lg border p-2.5" style={{ borderColor: AL.border, background: 'rgba(255,255,255,0.02)' }}>
-        <p className="mb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-zinc-500">
+      {/* ② tool call */}
+      <Panel className="p-2.5">
+        <Micro>
           <Terminal className="h-3 w-3" /> {pick({ ko: '데이터 호출', en: 'Tool calls' }, lang)}
-        </p>
-        <div className="space-y-1">
+        </Micro>
+        <div className="mt-1.5 space-y-1">
           {script.tools.map((t, i) => (
             <motion.div
               key={t}
               initial={{ opacity: 0, x: -6 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25 + i * 0.32 }}
-              className="flex items-center gap-1.5 font-mono text-[11.5px] text-zinc-300"
+              className="flex items-center gap-1.5 font-mono text-[11px]"
+              style={{ color: CONSOLE.textDim }}
             >
-              <span style={{ color }}>▸</span>
+              <span style={{ color: CONSOLE.accent }}>▸</span>
               <span className="truncate">{t}</span>
             </motion.div>
           ))}
         </div>
-      </div>
+      </Panel>
 
       {/* ③ 중간 산출물 */}
-      <div className="rounded-lg border p-2.5" style={{ borderColor: AL.border, background: 'rgba(255,255,255,0.02)' }}>
+      <Panel className="p-2.5">
         <div className="flex items-center gap-2">
           <div className="flex-1">
-            <p className="text-[10px] uppercase tracking-wider text-zinc-500">{pick(script.metric.label, lang)}</p>
-            <p className="flex items-center gap-1 font-mono text-[18px] font-semibold leading-tight text-zinc-100">
+            <Micro>{pick(script.metric.label, lang)}</Micro>
+            <p className="flex items-center gap-1 font-mono text-[17px] font-semibold leading-tight" style={{ color: CONSOLE.text }}>
               {script.metric.value}
-              <TrendIcon trend={script.metric.trend} color={script.metric.trend === 'down' ? AL.down : AL.up} />
+              <TrendIcon trend={script.metric.trend} />
             </p>
           </div>
           <div className="w-24">
-            <Spark data={script.spark} color={color} />
+            <Spark data={script.spark} color={CONSOLE.accent} />
           </div>
         </div>
         <span
-          className="mt-1.5 inline-block rounded-md px-2 py-0.5 text-[10.5px] font-medium"
-          style={{ background: `${color}1f`, color }}
+          className="mt-1.5 inline-block rounded-[3px] px-1.5 py-0.5 text-[10px] font-medium"
+          style={{ background: CONSOLE.accentFill, color: CONSOLE.accent }}
         >
           {pick(script.signal, lang)}
         </span>
-      </div>
+      </Panel>
 
       {/* ④ 근거 체인 */}
-      <div className="mt-auto rounded-lg border p-2.5" style={{ borderColor: AL.border, background: 'rgba(255,255,255,0.02)' }}>
+      <Panel className="mt-auto p-2.5">
         <div className="flex flex-wrap items-center gap-1.5">
           {script.evidence.sources.map((s) => (
-            <span key={pick(s, 'en')} className="rounded-md bg-white/[0.05] px-2 py-0.5 text-[10.5px] text-zinc-300">
+            <span
+              key={pick(s, 'en')}
+              className="rounded-[3px] px-1.5 py-0.5 font-mono text-[10px]"
+              style={{ background: 'rgba(255,255,255,0.04)', color: CONSOLE.textDim }}
+            >
               {pick(s, lang)}
             </span>
           ))}
         </div>
-        <p className="mt-1.5 flex items-center gap-1 text-[10.5px] font-medium text-emerald-300">
+        <p className="mt-1.5 flex items-center gap-1 text-[10px] font-medium" style={{ color: CONSOLE.done }}>
           <ShieldCheck className="h-3 w-3" />
           {pick(
             { ko: `${script.evidence.crossChecks}개 소스 교차확인`, en: `Cross-checked across ${script.evidence.crossChecks} sources` },
             lang,
           )}
         </p>
-      </div>
+      </Panel>
     </div>
   );
 }
@@ -166,15 +186,15 @@ function StageFocusView({ stage }: { stage: 'routing' | 'verifying' | 'synthesis
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="flex h-12 w-12 items-center justify-center rounded-xl"
-        style={{ background: AL.accentSoft, color: AL.accent }}
+        className="flex h-11 w-11 items-center justify-center rounded-[4px]"
+        style={{ background: CONSOLE.accentFill, color: CONSOLE.accent, border: `1px solid ${CONSOLE.accentBorder}` }}
       >
-        <Cpu className="h-6 w-6" />
+        <Cpu className="h-5 w-5" />
       </motion.div>
-      <p className="text-[14px] font-semibold text-zinc-100">{pick(s.title, lang)}</p>
-      <p className="max-w-[280px] text-[12px] leading-relaxed text-zinc-400">{pick(s.body, lang)}</p>
+      <p className="text-[13.5px] font-semibold" style={{ color: CONSOLE.text }}>{pick(s.title, lang)}</p>
+      <p className="max-w-[280px] text-[12px] leading-relaxed" style={{ color: CONSOLE.textDim }}>{pick(s.body, lang)}</p>
     </div>
   );
 }
@@ -183,7 +203,7 @@ function StageFocusView({ stage }: { stage: 'routing' | 'verifying' | 'synthesis
 function IdleView() {
   const lang = useLang();
   return (
-    <div className="flex h-full items-center justify-center px-6 text-center text-[12px] leading-relaxed text-zinc-600">
+    <div className="flex h-full items-center justify-center px-6 text-center text-[12px] leading-relaxed" style={{ color: CONSOLE.textMicro }}>
       {pick(
         { ko: '분석 시작을 누르면 각 에이전트의 사고 과정이 여기에 표시됩니다.', en: "Press Run to stream each agent's reasoning here." },
         lang,
@@ -213,11 +233,11 @@ export function FocusPanel({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn('flex min-h-0 flex-col rounded-xl border p-3.5', className)}
-      style={{ borderColor: AL.border, background: AL.cardBg }}
+      className={cn('flex min-h-0 flex-col rounded-[4px] border p-3.5', className)}
+      style={{ borderColor: CONSOLE.hair, background: CONSOLE.panel }}
     >
-      <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-        <Cpu className="h-3.5 w-3.5 text-violet-400" /> {pick({ ko: '에이전트 포커스', en: 'Agent focus' }, lang)}
+      <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider" style={{ color: CONSOLE.textMicro }}>
+        <Cpu className="h-3.5 w-3.5" style={{ color: CONSOLE.accent }} /> {pick({ ko: '에이전트 포커스', en: 'Agent focus' }, lang)}
       </p>
       <div className="relative min-h-0 flex-1">
         <AnimatePresence mode="wait">
