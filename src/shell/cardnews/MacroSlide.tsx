@@ -66,6 +66,7 @@ function Viz({ viz }: { viz: MacroViz }) {
 const base: React.CSSProperties = {
   width: MACRO_W, height: MACRO_H, background: '#0A0D11', color: '#ECEEF1', fontFamily: SANS,
   padding: '84px 76px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+  textAlign: 'left',
 };
 
 export const MacroSlide = forwardRef<HTMLDivElement, { slide: MacroSlideT; meta?: string }>(({ slide: s, meta }, ref) => {
@@ -281,7 +282,7 @@ export const MacroSlide = forwardRef<HTMLDivElement, { slide: MacroSlideT; meta?
     case 'm-twitter': {
       const tw: React.CSSProperties = {
         width: 1920, height: 1080, background: '#0A0D11', color: '#ECEEF1', fontFamily: SANS,
-        boxSizing: 'border-box', position: 'relative', overflow: 'hidden', display: 'flex',
+        boxSizing: 'border-box', position: 'relative', overflow: 'hidden', display: 'flex', textAlign: 'left',
       };
       inner = (
         <div style={tw}>

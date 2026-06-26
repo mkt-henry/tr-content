@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X, ZoomIn } from 'lucide-react';
-import type { CardNewsDeck, Slide as ResearchSlideData, MacroSlide as MacroSlideData } from '../../cardnews/types';
+import type { CardNewsDeck, Lang, Slide as ResearchSlideData, MacroSlide as MacroSlideData } from '../../cardnews/types';
 import { getVariants } from '../../cardnews/types';
 import { toLang } from '../../cardnews/lang';
 import { useShellStore } from '../../store/shellStore';
@@ -15,11 +15,11 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const setProjectLang = useShellStore((s) => s.setProjectLang);
   const project = getProject(deck.project);
   const langs = project?.languages ?? [{ id: 'ko', label: '한국어', flag: '🇰🇷' }, { id: 'en', label: 'English', flag: '🇺🇸' }];
-  const lang = toLang(projectLang[deck.project]);
+  const isMacro = deck.theme === 'macro';
+  // 언어 미설정 시 기본값: macro(영어 슬라이드)는 'en', research는 'ko'. 캡션·제목이 슬라이드 언어와 어긋나지 않게.
+  const lang: Lang = projectLang[deck.project] ? toLang(projectLang[deck.project]) : (isMacro ? 'en' : 'ko');
   const accent = deck.accent ?? '#c2a35a';
   const brand = project?.name ?? deck.project;
-
-  const isMacro = deck.theme === 'macro';
 
   // 플랫폼 variant(링크드인/트위터 등). 단일 덱은 라벨 없는 단일 variant로 정규화됨
   const variants = getVariants(deck);
@@ -31,7 +31,9 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const H = variant.height;
   const dims = { width: W, height: H };
   const total = variant.slides.length;
-  const caption = variant.caption;
+  // 언어별 본문(LangText)이면 현재 언어로 전환, 단일 문자열이면 그대로
+  const rawCaption = variant.caption;
+  const caption = typeof rawCaption === 'string' ? rawCaption : rawCaption?.[lang];
   const fileLang = isMacro ? 'en' : lang;
   const exportId = multi ? `${deck.id}-${variant.id}` : deck.id;
   const captionTitle = multi ? `${variant.label} 본문` : (W > H ? 'X(트위터) 본문' : '링크드인 본문');
@@ -114,18 +116,15 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
           <ArrowLeft className="h-4 w-4" /> 갤러리
         </button>
         <span className="text-sm font-medium text-zinc-300">{deck.title[lang]}</span>
-        {isMacro ? (
-          <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[12px] font-medium text-zinc-400">🇺🇸 EN</span>
-        ) : (
-          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
-            {langs.map((l) => (
-              <button key={l.id} onClick={() => setProjectLang(deck.project, l.id)}
-                className={`rounded-lg px-2.5 py-1.5 text-[12px] font-medium ${l.id === lang ? 'bg-violet-500/20 text-violet-200' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                {l.flag} {l.id.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1"
+          title={isMacro ? '슬라이드는 영어 고정 · 토글은 게시 본문·제목 언어' : undefined}>
+          {langs.map((l) => (
+            <button key={l.id} onClick={() => setProjectLang(deck.project, l.id)}
+              className={`rounded-lg px-2.5 py-1.5 text-[12px] font-medium ${l.id === lang ? 'bg-violet-500/20 text-violet-200' : 'text-zinc-500 hover:text-zinc-300'}`}>
+              {l.flag} {l.id.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 플랫폼 토글 (멀티 variant일 때만) */}

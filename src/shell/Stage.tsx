@@ -28,7 +28,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const includeOutro = useShellStore((s) => s.includeOutro);
   const projectId = getProjectIdOfFeature(feature.id);
   const branding = getBranding(projectId);
-  const mobileOnly = !!(projectId && getProject(projectId)?.mobileOnly);
+  const project = projectId ? getProject(projectId) : undefined;
+  const mobileOnly = !!project?.mobileOnly;
+  const adAspect = project?.adAspect ?? '9/16';
   const device = mobileOnly ? 'mobile' : rawDevice;
   const { recording, countdown, supported: canRecord, recordSequence } = useRecorder();
   const lang = projectId ? projectLang[projectId] : undefined;
@@ -100,15 +102,21 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
 
   const handleRecord = useCallback(() => {
     if (runningRef.current) return; // 진행 중 시퀀스가 있으면 빈 녹화 방지
-    const [targetWidth, targetHeight] = device === 'mobile' ? [1080, 1920] : [1920, 1080];
+    // 모바일: cover 크롭 — adAspect '3/4'(광고 규격) 또는 9:16(릴스/숏츠).
+    // 데스크탑: 모바일 업로드용 3:4 세로 프레임에 여백 포함(contain).
+    const opts =
+      device === 'mobile'
+        ? adAspect === '3/4'
+          ? { targetWidth: 1080, targetHeight: 1440, fit: 'cover' as const }
+          : { targetWidth: 1080, targetHeight: 1920, fit: 'cover' as const }
+        : { targetWidth: 1080, targetHeight: 1440, fit: 'contain' as const, background: '#08070a' };
     void recordSequence({
       stageEl: stageRef.current,
       filename: recFilename,
       runSequence: () => handlePlay(),
-      targetWidth,
-      targetHeight,
+      ...opts,
     });
-  }, [recordSequence, recFilename, handlePlay, device]);
+  }, [recordSequence, recFilename, handlePlay, device, adAspect]);
 
   // 변형/디바이스/언어 전환 시 정지 + 리셋
   useEffect(() => {
@@ -254,6 +262,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             durationMs={seqPhase === 'intro' ? branding.introMs : branding.outroMs}
             onDone={onPhaseDone}
             portrait={device === 'mobile'}
+            portraitAspect={adAspect}
           />
         )}
       </AnimatePresence>

@@ -4,6 +4,9 @@ export type LangText = Record<Lang, string>;
 
 export type Tone = 'up' | 'down' | 'gold' | 'cyan' | 'neutral';
 
+/** 게시용 본문 — 단일 문자열(언어 무관) 또는 언어별 본문(한/영 토글에 따라 전환) */
+export type Caption = string | LangText;
+
 export interface ContrastBox {
   label: LangText;
   text: LangText;
@@ -88,7 +91,7 @@ export interface DeckVariant {
   width?: number;
   height?: number;
   /** 게시용 본문 — 미지정 시 덱 caption */
-  caption?: string;
+  caption?: Caption;
   slides: AnySlide[];
 }
 
@@ -104,8 +107,8 @@ export interface CardNewsDeck {
   /** 슬라이드 픽셀 크기. 기본 1080×1080 */
   width?: number;
   height?: number;
-  /** 게시용 본문(링크드인 캡션 등) — 뷰어에서 확인·복사 */
-  caption?: string;
+  /** 게시용 본문(링크드인 캡션 등) — 뷰어에서 확인·복사. 언어별 본문은 LangText로 */
+  caption?: Caption;
   /** 단일 플랫폼 덱. variants를 쓰면 생략 */
   slides?: AnySlide[];
   /** 멀티 플랫폼(링크드인+트위터 등). 있으면 뷰어가 플랫폼 토글을 노출 */
@@ -118,7 +121,7 @@ export interface ResolvedVariant {
   label: string;
   width: number;
   height: number;
-  caption?: string;
+  caption?: Caption;
   slides: AnySlide[];
 }
 

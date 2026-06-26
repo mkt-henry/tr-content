@@ -48,24 +48,30 @@ function TreazerIntro() {
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
+      {/* 로고 뒤 은은한 글로우 — 다크 배경에서 워드마크를 띄워 가독성 확보 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute h-[260px] w-[260px] rounded-full blur-[60px]"
+        style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.22) 0%, transparent 70%)' }}
+      />
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center text-center"
+        className="relative z-10 flex flex-col items-center text-center"
       >
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <DarkWordmark className="text-[44px]" />
+          <DarkWordmark className="text-[64px] drop-shadow-[0_2px_24px_rgba(0,0,0,0.5)]" />
         </motion.div>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.55, duration: 0.5 }}
-          className="mt-2 text-[13px] font-medium tracking-[0.15em] text-amber-300/80"
+          className="mt-3 text-[15px] font-semibold uppercase tracking-[0.22em] text-amber-300"
         >
           LEARN &amp; EARN GOLD
         </motion.p>
@@ -81,14 +87,20 @@ function TreazerOutro() {
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{ background: TZ_BACKGROUND.css }}
     >
+      {/* 로고 뒤 은은한 글로우 — 다크 배경에서 워드마크를 띄워 가독성 확보 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute h-[260px] w-[260px] rounded-full blur-[60px]"
+        style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.22) 0%, transparent 70%)' }}
+      />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
         className="relative z-10 flex flex-col items-center text-center"
       >
-        <DarkWordmark className="text-[44px]" />
-        <p className="mt-2 text-[13px] font-medium tracking-[0.15em] text-amber-300/80">LEARN &amp; EARN GOLD</p>
+        <DarkWordmark className="text-[64px] drop-shadow-[0_2px_24px_rgba(0,0,0,0.5)]" />
+        <p className="mt-3 text-[15px] font-semibold uppercase tracking-[0.22em] text-amber-300">LEARN &amp; EARN GOLD</p>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
