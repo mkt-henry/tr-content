@@ -113,6 +113,7 @@ export function Desktop(_: DemoComponentProps) {
             thinking={left.thinking}
             lang={lang}
             accent={NEUTRAL}
+            accentLight="#cbd5e1"
             gradientId="gen"
           />
 
