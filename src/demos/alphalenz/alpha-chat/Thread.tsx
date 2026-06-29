@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, BarChart3 } from 'lucide-react';
 import { Area, AreaChart, ResponsiveContainer, XAxis } from 'recharts';
@@ -47,7 +47,7 @@ export function ChatThread({
     <div ref={scrollRef} className="demo-scroll min-h-0 flex-1 overflow-y-auto">
       {messages.length === 0 ? (
         <div className={cn('flex h-full flex-col items-center justify-center gap-6 px-6', compact && 'gap-4')}>
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-300">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: hexToRgba(accent, 0.15), color: hexToRgba(accent, 0.75) }}>
             <Sparkles className="h-6 w-6" />
           </div>
           <div className="text-center">
@@ -78,11 +78,11 @@ export function ChatThread({
           ))}
           {thinking && (
             <div className="flex items-center gap-2.5">
-              <Avatar />
+              <Avatar accent={accent} />
               <div className="flex items-center gap-1 rounded-2xl bg-white/[0.05] px-4 py-3">
-                <span className="thinking-dot h-1.5 w-1.5 rounded-full bg-violet-300" />
-                <span className="thinking-dot h-1.5 w-1.5 rounded-full bg-violet-300" />
-                <span className="thinking-dot h-1.5 w-1.5 rounded-full bg-violet-300" />
+                <span className="thinking-dot h-1.5 w-1.5 rounded-full" style={{ background: hexToRgba(accent, 0.9) }} />
+                <span className="thinking-dot h-1.5 w-1.5 rounded-full" style={{ background: hexToRgba(accent, 0.9) }} />
+                <span className="thinking-dot h-1.5 w-1.5 rounded-full" style={{ background: hexToRgba(accent, 0.9) }} />
               </div>
             </div>
           )}
@@ -96,9 +96,12 @@ export function ChatThread({
 // 내부 서브컴포넌트 (Thread.tsx 전용)
 // ---------------------------------------------------------------------------
 
-function Avatar() {
+function Avatar({ accent }: { accent: string }) {
   return (
-    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-500/20 text-violet-300">
+    <div
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+      style={{ background: hexToRgba(accent, 0.2), color: hexToRgba(accent, 0.85) }}
+    >
       <Sparkles className="h-3.5 w-3.5" />
     </div>
   );
@@ -131,7 +134,7 @@ function MessageBubble({
   }
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5">
-      <Avatar />
+      <Avatar accent={accent} />
       <div className="min-w-0 flex-1">
         <div
           className={cn(
