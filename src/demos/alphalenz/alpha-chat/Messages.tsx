@@ -12,6 +12,7 @@ export function Messages({ compact }: { compact?: boolean }) {
     <ChatThread
       messages={messages}
       thinking={thinking}
+      lang={lang}
       compact={compact}
       suggested={suggested(lang)}
       onSuggest={send}

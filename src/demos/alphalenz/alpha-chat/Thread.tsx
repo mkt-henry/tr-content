@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, BarChart3 } from 'lucide-react';
 import { Area, AreaChart, ResponsiveContainer, XAxis } from 'recharts';
 import type { ChatMessage } from './state';
-import { pick, useLang } from '../_shared/i18n';
+import { pick, type Lang } from '../_shared/i18n';
 import { STR, type Answer } from './data';
 import { AL } from '../_shared/theme';
 import { cn } from '../../../lib/cn';
@@ -11,6 +11,8 @@ import { cn } from '../../../lib/cn';
 export interface ChatThreadProps {
   messages: ChatMessage[];
   thinking: boolean;
+  /** UI 표시 언어. 어댑터(Messages.tsx)가 useLang()으로 주입함 */
+  lang: Lang;
   /** 기본값 AL.accent — 사용자/어시스턴트 버블·아바타·근거카드 강조색 */
   accent?: string;
   compact?: boolean;
@@ -18,18 +20,21 @@ export interface ChatThreadProps {
   suggested?: string[];
   /** 추천 질문 클릭 핸들러. suggested가 있을 때만 사용 */
   onSuggest?: (q: string) => void;
+  /** SVG 그래디언트 ID 접두어. 동일 페이지에 여러 인스턴스가 있을 때 충돌 방지 (기본 'alpha') */
+  gradientId?: string;
 }
 
 /** 스토어 비의존 채팅 표현 컴포넌트. props만으로 구동됨. */
 export function ChatThread({
   messages,
   thinking,
+  lang,
   accent = AL.accent,
   compact,
   suggested: suggestedList,
   onSuggest,
+  gradientId = 'alpha',
 }: ChatThreadProps): JSX.Element {
-  const lang = useLang();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 새 콘텐츠가 생기면 맨 아래로
@@ -69,7 +74,7 @@ export function ChatThread({
       ) : (
         <div className={cn('mx-auto flex max-w-2xl flex-col gap-5 px-5 py-6', compact && 'gap-4 px-4 py-4')}>
           {messages.map((m) => (
-            <MessageBubble key={m.id} message={m} compact={compact} accent={accent} />
+            <MessageBubble key={m.id} message={m} compact={compact} accent={accent} lang={lang} gradientId={gradientId} />
           ))}
           {thinking && (
             <div className="flex items-center gap-2.5">
@@ -103,10 +108,14 @@ function MessageBubble({
   message: m,
   compact,
   accent,
+  lang,
+  gradientId,
 }: {
   message: ChatMessage;
   compact?: boolean;
   accent: string;
+  lang: Lang;
+  gradientId: string;
 }) {
   if (m.role === 'user') {
     return (
@@ -132,7 +141,7 @@ function MessageBubble({
         >
           {m.text}
         </div>
-        {m.answer && <EvidenceCard answer={m.answer} compact={compact} accent={accent} />}
+        {m.answer && <EvidenceCard answer={m.answer} compact={compact} accent={accent} lang={lang} gradientId={gradientId} />}
       </div>
     </motion.div>
   );
@@ -142,12 +151,15 @@ function EvidenceCard({
   answer,
   compact,
   accent,
+  lang,
+  gradientId,
 }: {
   answer: Answer;
   compact?: boolean;
   accent: string;
+  lang: Lang;
+  gradientId: string;
 }) {
-  const lang = useLang();
 
   // accent 기반 반투명 경계색 (원본: rgba(124,92,255,...))
   const border22 = hexToRgba(accent, 0.22);
@@ -191,11 +203,11 @@ function EvidenceCard({
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={answer.chart} margin={{ top: 6, right: 4, bottom: 0, left: 4 }}>
                 <defs>
-                  <linearGradient id="alphaRev" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id={`${gradientId}Rev`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={accent} stopOpacity={0.5} />
                     <stop offset="100%" stopColor={accent} stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="alphaProfit" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id={`${gradientId}Profit`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={AL.cyan} stopOpacity={0.45} />
                     <stop offset="100%" stopColor={AL.cyan} stopOpacity={0} />
                   </linearGradient>
@@ -211,7 +223,7 @@ function EvidenceCard({
                   dataKey="revenue"
                   stroke={accent}
                   strokeWidth={1.6}
-                  fill="url(#alphaRev)"
+                  fill={`url(#${gradientId}Rev)`}
                   isAnimationActive
                 />
                 <Area
@@ -219,7 +231,7 @@ function EvidenceCard({
                   dataKey="profit"
                   stroke={AL.cyan}
                   strokeWidth={1.6}
-                  fill="url(#alphaProfit)"
+                  fill={`url(#${gradientId}Profit)`}
                   isAnimationActive
                 />
               </AreaChart>
