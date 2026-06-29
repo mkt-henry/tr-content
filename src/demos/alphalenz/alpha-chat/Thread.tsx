@@ -21,6 +21,13 @@ export interface ChatThreadProps {
    * vs-genai 좌측(범용) 패널은 중립색(예: '#cbd5e1')을 전달.
    */
   accentLight?: string;
+  /**
+   * 아바타·빈-상태 아이콘 컨테이너 BACKGROUND 기반색.
+   * 기본값 '#8b5cf6' (Tailwind violet-500) — alpha-chat 원본 bg-violet-500/20·/15 재현.
+   * vs-genai 좌측(범용) 패널은 중립색 '#94a3b8' (slate-400)을 전달.
+   * (foreground 색상은 accentLight로 별도 제어)
+   */
+  accentBg?: string;
   compact?: boolean;
   /** empty-state 추천 질문. 생략 시 메시지 없으면 빈 영역만 표시 */
   suggested?: string[];
@@ -37,6 +44,7 @@ export function ChatThread({
   lang,
   accent = AL.accent,
   accentLight = '#c4b5fd',
+  accentBg = '#8b5cf6',
   compact,
   suggested: suggestedList,
   onSuggest,
@@ -54,7 +62,7 @@ export function ChatThread({
     <div ref={scrollRef} className="demo-scroll min-h-0 flex-1 overflow-y-auto">
       {messages.length === 0 ? (
         <div className={cn('flex h-full flex-col items-center justify-center gap-6 px-6', compact && 'gap-4')}>
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: hexToRgba(accent, 0.15), color: accentLight }}>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: hexToRgba(accentBg, 0.15), color: accentLight }}>
             <Sparkles className="h-6 w-6" />
           </div>
           <div className="text-center">
@@ -81,11 +89,11 @@ export function ChatThread({
       ) : (
         <div className={cn('mx-auto flex max-w-2xl flex-col gap-5 px-5 py-6', compact && 'gap-4 px-4 py-4')}>
           {messages.map((m) => (
-            <MessageBubble key={m.id} message={m} compact={compact} accent={accent} accentLight={accentLight} lang={lang} gradientId={gradientId} />
+            <MessageBubble key={m.id} message={m} compact={compact} accent={accent} accentLight={accentLight} accentBg={accentBg} lang={lang} gradientId={gradientId} />
           ))}
           {thinking && (
             <div className="flex items-center gap-2.5">
-              <Avatar accent={accent} accentLight={accentLight} />
+              <Avatar accent={accent} accentLight={accentLight} accentBg={accentBg} />
               <div className="flex items-center gap-1 rounded-2xl bg-white/[0.05] px-4 py-3">
                 <span className="thinking-dot h-1.5 w-1.5 rounded-full" style={{ background: accentLight }} />
                 <span className="thinking-dot h-1.5 w-1.5 rounded-full" style={{ background: accentLight }} />
@@ -103,11 +111,11 @@ export function ChatThread({
 // 내부 서브컴포넌트 (Thread.tsx 전용)
 // ---------------------------------------------------------------------------
 
-function Avatar({ accent, accentLight }: { accent: string; accentLight: string }) {
+function Avatar({ accentLight, accentBg }: { accent: string; accentLight: string; accentBg: string }) {
   return (
     <div
       className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-      style={{ background: hexToRgba(accent, 0.2), color: accentLight }}
+      style={{ background: hexToRgba(accentBg, 0.2), color: accentLight }}
     >
       <Sparkles className="h-3.5 w-3.5" />
     </div>
@@ -119,6 +127,7 @@ function MessageBubble({
   compact,
   accent,
   accentLight,
+  accentBg,
   lang,
   gradientId,
 }: {
@@ -126,6 +135,7 @@ function MessageBubble({
   compact?: boolean;
   accent: string;
   accentLight: string;
+  accentBg: string;
   lang: Lang;
   gradientId: string;
 }) {
@@ -143,7 +153,7 @@ function MessageBubble({
   }
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5">
-      <Avatar accent={accent} accentLight={accentLight} />
+      <Avatar accent={accent} accentLight={accentLight} accentBg={accentBg} />
       <div className="min-w-0 flex-1">
         <div
           className={cn(

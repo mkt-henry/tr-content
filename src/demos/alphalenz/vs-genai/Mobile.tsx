@@ -86,6 +86,7 @@ export function Mobile(_: DemoComponentProps) {
           lang={lang}
           accent={NEUTRAL}
           accentLight="#cbd5e1"
+          accentBg={NEUTRAL}
           gradientId="gen"
           compact
         />
