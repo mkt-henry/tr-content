@@ -15,6 +15,20 @@ export const DOCUMENTS: MatrixDoc[] = [
   { id: 'aviation', fileName: 'Aviation_Hull_Treaty_2025.pdf', type: 'Treaty' },
 ];
 
+/** 탐색기 표시용 더미 메타 (수정한 날짜·크기) */
+export interface ExplorerMeta {
+  modified: string;
+  size: string;
+}
+
+export const FILE_META: Record<string, ExplorerMeta> = {
+  propcat: { modified: '2026-06-28', size: '2.4 MB' },
+  marine: { modified: '2026-06-27', size: '1.1 MB' },
+  casualty: { modified: '2026-06-25', size: '3.8 MB' },
+  energy: { modified: '2026-06-24', size: '1.7 MB' },
+  aviation: { modified: '2026-06-22', size: '2.9 MB' },
+};
+
 export interface MatrixColumn {
   id: string;
   /** 추출 항목(컬럼) 헤더 라벨 — 언어별 */
@@ -97,6 +111,25 @@ export const STR = {
   addColumn: { ko: '열 추가', en: 'Add column' },
   allColumnsAdded: { ko: '모든 열 추가됨', en: 'All columns added' },
   emptyHint: { ko: '열을 추가하면 ARIA가 자동 추출합니다', en: 'Add a column and ARIA extracts automatically' },
+  // 업로드/분석 (신규 플로우)
+  uploadCta: { ko: '문서 업로드', en: 'Upload documents' },
+  uploadHint: { ko: 'PDF 슬립·특약을 끌어다 놓거나 선택하세요', en: 'Drop or select PDF slips & wordings' },
+  analyzing: { ko: 'ARIA 분석 중…', en: 'ARIA analysing…' },
+  // OS 파일 탐색기
+  explorerTitle: { ko: '열기', en: 'Open' },
+  explorerFavorites: { ko: '즐겨찾기', en: 'Favourites' },
+  explorerFolder: { ko: 'Reinsurance', en: 'Reinsurance' },
+  explorerThisPc: { ko: '내 PC', en: 'This PC' },
+  explorerColName: { ko: '이름', en: 'Name' },
+  explorerColModified: { ko: '수정한 날짜', en: 'Date modified' },
+  explorerColType: { ko: '유형', en: 'Type' },
+  explorerColSize: { ko: '크기', en: 'Size' },
+  explorerPdfType: { ko: 'PDF 문서', en: 'PDF Document' },
+  explorerFileName: { ko: '파일 이름', en: 'File name' },
+  explorerOpen: { ko: '열기', en: 'Open' },
+  // 모바일 하단 시트
+  sheetTitle: { ko: '업로드할 문서 선택', en: 'Select documents to upload' },
+  sheetUpload: { ko: '업로드', en: 'Upload' },
 } satisfies Record<string, L>;
 
 /** 추출 완료 배지 문구 — 문서 수·항목 수 치환 */
