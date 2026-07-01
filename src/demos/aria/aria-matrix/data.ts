@@ -108,9 +108,6 @@ export const STR = {
   documents: { ko: '문서', en: 'Documents' },
   extracting: { ko: '추출 중', en: 'Extracting' },
   extractProgress: { ko: '추출', en: 'extracted' },
-  addColumn: { ko: '열 추가', en: 'Add column' },
-  allColumnsAdded: { ko: '모든 열 추가됨', en: 'All columns added' },
-  emptyHint: { ko: '열을 추가하면 ARIA가 자동 추출합니다', en: 'Add a column and ARIA extracts automatically' },
   // 업로드/분석 (신규 플로우)
   uploadCta: { ko: '문서 업로드', en: 'Upload documents' },
   uploadHint: { ko: 'PDF 슬립·특약을 끌어다 놓거나 선택하세요', en: 'Drop or select PDF slips & wordings' },
@@ -137,9 +134,4 @@ export function extractedSummary(lang: Lang, docs: number, cells: number): strin
   return lang === 'ko'
     ? `${docs}개 문서 · ${cells}개 항목 추출 완료`
     : `${docs} documents · ${cells} fields extracted`;
-}
-
-/** "열 추가: <항목>" 버튼 라벨 */
-export function addColumnLabel(lang: Lang, colLabel: string): string {
-  return lang === 'ko' ? `열 추가: ${colLabel}` : `Add column: ${colLabel}`;
 }

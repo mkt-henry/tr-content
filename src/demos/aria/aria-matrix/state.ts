@@ -24,10 +24,6 @@ interface MatrixState {
   openPopover: (docId: string, colId: string) => void;
   closePopover: () => void;
   reset: () => void;
-
-  // --- 전이 유지용 (Task 6까지 옛 시나리오가 참조; Task 7에서 제거) ---
-  nextColumn: () => string | null;
-  addColumn: () => void;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -123,30 +119,5 @@ export const useMatrix = create<MatrixState>((set, get) => ({
       cellStatus: {},
       popover: null,
     });
-  },
-
-  // --- 전이 유지용 (Task 7에서 제거) ---
-  nextColumn: () => {
-    const active = get().activeColumns;
-    return COLUMNS.find((c) => !active.includes(c.id))?.id ?? null;
-  },
-  addColumn: () => {
-    const colId = get().nextColumn();
-    if (!colId) return;
-    const id = runId;
-    const docs = get().uploadedDocs.length ? get().uploadedDocs : DOCUMENTS.map((d) => d.id);
-    set((s) => ({ activeColumns: [...s.activeColumns, colId] }));
-    void (async () => {
-      await sleep(300);
-      for (const doc of docs) {
-        if (id !== runId) return;
-        set((s) => ({ cellStatus: { ...s.cellStatus, [key(doc, colId)]: 'extracting' } }));
-      }
-      for (const doc of docs) {
-        await sleep(300);
-        if (id !== runId) return;
-        set((s) => ({ cellStatus: { ...s.cellStatus, [key(doc, colId)]: 'done' } }));
-      }
-    })();
   },
 }));
