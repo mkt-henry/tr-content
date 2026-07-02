@@ -1,48 +1,55 @@
 import type { Scenario } from '../../../engine/types';
 import { useMatrix } from './state';
+import { usePlaybackStore } from '../../../engine/playbackStore';
 
 const st = () => useMatrix.getState();
 
-// 열 1개 채움 ≈ 0.35s + 5×~0.54s ≈ 3.1s
-
-/** v1 — 일괄 추출 소구: 열을 연달아 추가하며 30개 항목이 채워지는 과정 */
-export const batchScenario: Scenario = {
-  id: 'matrix-batch',
+/** 업로드 → 자동 일괄 추출 → 원문 인용 검증 단일 통합 플로우 */
+export const uploadFlowScenario: Scenario = {
+  id: 'matrix-upload-flow',
   steps: [
-    { kind: 'wait', ms: 900 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // LoB
-    { kind: 'wait', ms: 3400 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Limit
-    { kind: 'wait', ms: 3400 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Deductible
-    { kind: 'wait', ms: 2200 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Rate
-    { kind: 'wait', ms: 2200 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Reinstatement
-    { kind: 'wait', ms: 2200 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Exclusions
-    { kind: 'wait', ms: 3800 },
-    { kind: 'wait', ms: 1500 },
-  ],
-};
-
-/** v2 — 인용 검증 소구: 추출 후 셀을 클릭해 원문 인용 패널 확인 */
-export const citedScenario: Scenario = {
-  id: 'matrix-cited',
-  steps: [
-    { kind: 'wait', ms: 900 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // LoB
-    { kind: 'wait', ms: 3400 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Limit
-    { kind: 'wait', ms: 3400 },
-    { kind: 'click', target: 'add-col-btn', run: () => st().addColumn() }, // Deductible
-    { kind: 'wait', ms: 3400 },
-    // 셀 클릭 → V7 스타일 원문 인용 패널
+    { kind: 'wait', ms: 700 },
+    // 1) 업로드 버튼으로 줌인 → 확대된 상태에서 클릭 → 줌아웃하면서 파일 선택창 등장
+    { kind: 'cursor', target: 'upload-btn', zoom: true, ms: 800 },
+    { kind: 'click', target: 'upload-btn', zoom: true },
+    { kind: 'wait', ms: 220 },
+    { kind: 'do', run: () => { usePlaybackStore.getState().setSpotlight(null); st().openExplorer(); } },
+    { kind: 'wait', ms: 550 },
+    // 2) PDF 5개 다중 선택 — 커서가 목록을 훑으며 하나씩 선택(사람이 고르는 리듬으로)
+    { kind: 'cursor', target: 'file-propcat', ms: 420 },
+    { kind: 'do', run: () => st().toggleFileSelect('propcat') },
+    { kind: 'wait', ms: 300 },
+    { kind: 'cursor', target: 'file-marine', ms: 340 },
+    { kind: 'do', run: () => st().toggleFileSelect('marine') },
+    { kind: 'wait', ms: 300 },
+    { kind: 'cursor', target: 'file-casualty', ms: 340 },
+    { kind: 'do', run: () => st().toggleFileSelect('casualty') },
+    { kind: 'wait', ms: 300 },
+    { kind: 'cursor', target: 'file-energy', ms: 340 },
+    { kind: 'do', run: () => st().toggleFileSelect('energy') },
+    { kind: 'wait', ms: 300 },
+    { kind: 'cursor', target: 'file-aviation', ms: 340 },
+    { kind: 'do', run: () => st().toggleFileSelect('aviation') },
+    { kind: 'wait', ms: 420 },
+    // 3) 열기 → 업로드 → (자동) 분석
+    { kind: 'click', target: 'explorer-open-btn', run: () => st().confirmUpload() },
+    { kind: 'waitFor', check: () => st().phase === 'analyzing' || st().phase === 'done', timeoutMs: 6000 },
+    { kind: 'wait', ms: 500 },
+    { kind: 'waitFor', check: () => st().phase === 'done', timeoutMs: 40000 },
+    { kind: 'wait', ms: 700 },
+    // 4) 소스 확인 — 셀 클릭 → 우측 패널 열림 → 스포트라이트 마스크로 핵심 영역 강조(줌 없음)
     { kind: 'click', target: 'cell-propcat-limit', run: () => st().openPopover('propcat', 'limit') },
-    { kind: 'wait', ms: 3200 },
+    { kind: 'wait', ms: 600 },
+    { kind: 'cursor', target: 'citation-panel-clause', ms: 650 },
+    { kind: 'do', run: () => st().setFocus('citation-panel-page') },
+    { kind: 'wait', ms: 2600 },
+    { kind: 'do', run: () => st().setFocus(null) },
     { kind: 'click', target: 'cell-casualty-deductible', run: () => st().openPopover('casualty', 'deductible') },
-    { kind: 'wait', ms: 3200 },
-    { kind: 'do', run: () => st().closePopover() },
-    { kind: 'wait', ms: 1000 },
+    { kind: 'wait', ms: 600 },
+    { kind: 'cursor', target: 'citation-panel-clause', ms: 650 },
+    { kind: 'do', run: () => st().setFocus('citation-panel-page') },
+    { kind: 'wait', ms: 2600 },
+    { kind: 'do', run: () => { st().setFocus(null); st().closePopover(); } },
+    { kind: 'wait', ms: 1200 },
   ],
 };

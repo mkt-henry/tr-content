@@ -4,6 +4,7 @@ import { Desktop } from './Desktop';
 import { Mobile } from './Mobile';
 import { useRenewalReport } from './state';
 import { renewalReportScenario } from './scenario';
+import { POSTS } from './posts';
 
 const BACKGROUND = {
   kind: 'gradient' as const,
@@ -23,6 +24,7 @@ const renewalReport: FeatureDefinition = {
   Desktop,
   Mobile,
   resetState: () => useRenewalReport.getState().reset(),
+  posts: POSTS,
   variants: [
     {
       id: 'flow',

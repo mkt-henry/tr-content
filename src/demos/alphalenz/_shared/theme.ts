@@ -25,6 +25,26 @@ export const AL = {
   down: '#f43f5e',
 } as const;
 
+/**
+ * Palantir그레이드 콘솔 팔레트 — 멀티에이전트 데모 전용.
+ * near-black 블루그레이 + 헤어라인 + 단일 인디고 액센트. 글로우/무지개 금지.
+ */
+export const CONSOLE = {
+  bg: '#0a0c12',
+  panel: '#11141c',
+  card: 'rgba(255,255,255,0.022)',
+  hair: 'rgba(255,255,255,0.07)',
+  line: 'rgba(255,255,255,0.10)',
+  accent: '#6366f1',
+  accentFill: 'rgba(99,102,241,0.12)',
+  accentBorder: 'rgba(99,102,241,0.55)',
+  done: '#5e9c83',
+  down: '#c2607a',
+  text: '#e4e4e7',
+  textDim: '#a1a1aa',
+  textMicro: '#71717a',
+} as const;
+
 /** 데모 variant용 배경 그라디언트 (퍼플 소구) */
 export const purpleBg: DemoBackground = {
   kind: 'gradient',

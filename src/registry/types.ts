@@ -18,6 +18,21 @@ export interface DemoComponentProps {
   device: DeviceMode;
 }
 
+/** 언어별 텍스트 (ko/en 등) */
+export type LangText = Record<string, string>;
+
+/** 데모 영상의 배포용 게시 카피 한 블록 (유튜브 제목/설명·링크드인 본문 등) */
+export interface DistributionPost {
+  /** 플랫폼 — 칩 색·라벨 결정 */
+  platform: 'youtube' | 'linkedin';
+  /** 패널 섹션 라벨 (예: 제목 / 설명 / 본문) */
+  label: LangText;
+  /** 게시 본문 — 언어별로 자연스럽게 작성(직역 아님) */
+  text: LangText;
+  /** 글자 수 상한 힌트 (예: 유튜브 제목 100). 넘으면 카운터가 경고색 */
+  limit?: number;
+}
+
 /** 한 기능의 한 변형 = 버전 × 소구점 */
 export interface DemoVariant {
   id: string;
@@ -44,4 +59,6 @@ export interface FeatureDefinition {
   /** 데모 store 초기화 — 재생/리셋 시 호출 */
   resetState: () => void;
   variants: DemoVariant[];
+  /** 데모 영상 배포용 게시 카피(유튜브·링크드인). 있으면 컨트롤 바에 "게시 본문" 버튼 노출 */
+  posts?: DistributionPost[];
 }

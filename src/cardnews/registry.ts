@@ -22,6 +22,14 @@ for (const mod of Object.values(modules)) {
   }
 }
 
+/** date 내림차순(최신순). 동일 날짜는 id 역순으로 안정 정렬 */
+function byDateDesc(a: CardNewsDeck, b: CardNewsDeck): number {
+  return b.date.localeCompare(a.date) || b.id.localeCompare(a.id);
+}
+
+for (const list of decksByProject.values()) list.sort(byDateDesc);
+allDecks.sort(byDateDesc);
+
 export function getDecksByProject(projectId: string): CardNewsDeck[] {
   return decksByProject.get(projectId) ?? [];
 }

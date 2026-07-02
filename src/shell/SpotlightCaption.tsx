@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 import { usePlaybackStore } from '../engine/playbackStore';
 import { CAMERA_LAYER_ATTR } from '../lib/cameraGeom';
 
@@ -59,8 +58,7 @@ export function SpotlightCaption() {
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="flex items-center gap-3 rounded-2xl border border-brass-400/60 bg-ink-950/95 px-7 py-4 text-[24px] font-bold leading-none text-zinc-50 shadow-[0_14px_48px_-6px_rgba(192,141,82,0.6)] ring-1 ring-brass-500/25">
-            <Sparkles className="h-6 w-6 shrink-0 text-brass-300" />
+          <span className="rounded-2xl bg-black px-7 py-4 text-[24px] font-bold leading-none text-white shadow-[0_14px_48px_-6px_rgba(0,0,0,0.6)]">
             {caption}
           </span>
         </motion.div>

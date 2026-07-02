@@ -66,6 +66,7 @@ function Viz({ viz }: { viz: MacroViz }) {
 const base: React.CSSProperties = {
   width: MACRO_W, height: MACRO_H, background: '#0A0D11', color: '#ECEEF1', fontFamily: SANS,
   padding: '84px 76px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+  textAlign: 'left',
 };
 
 export const MacroSlide = forwardRef<HTMLDivElement, { slide: MacroSlideT; meta?: string }>(({ slide: s, meta }, ref) => {
@@ -277,6 +278,183 @@ export const MacroSlide = forwardRef<HTMLDivElement, { slide: MacroSlideT; meta?
         </div>
       );
       break;
+
+    case 'm-libcover':
+      inner = (
+        <div style={{ ...base, justifyContent: 'space-between' }}>
+          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(120% 80% at 100% 0%, rgba(79,209,165,0.10), transparent 55%)`, pointerEvents: 'none' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+            <Brand />
+            <div style={{ fontFamily: MONO, fontSize: 18, color: '#7A828C', letterSpacing: '0.04em' }}>{meta}</div>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '9px 16px', border: `1px solid rgba(79,209,165,0.35)`, borderRadius: 100, fontFamily: MONO, fontSize: 16, letterSpacing: '0.12em', color: MINT, marginBottom: 34 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: MINT, display: 'inline-block' }} />{s.kicker}
+            </div>
+            <h1 style={{ fontSize: 118, lineHeight: 0.94, fontWeight: 700, letterSpacing: '-0.03em', margin: 0, whiteSpace: 'pre-line' }}>{s.title}</h1>
+            <p style={{ fontSize: 35, lineHeight: 1.42, color: '#A2AAB4', maxWidth: 680, margin: '34px 0 0', fontWeight: 400 }}>{s.subtitle}</p>
+          </div>
+          <div style={{ position: 'relative', display: 'flex', gap: 14 }}>
+            {s.stats.map((st, i) => (
+              <div key={i} style={{ flex: 1, padding: '24px 28px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: 54, fontWeight: 700, letterSpacing: '-0.02em', color: MINT, lineHeight: 1 }}>{st.value}</div>
+                <div style={{ fontFamily: MONO, fontSize: 17, color: '#7A828C', letterSpacing: '0.08em', marginTop: 10 }}>{st.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      break;
+
+    case 'm-library':
+      inner = (
+        <div style={base}>
+          <SectionHead idx={s.idx} />
+          <h2 style={{ ...h2, margin: '0 0 12px' }}>{s.title}</h2>
+          <p style={{ fontSize: 30, lineHeight: 1.45, color: '#A2AAB4', margin: '0 0 30px', maxWidth: 820 }}>{s.subtitle}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, flex: 1 }}>
+            {s.groups.map((g, i) => (
+              <div key={i} style={{ padding: '22px 26px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontFamily: MONO, fontSize: 18, color: MINT, letterSpacing: '0.1em', marginBottom: 14 }}>{g.name}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignContent: 'flex-start' }}>
+                  {g.agents.map((a, j) => (
+                    <span key={j} style={{ fontSize: 22, color: '#D4D9DF', padding: '9px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}>{a}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      break;
+
+    case 'm-category':
+      inner = (
+        <div style={base}>
+          <SectionHead idx={s.idx} />
+          <h2 style={{ ...h2, margin: '0 0 14px' }}>{s.category}</h2>
+          <p style={{ fontSize: 31, lineHeight: 1.45, color: '#A2AAB4', margin: '0 0 42px', maxWidth: 740 }}>{s.tagline}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, flex: 1 }}>
+            {s.agents.map((a, i) => (
+              <div key={i} style={{ padding: '26px 34px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: 28 }}>
+                <div style={{ width: 12, height: 12, borderRadius: 3, background: MINT, flexShrink: 0 }} />
+                <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-0.01em', color: '#fff', width: 340, flexShrink: 0 }}>{a.name}</div>
+                <div style={{ fontSize: 26, lineHeight: 1.4, color: '#9099A3', flex: 1 }}>{a.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      break;
+
+    case 'm-libcta':
+      inner = (
+        <div style={{ ...base, justifyContent: 'space-between' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(110% 70% at 0% 100%, rgba(79,209,165,0.10), transparent 55%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative' }}>
+            <SectionHead idx={s.idx} />
+            <h2 style={{ ...h2, fontSize: 58, lineHeight: 1.02, margin: '0 0 14px' }}>{s.title}</h2>
+            <p style={{ fontSize: 29, color: '#A2AAB4', margin: '0 0 36px', maxWidth: 620 }}>{s.subtitle}</p>
+            <div style={{ display: 'flex', gap: 14 }}>
+              {s.stats.map((st, i) => (
+                <div key={i} style={{ flex: 1, padding: '26px 28px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontFamily: MONO, fontSize: 50, fontWeight: 600, color: MINT, lineHeight: 1 }}>{st.value}</div>
+                  <div style={{ fontFamily: MONO, fontSize: 17, color: '#7A828C', letterSpacing: '0.08em', marginTop: 10 }}>{st.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <div style={{ padding: '40px 44px', borderRadius: 20, background: 'linear-gradient(135deg, rgba(79,209,165,0.16), rgba(79,209,165,0.03))', border: '1px solid rgba(79,209,165,0.30)' }}>
+              <div style={{ fontSize: 38, fontWeight: 700, lineHeight: 1.2, marginBottom: 14, whiteSpace: 'pre-line' }}>{s.ctaTitle}</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, fontFamily: MONO, fontSize: 28, color: MINT, letterSpacing: '0.02em' }}>{s.url} <span style={{ fontSize: 24 }}>→</span></div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 32 }}>
+              <Brand />
+              <div style={{ fontFamily: MONO, fontSize: 16, color: '#5C646E', maxWidth: 340, textAlign: 'right', lineHeight: 1.4 }}>{s.disclaimer}</div>
+            </div>
+          </div>
+        </div>
+      );
+      break;
+
+    case 'm-twitter': {
+      const tw: React.CSSProperties = {
+        width: 1920, height: 1080, background: '#0A0D11', color: '#ECEEF1', fontFamily: SANS,
+        boxSizing: 'border-box', position: 'relative', overflow: 'hidden', display: 'flex', textAlign: 'left',
+      };
+      inner = (
+        <div style={tw}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(90% 120% at 100% 0%, rgba(79,209,165,0.10), transparent 55%)', pointerEvents: 'none' }} />
+
+          {/* 좌측 — 히어로 + 콜 */}
+          <div style={{ width: '53%', padding: '76px 64px 64px 80px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Brand />
+              <div style={{ fontFamily: MONO, fontSize: 17, color: '#7A828C', letterSpacing: '0.04em' }}>{meta}</div>
+            </div>
+
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 15px', border: '1px solid rgba(79,209,165,0.35)', borderRadius: 100, fontFamily: MONO, fontSize: 15, letterSpacing: '0.12em', color: MINT, marginBottom: 28 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: MINT, display: 'inline-block' }} />{s.kicker}
+              </div>
+              <h1 style={{ fontSize: 92, lineHeight: 0.96, fontWeight: 700, letterSpacing: '-0.03em', margin: 0, whiteSpace: 'pre-line' }}>{s.title}</h1>
+              <p style={{ fontSize: 27, lineHeight: 1.42, color: '#A2AAB4', maxWidth: 620, margin: '28px 0 0', fontWeight: 400 }}>{s.subtitle}</p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+              <div style={{ display: 'flex', gap: 14 }}>
+                {s.signals.map((sig, i) => (
+                  <div key={i} style={{ flex: 1, padding: '20px 24px', borderRadius: 14, background: '#12161C', border: `1px solid ${MTONE[sig.tone]}47`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontFamily: MONO, fontSize: 15, color: '#7A828C', letterSpacing: '0.1em' }}>{sig.side}</div>
+                      <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: '-0.01em' }}>{sig.ticker}</div>
+                    </div>
+                    <div style={{ fontSize: 32, color: MTONE[sig.tone] }}>{sig.tone === 'neg' ? '↓' : '↑'}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 16, color: '#7A828C', letterSpacing: '0.08em' }}>CONVICTION</span>
+                  <Dots n={s.conviction} max={s.max} size={11} />
+                  <span style={{ fontFamily: MONO, fontSize: 16, color: '#ECEEF1', letterSpacing: '0.08em' }}>{s.convLabel}</span>
+                </div>
+                <div style={{ fontFamily: MONO, fontSize: 16, color: '#7A828C', letterSpacing: '0.08em' }}>REGIME · <span style={{ color: '#E0A458' }}>{s.regime}</span></div>
+              </div>
+            </div>
+          </div>
+
+          {/* 우측 — 데이터 + Verdict + CTA */}
+          <div style={{ flex: 1, padding: '76px 80px 64px 64px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <div style={{ fontFamily: MONO, fontSize: 16, color: '#EF5F6B', letterSpacing: '0.14em', marginBottom: 24 }}>▼ THE MACRO REALITY</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, flex: 1 }}>
+              {s.metrics.map((m, i) => (
+                <div key={i} style={{ padding: '26px 28px', borderRadius: 16, background: '#12161C', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: MONO, fontSize: 16, color: '#8A929B', letterSpacing: '0.06em' }}>{m.code}</span>
+                    <span style={{ fontSize: 18, color: MTONE[m.statusTone], fontFamily: MONO }}>{m.status}</span>
+                  </div>
+                  <div style={{ fontFamily: MONO, fontSize: 50, fontWeight: 600, lineHeight: 1, margin: '12px 0' }}>{m.value}</div>
+                  <Viz viz={m.viz} />
+                  <div style={{ fontSize: 18, color: '#7A828C', marginTop: 12 }}>{m.caption}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: 22, padding: '22px 28px', borderRadius: 14, background: 'linear-gradient(90deg, rgba(79,209,165,0.12), rgba(79,209,165,0.02))', borderLeft: `3px solid ${MINT}` }}>
+              <p style={{ fontSize: 23, lineHeight: 1.4, margin: 0, color: '#ECEEF1' }}><R parts={s.verdict} /></p>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 22 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, fontFamily: MONO, fontSize: 22, color: MINT, letterSpacing: '0.02em' }}>{s.url} <span style={{ fontSize: 20 }}>→</span></div>
+              <div style={{ fontFamily: MONO, fontSize: 14, color: '#5C646E', maxWidth: 360, textAlign: 'right', lineHeight: 1.4 }}>{s.disclaimer}</div>
+            </div>
+          </div>
+        </div>
+      );
+      break;
+    }
   }
 
   return <div ref={ref}>{inner}</div>;

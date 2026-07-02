@@ -34,6 +34,10 @@ interface ShellState {
   includeOutro: boolean;
   toggleIntro: () => void;
   toggleOutro: () => void;
+  /** 배포 카피(게시 본문) 패널 표시 여부 */
+  showPosts: boolean;
+  togglePosts: () => void;
+  setShowPosts: (v: boolean) => void;
 }
 
 export const useShellStore = create<ShellState>((set) => ({
@@ -46,6 +50,7 @@ export const useShellStore = create<ShellState>((set) => ({
   browserChrome: true,
   includeIntro: false,
   includeOutro: false,
+  showPosts: false,
   setProject: (projectId) => set({ projectId }),
   setProjectLang: (projectId, lang) =>
     set((s) => ({ projectLang: { ...s.projectLang, [projectId]: lang } })),
@@ -54,12 +59,14 @@ export const useShellStore = create<ShellState>((set) => ({
   setGalleryMode: (projectId, mode) =>
     set((s) => ({ galleryMode: { ...s.galleryMode, [projectId]: mode } })),
   openCardnews: (deckId) => set({ cardnewsId: deckId }),
-  open: (featureId, variantId) => set({ featureId, variantId }),
-  backToGallery: () => set({ featureId: null, variantId: null, cardnewsId: null }),
+  open: (featureId, variantId) => set({ featureId, variantId, showPosts: false }),
+  backToGallery: () => set({ featureId: null, variantId: null, cardnewsId: null, showPosts: false }),
   setDevice: (device) => set({ device }),
   toggleDevice: () => set((s) => ({ device: s.device === 'desktop' ? 'mobile' : 'desktop' })),
   togglePhoneFrame: () => set((s) => ({ phoneFrame: !s.phoneFrame })),
   toggleBrowserChrome: () => set((s) => ({ browserChrome: !s.browserChrome })),
   toggleIntro: () => set((s) => ({ includeIntro: !s.includeIntro })),
   toggleOutro: () => set((s) => ({ includeOutro: !s.includeOutro })),
+  togglePosts: () => set((s) => ({ showPosts: !s.showPosts })),
+  setShowPosts: (showPosts) => set({ showPosts }),
 }));

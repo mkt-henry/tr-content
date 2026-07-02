@@ -143,3 +143,187 @@ export const STR = {
   working: { ko: '분석중', en: 'Working' } satisfies L,
   done: { ko: '완료', en: 'Done' } satisfies L,
 };
+
+/** id로 워커 그룹 조회 */
+export function groupById(id: string): WorkerGroup | undefined {
+  return GROUPS.find((g) => g.id === id);
+}
+
+/** 포커스 패널이 클로즈업하는 개별 에이전트 스크립트 */
+export interface FocusScript {
+  /** 소속 그룹 id (GROUPS와 매칭) */
+  groupId: string;
+  /** 그룹 내 대표 서브 에이전트 인덱스 */
+  subIndex: number;
+  /** ① 추론 토큰 스트림 (타이핑 재생) */
+  thinking: L;
+  /** ② tool call / 데이터 소스 라벨 (함수호출 형태) */
+  tools: string[];
+  /** ③ 중간 산출물 메트릭 */
+  metric: { label: L; value: string; trend: 'up' | 'down' | 'flat' };
+  /** ③ 시그널 태그 */
+  signal: L;
+  /** ③ 스파크라인용 숫자 시계열 */
+  spark: number[];
+  /** ④ 근거 체인 */
+  evidence: { sources: L[]; crossChecks: number };
+}
+
+/** 그룹당 대표 1개 — 클로즈업 대상 (총 5개) */
+export const FOCUS_SCRIPTS: FocusScript[] = [
+  {
+    groupId: 'fundamentals',
+    subIndex: 0, // 재무제표
+    thinking: {
+      ko: '24Q3 영업이익과 매출총이익률 추세를 확인합니다. 컨센서스 대비 서프라이즈 여부 점검.',
+      en: 'Checking 24Q3 operating profit and gross-margin trend; testing for surprise vs consensus.',
+    },
+    tools: ['retrieve_filings(24Q3)', 'fetch_consensus()', 'calc_margins()'],
+    metric: { label: { ko: 'PER', en: 'P/E' }, value: '11.2x', trend: 'down' },
+    signal: { ko: '밸류 매력', en: 'Cheap vs peers' },
+    spark: [8, 9, 11, 10, 13, 15, 14],
+    evidence: {
+      sources: [
+        { ko: 'DART 24Q3', en: 'DART 24Q3' },
+        { ko: '컨센서스', en: 'Consensus' },
+      ],
+      crossChecks: 3,
+    },
+  },
+  {
+    groupId: 'technical',
+    subIndex: 0, // 추세·모멘텀
+    thinking: {
+      ko: '20·60일 이평 정배열과 RSI를 점검합니다. 단기 모멘텀이 과열 구간인지 확인.',
+      en: 'Checking 20/60-day MA alignment and RSI; is short-term momentum overbought?',
+    },
+    tools: ['fetch_ohlcv(1Y)', 'calc_rsi(14)', 'detect_trend()'],
+    metric: { label: { ko: 'RSI', en: 'RSI' }, value: '71', trend: 'up' },
+    signal: { ko: '단기 과열', en: 'Overbought' },
+    spark: [40, 48, 55, 60, 66, 72, 71],
+    evidence: {
+      sources: [
+        { ko: '가격 시계열', en: 'Price series' },
+        { ko: '거래량', en: 'Volume' },
+      ],
+      crossChecks: 2,
+    },
+  },
+  {
+    groupId: 'market',
+    subIndex: 2, // 매크로
+    thinking: {
+      ko: '환율·금리와 반도체 업황 사이클을 매핑합니다. 외국인 수급 방향성 확인.',
+      en: 'Mapping FX/rates and the semiconductor cycle; checking foreign-flow direction.',
+    },
+    tools: ['fetch_macro()', 'fetch_flows(foreign)', 'map_cycle()'],
+    metric: { label: { ko: '외국인 순매수', en: 'Foreign net buy' }, value: '+1.2T', trend: 'up' },
+    signal: { ko: '수급 우호', en: 'Flows supportive' },
+    spark: [-5, -2, 3, 6, 4, 9, 12],
+    evidence: {
+      sources: [
+        { ko: '매크로 지표', en: 'Macro' },
+        { ko: '수급 데이터', en: 'Flow data' },
+      ],
+      crossChecks: 2,
+    },
+  },
+  {
+    groupId: 'strategy',
+    subIndex: 0, // 밸류에이션
+    thinking: {
+      ko: 'DCF와 상대가치를 교차해 적정주가 밴드를 산출합니다. 하방 리스크 측정.',
+      en: 'Cross-checking DCF and relative value for a fair-price band; sizing downside risk.',
+    },
+    tools: ['run_dcf()', 'peer_multiples()', 'calc_downside()'],
+    metric: { label: { ko: '상승여력', en: 'Upside' }, value: '+18%', trend: 'up' },
+    signal: { ko: '비중확대', en: 'Overweight' },
+    spark: [100, 104, 108, 112, 115, 118, 118],
+    evidence: {
+      sources: [
+        { ko: 'DCF 모델', en: 'DCF model' },
+        { ko: '동종업계 멀티플', en: 'Peer multiples' },
+      ],
+      crossChecks: 3,
+    },
+  },
+  {
+    groupId: 'intelligence',
+    subIndex: 0, // 뉴스·공시
+    thinking: {
+      ko: '최근 공시와 뉴스 감성을 스캔합니다. HBM 관련 모멘텀과 리스크 이벤트 식별.',
+      en: 'Scanning recent filings and news sentiment; flagging HBM momentum and risk events.',
+    },
+    tools: ['news_search(30d)', 'score_sentiment()', 'scan_filings()'],
+    metric: { label: { ko: '뉴스 감성', en: 'Sentiment' }, value: '+0.62', trend: 'up' },
+    signal: { ko: '긍정 우위', en: 'Net positive' },
+    spark: [0.2, 0.3, 0.25, 0.45, 0.5, 0.58, 0.62],
+    evidence: {
+      sources: [
+        { ko: '뉴스 30일', en: 'News 30d' },
+        { ko: '전자공시', en: 'Filings' },
+      ],
+      crossChecks: 4,
+    },
+  },
+];
+
+/** 단계(비-에이전트) 포커스 요약 */
+export interface StageFocus {
+  title: L;
+  body: L;
+}
+
+export const STAGE_FOCUS: Record<'routing' | 'verifying' | 'synthesis', StageFocus> = {
+  routing: {
+    title: { ko: '질문 분해', en: 'Decompose' },
+    body: {
+      ko: '질문을 5개 도메인으로 분해하고 16개 전문 에이전트에 라우팅합니다.',
+      en: 'Decomposing the query into 5 domains, routing to 16 specialist agents.',
+    },
+  },
+  verifying: {
+    title: { ko: '교차 검증', en: 'Cross-verify' },
+    body: {
+      ko: '에이전트 결과를 교차 검증 — 상충 신호 1건을 근거 재확인으로 해소.',
+      en: 'Cross-verifying agent results — 1 conflicting signal resolved by re-grounding.',
+    },
+  },
+  synthesis: {
+    title: { ko: '인사이트 합성', en: 'Synthesize' },
+    body: {
+      ko: '검증된 근거를 단일 인사이트로 합성합니다.',
+      en: 'Synthesizing verified evidence into a single insight.',
+    },
+  },
+};
+
+/** 그룹 원색을 탈채도 톤으로 — 카드 좌측 2px 틱 전용 (55% 색 + 45% 중간회색) */
+export function mutedTick(hex: string): string {
+  const m = hex.replace('#', '');
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  const mix = (c: number) => Math.round(c * 0.55 + 128 * 0.45);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+
+/** 서브 에이전트별 경량 메타 — 완료 시 지연시간(ms) 표기용. 키 "groupId:subIndex" */
+export const SUB_META: Record<string, { latencyMs: number }> = {
+  'fundamentals:0': { latencyMs: 920 },
+  'fundamentals:1': { latencyMs: 780 },
+  'fundamentals:2': { latencyMs: 1240 },
+  'fundamentals:3': { latencyMs: 660 },
+  'technical:0': { latencyMs: 840 },
+  'technical:1': { latencyMs: 590 },
+  'technical:2': { latencyMs: 1020 },
+  'market:0': { latencyMs: 1130 },
+  'market:1': { latencyMs: 700 },
+  'market:2': { latencyMs: 1480 },
+  'strategy:0': { latencyMs: 1310 },
+  'strategy:1': { latencyMs: 880 },
+  'strategy:2': { latencyMs: 540 },
+  'intelligence:0': { latencyMs: 960 },
+  'intelligence:1': { latencyMs: 720 },
+  'intelligence:2': { latencyMs: 1390 },
+};

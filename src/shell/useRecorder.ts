@@ -17,6 +17,10 @@ interface RecordOpts {
   targetWidth: number;
   /** 출력 세로 픽셀 (예: 1920 또는 1080) */
   targetHeight: number;
+  /** 캔버스 맞춤 방식 — 'cover'(중앙 크롭) 또는 'contain'(여백 포함). 기본 'cover' */
+  fit?: 'cover' | 'contain';
+  /** contain 여백 채움 색 (기본 검정) */
+  background?: string;
   /** 녹화 시작 전 카운트다운 숫자 (기본 3) */
   countdownFrom?: number;
 }
@@ -33,7 +37,7 @@ export function useRecorder() {
   const busyRef = useRef(false);
 
   const recordSequence = useCallback(
-    async ({ stageEl, filename, runSequence, targetWidth, targetHeight, countdownFrom = 3 }: RecordOpts) => {
+    async ({ stageEl, filename, runSequence, targetWidth, targetHeight, fit, background, countdownFrom = 3 }: RecordOpts) => {
       if (busyRef.current || !supported) return;
       const stream = await requestDisplayStream();
       if (!stream) return; // 사용자가 취소/거부 → 조용히 종료
@@ -47,7 +51,7 @@ export function useRecorder() {
         if (stageEl) await enterFullscreen(stageEl);
 
         // 캡처를 목표 비율로 크롭 — video 메타데이터가 카운트다운 동안 준비됨
-        crop = cropToAspect(stream, targetWidth, targetHeight);
+        crop = cropToAspect(stream, targetWidth, targetHeight, { fit, background });
 
         // 카운트다운 — 녹화 시작 전이라 영상에 포함되지 않음
         for (let n = countdownFrom; n >= 1; n--) {

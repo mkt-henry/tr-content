@@ -17,6 +17,11 @@ export interface ProjectDefinition {
   languages?: ProjectLanguage[];
   /** true면 모바일 UI만 제공 — 데스크탑 전환 불가 (모바일 서비스용) */
   mobileOnly?: boolean;
+  /**
+   * 모바일 광고 출력 비율 — 녹화 캔버스와 인트로/아웃트로 패널 비율을 결정한다.
+   * '3/4'면 세로 3:4 광고 규격(폰을 브랜드 배경에 중앙 배치)으로, 미지정 시 기본 9:16(릴스/숏츠).
+   */
+  adAspect?: '9/16' | '3/4';
 }
 
 export const projects: ProjectDefinition[] = [
@@ -50,6 +55,7 @@ export const projects: ProjectDefinition[] = [
       { id: 'th', label: 'ไทย', flag: '🇹🇭' },
     ],
     mobileOnly: true,
+    adAspect: '3/4',
   },
   {
     id: 'findle',

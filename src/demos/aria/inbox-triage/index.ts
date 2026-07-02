@@ -4,6 +4,7 @@ import { Desktop } from './Desktop';
 import { Mobile } from './Mobile';
 import { useInbox } from './state';
 import { pipelineScenario, sortScenario } from './scenario';
+import { POSTS } from './posts';
 
 const inboxTriage: FeatureDefinition = {
   id: 'inbox-triage',
@@ -14,6 +15,7 @@ const inboxTriage: FeatureDefinition = {
   Desktop,
   Mobile,
   resetState: () => useInbox.getState().reset(),
+  posts: POSTS,
   variants: [
     {
       id: 'sort',

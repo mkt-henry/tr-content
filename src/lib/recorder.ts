@@ -39,15 +39,19 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /**
- * 캡처 스트림을 목표 비율 캔버스로 cover-크롭(중앙)해 새 스트림으로 반환한다.
- * 가로 캡처를 9:16/16:9 등 목표 비율로 잘라 정확한 해상도의 영상을 만든다.
+ * 캡처 스트림을 목표 비율 캔버스로 변환해 새 스트림으로 반환한다.
+ * - fit 'cover'(기본): 목표 비율로 중앙 크롭 — 캔버스를 꽉 채우되 가장자리를 잘라낸다.
+ * - fit 'contain': 소스 전체를 목표 비율 안에 맞춰 넣고 남는 영역은 background로 채운다(레터박스/여백).
  * stop()으로 rAF·video를 정리한다(원본 source 트랙 정지는 호출자가 담당).
  */
 export function cropToAspect(
   source: MediaStream,
   targetW: number,
   targetH: number,
+  opts: { fit?: 'cover' | 'contain'; background?: string } = {},
 ): { stream: MediaStream; stop: () => void } {
+  const fit = opts.fit ?? 'cover';
+  const background = opts.background ?? '#000000';
   const video = document.createElement('video');
   video.srcObject = source;
   video.muted = true;
@@ -67,6 +71,29 @@ export function cropToAspect(
     const vh = video.videoHeight;
     if (!ctx || vw === 0 || vh === 0) return; // 메타데이터 미수신 프레임 스킵
     const srcAspect = vw / vh;
+
+    if (fit === 'contain') {
+      // 소스 전체를 캔버스 안에 맞춰 넣고(축소), 남는 여백은 background로 채운다
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, targetW, targetH);
+      let dw: number;
+      let dh: number;
+      if (srcAspect > targetAspect) {
+        // 소스가 더 넓음 → 너비 맞추고 상하 여백
+        dw = targetW;
+        dh = dw / srcAspect;
+      } else {
+        // 소스가 더 좁음 → 높이 맞추고 좌우 여백
+        dh = targetH;
+        dw = dh * srcAspect;
+      }
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.drawImage(video, 0, 0, vw, vh, dx, dy, dw, dh);
+      return;
+    }
+
+    // cover: 목표 비율로 중앙 크롭
     let sw: number;
     let sh: number;
     let sx: number;
