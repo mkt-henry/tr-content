@@ -8,6 +8,7 @@ import {
   Pause,
   Play,
   RotateCcw,
+  Share2,
   Smartphone,
   ZoomIn,
   PanelTop,
@@ -48,6 +49,9 @@ export function ControlBar({ feature, variant, status, onPlay, onPause, onResume
   const setSpeed = usePlaybackStore((s) => s.setSpeed);
   const spotlightEnabled = usePlaybackStore((s) => s.spotlightEnabled);
   const toggleSpotlight = usePlaybackStore((s) => s.toggleSpotlight);
+  const showPosts = useShellStore((s) => s.showPosts);
+  const togglePosts = useShellStore((s) => s.togglePosts);
+  const hasPosts = !!feature.posts?.length;
 
   // 프로젝트 단위 언어 전환 — 지원 프로젝트(Treazer 등)의 데모에서만 노출
   const projectId = getProjectIdOfFeature(feature.id);
@@ -142,6 +146,12 @@ export function ControlBar({ feature, variant, status, onPlay, onPause, onResume
         <BarButton onClick={toggleSpotlight} label="인터랙션 줌" active={spotlightEnabled}>
           <ZoomIn className="h-4 w-4" />
         </BarButton>
+
+        {hasPosts && (
+          <BarButton onClick={togglePosts} label="게시 본문 (유튜브·링크드인)" active={showPosts}>
+            <Share2 className="h-4 w-4" />
+          </BarButton>
+        )}
 
         {hasBranding && (
           <>

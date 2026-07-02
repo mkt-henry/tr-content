@@ -9,6 +9,7 @@ import { BrowserChrome } from './BrowserChrome';
 import { ControlBar } from './ControlBar';
 import { FakeCursor } from './FakeCursor';
 import { SpotlightCaption } from './SpotlightCaption';
+import { DistributionPanel } from './DistributionPanel';
 import { Camera } from './Camera';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
@@ -287,6 +288,8 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           </motion.div>
         )}
       </AnimatePresence>
+
+      {!recording && <DistributionPanel feature={feature} />}
 
       <FakeCursor />
       <SpotlightCaption />
