@@ -279,32 +279,58 @@ export const MacroSlide = forwardRef<HTMLDivElement, { slide: MacroSlideT; meta?
       );
       break;
 
-    case 'm-libcover':
+    case 'm-libcover': {
+      // 표지 전용 — 게시 메시지(금융 AX·실제 도입)에 맞춘 B2B SaaS 톤. 그라데이션 없이 플랫.
+      const date = (meta ?? '').replace(/-/g, '·');
+      const titleLines = s.title.split('\n');
       inner = (
         <div style={{ ...base, justifyContent: 'space-between' }}>
-          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(120% 80% at 100% 0%, rgba(79,209,165,0.10), transparent 55%)`, pointerEvents: 'none' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-            <Brand />
-            <div style={{ fontFamily: MONO, fontSize: 18, color: '#7A828C', letterSpacing: '0.04em' }}>{meta}</div>
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '9px 16px', border: `1px solid rgba(79,209,165,0.35)`, borderRadius: 100, fontFamily: MONO, fontSize: 16, letterSpacing: '0.12em', color: MINT, marginBottom: 34 }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: MINT, display: 'inline-block' }} />{s.kicker}
+          {/* 상단: 브랜드 + 날짜 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 21, fontWeight: 600, letterSpacing: '0.04em' }}>
+              AlphaLenz<span style={{ color: '#7A828C', fontWeight: 500 }}> Financial AX</span>
             </div>
-            <h1 style={{ fontSize: 118, lineHeight: 0.94, fontWeight: 700, letterSpacing: '-0.03em', margin: 0, whiteSpace: 'pre-line' }}>{s.title}</h1>
-            <p style={{ fontSize: 35, lineHeight: 1.42, color: '#A2AAB4', maxWidth: 680, margin: '34px 0 0', fontWeight: 400 }}>{s.subtitle}</p>
+            <div style={{ fontFamily: MONO, fontSize: 18, color: '#7A828C', letterSpacing: '0.04em' }}>{date}</div>
           </div>
-          <div style={{ position: 'relative', display: 'flex', gap: 14 }}>
-            {s.stats.map((st, i) => (
-              <div key={i} style={{ flex: 1, padding: '24px 28px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: 54, fontWeight: 700, letterSpacing: '-0.02em', color: MINT, lineHeight: 1 }}>{st.value}</div>
-                <div style={{ fontFamily: MONO, fontSize: 17, color: '#7A828C', letterSpacing: '0.08em', marginTop: 10 }}>{st.label}</div>
-              </div>
-            ))}
+
+          {/* 중앙: 배지 + 헤드라인 + 서브카피 */}
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '9px 18px', border: '1px solid rgba(79,209,165,0.35)', borderRadius: 100, fontFamily: MONO, fontSize: 15.5, letterSpacing: '0.11em', color: MINT, marginBottom: 40 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: MINT, display: 'inline-block', boxShadow: '0 0 0 4px rgba(79,209,165,0.18)' }} />{s.kicker}
+            </div>
+            <h1 style={{ fontSize: 76, lineHeight: 1.04, fontWeight: 700, letterSpacing: '-0.03em', margin: 0 }}>
+              {titleLines.map((line, li) => (
+                <div key={li}>
+                  {line.split(/(\bAX\b)/).map((seg, si) =>
+                    seg === 'AX' ? <span key={si} style={{ color: MINT }}>{seg}</span> : <span key={si}>{seg}</span>,
+                  )}
+                </div>
+              ))}
+            </h1>
+            <p style={{ fontSize: 29, lineHeight: 1.5, color: '#A2AAB4', maxWidth: 760, margin: '34px 0 0', fontWeight: 400 }}>{s.subtitle}</p>
+          </div>
+
+          {/* 하단: 구분선 + 지표 카드 3개 */}
+          <div>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 28 }} />
+            <div style={{ display: 'flex', gap: 14 }}>
+              {s.stats.map((st, i) => {
+                const hasNum = /\d/.test(st.value);
+                return (
+                  <div key={i} style={{ flex: 1, padding: '26px 28px', borderRadius: 14, background: '#12161C', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', height: 54 }}>
+                      <span style={{ fontSize: hasNum ? 56 : 44, fontWeight: 700, letterSpacing: '-0.02em', color: MINT, lineHeight: 1 }}>{st.value}</span>
+                    </div>
+                    <div style={{ fontFamily: MONO, fontSize: 16, color: '#8A929C', letterSpacing: '0.08em', marginTop: 12 }}>{st.label}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       );
       break;
+    }
 
     case 'm-library':
       inner = (
