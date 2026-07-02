@@ -5,6 +5,7 @@ import { useMatrix, key } from './state';
 import { DOCUMENTS, COLUMNS, CELLS, MODEL_CHIP, STR, extractedSummary } from './data';
 import { CitationBadge, CitationPopover } from '../../../ui/Citation';
 import { FileExplorer } from './FileExplorer';
+import { SpotlightMask } from './SpotlightMask';
 import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
 import { AriaWordmark } from '../_shared/AriaWordmark';
@@ -60,6 +61,7 @@ export function Desktop(_: DemoComponentProps) {
         {/* 본문 */}
         {m.phase === 'idle' ? (
           <div className="flex min-h-0 flex-1 items-center justify-center p-8">
+            {/* 업로드 드롭존 = 유일한 CTA (별도 버튼 없음) */}
             <button
               data-demo-id="upload-btn"
               onClick={() => m.openExplorer()}
@@ -104,6 +106,10 @@ export function Desktop(_: DemoComponentProps) {
               {docs.map((doc) => {
                 const prog = m.uploadProgress[doc.id] ?? 0;
                 const uploading = m.phase === 'uploading' && prog < 1;
+                // 이 문서의 분석이 시작됐는지(셀 하나라도 empty가 아님) — 문서별 stagger 표현
+                const rowStarted = m.activeColumns.some(
+                  (colId) => (m.cellStatus[key(doc.id, colId)] ?? 'empty') !== 'empty',
+                );
                 return (
                   <div key={doc.id} className="flex border-b border-white/[0.06] last:border-b-0">
                     <div className="flex w-60 shrink-0 items-center gap-2 border-r border-white/[0.08] px-3.5 py-3">
@@ -129,7 +135,7 @@ export function Desktop(_: DemoComponentProps) {
                     )}
 
                     {/* 업로드 완료 후: 셀 */}
-                    {!uploading &&
+                    {!uploading && rowStarted &&
                       m.activeColumns.map((colId) => {
                         const status = m.cellStatus[key(doc.id, colId)] ?? 'empty';
                         const cell = CELLS[doc.id]?.[colId];
@@ -168,8 +174,8 @@ export function Desktop(_: DemoComponentProps) {
                         );
                       })}
 
-                    {/* 분석 대기(열이 아직 없음) */}
-                    {!uploading && m.activeColumns.length === 0 && (
+                    {/* 이 문서가 아직 분석 시작 전(문서별 stagger) — ARIA 분석 중 */}
+                    {!uploading && !rowStarted && (
                       <div className="flex flex-1 items-center px-4 text-[11px] text-zinc-600">
                         <Loader2 className="mr-2 h-3 w-3 animate-spin text-brass-400" /> {pick(STR.analyzing, lang)}
                       </div>
@@ -191,7 +197,11 @@ export function Desktop(_: DemoComponentProps) {
         }
         onClose={() => m.closePopover()}
         title={lang === 'ko' ? '원문 인용' : 'Source citation'}
+        demoId="citation-panel"
       />
+
+      {/* 핵심 소구 영역 스포트라이트 마스크 (원문 확인 등) */}
+      <SpotlightMask targetId={m.focus?.id ?? null} caption={m.focus?.caption} />
 
       {/* 파일 탐색기 오버레이 */}
       <AnimatePresence>{m.explorerOpen && <FileExplorer />}</AnimatePresence>
