@@ -72,6 +72,20 @@ export type MacroSlide =
   | { type: 'm-cta'; idx: string; title: string; subtitle: string;
       score: string; breakdown: { label: string; value: string; tone?: MacroTone }[];
       ctaTitle: string; url: string; disclaimer: string }
+  /* ── 에이전트 라이브러리 쇼케이스 전용 (앵글 리포트 아님) ── */
+  /** 라이브러리 커버 — 히어로 타이틀 + 하단 스탯 스트립(에이전트 수·카테고리 수 등) */
+  | { type: 'm-libcover'; kicker: string; title: string; subtitle: string;
+      stats: { value: string; label: string }[] }
+  /** 라이브러리 개요 그리드 — 카테고리별 에이전트를 한 화면에 (칩 = 이름만) */
+  | { type: 'm-library'; idx: string; title: string; subtitle: string;
+      groups: { name: string; agents: string[] }[] }
+  /** 카테고리 카드 — 카테고리 1개 + 에이전트 다수(이름 + 한 줄 설명) */
+  | { type: 'm-category'; idx: string; category: string; tagline: string;
+      agents: { name: string; desc: string }[] }
+  /** 라이브러리 마무리 CTA — 스탯 스트립 + 브랜드 CTA */
+  | { type: 'm-libcta'; idx: string; title: string; subtitle: string;
+      stats: { value: string; label: string }[];
+      ctaTitle: string; url: string; disclaimer: string }
   /** 트위터/X용 가로 16:9 단일 카드 — 좌 히어로(콜) + 우 데이터 그리드 종합 */
   | { type: 'm-twitter'; kicker: string; title: string; subtitle: string;
       signals: { side: 'SHORT' | 'LONG'; ticker: string; tone: 'neg' | 'pos' }[];
