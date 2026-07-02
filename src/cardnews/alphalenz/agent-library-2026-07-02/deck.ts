@@ -76,10 +76,10 @@ const deck: CardNewsDeck = {
     { type: 'm-libcover',
       kicker: 'AGENT LIBRARY · AI INVESTMENT INTELLIGENCE',
       title: '25 agents.\nOne brain.',
-      subtitle: "AlphaLenz isn't a single chatbot. It's a library of specialized, verifiable agents — pick the job, the right agent runs it.",
+      subtitle: "AlphaLenz isn't a single chatbot — it's a library of specialized, verifiable agents. Now in production with partners across finance, insurance, and media.",
       stats: [
         { value: '25', label: 'SPECIALIZED AGENTS' },
-        { value: '6', label: 'CATEGORIES' },
+        { value: '7', label: 'PARTNERS LIVE' },
         { value: '100%', label: 'CITED & VERIFIABLE' },
       ] },
 
