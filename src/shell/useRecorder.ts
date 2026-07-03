@@ -60,7 +60,13 @@ export function useRecorder() {
         }
         setCountdown(null);
 
-        const rec = new MediaRecorder(crop.stream, { mimeType: mime });
+        // 비트레이트를 해상도·프레임레이트에 맞춰 넉넉히 지정한다.
+        // 미지정 시 브라우저 기본값(~2.5Mbps)으로 텍스트·UI가 뭉개진다.
+        // 대략 0.15 bit/pixel·frame 기준 → 1080×1920@60 ≈ 18Mbps.
+        const bitsPerPixel = 0.15;
+        const fps = 60;
+        const videoBitsPerSecond = Math.round(targetWidth * targetHeight * fps * bitsPerPixel);
+        const rec = new MediaRecorder(crop.stream, { mimeType: mime, videoBitsPerSecond });
         rec.ondataavailable = (e) => {
           if (e.data.size > 0) chunks.push(e.data);
         };

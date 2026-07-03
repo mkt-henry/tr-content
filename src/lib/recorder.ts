@@ -13,7 +13,16 @@ export async function requestDisplayStream(): Promise<MediaStream | null> {
   try {
     // preferCurrentTab은 Chromium 전용으로 lib.dom 타입에 없다.
     // 객체 리터럴이 아닌 변수로 전달하면 초과 프로퍼티 검사를 피하면서 구조적으로 호환된다.
-    const opts = { video: { frameRate: 30 }, audio: false, preferCurrentTab: true };
+    // 소스 해상도를 최대한 크게(ideal) 요청해 캔버스 크롭 시 업스케일(뿌옇게)을 피한다.
+    const opts = {
+      video: {
+        frameRate: { ideal: 60, max: 60 },
+        width: { ideal: 2560 },
+        height: { ideal: 1440 },
+      },
+      audio: false,
+      preferCurrentTab: true,
+    };
     return await navigator.mediaDevices.getDisplayMedia(opts);
   } catch {
     return null;
@@ -62,6 +71,11 @@ export function cropToAspect(
   canvas.width = targetW;
   canvas.height = targetH;
   const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // 리샘플링 시 선명도 유지 — 기본값('low')은 축소/확대에서 뭉개진다.
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
   const targetAspect = targetW / targetH;
 
   let raf = 0;
@@ -115,7 +129,7 @@ export function cropToAspect(
   };
   raf = requestAnimationFrame(draw);
 
-  const stream = canvas.captureStream(30);
+  const stream = canvas.captureStream(60);
   const stop = () => {
     cancelAnimationFrame(raf);
     video.pause();
