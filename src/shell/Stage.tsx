@@ -104,13 +104,13 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const handleRecord = useCallback(() => {
     if (runningRef.current) return; // 진행 중 시퀀스가 있으면 빈 녹화 방지
     // 모바일: cover 크롭 — adAspect '3/4'(광고 규격) 또는 9:16(릴스/숏츠).
-    // 데스크탑: 모바일 업로드용 3:4 세로 프레임에 여백 포함(contain).
+    // 데스크탑: 가로 16:9(1920×1080) 프레임을 cover로 꽉 채움 — 여백 없이 UI가 크게 잡힌다.
     const opts =
       device === 'mobile'
         ? adAspect === '3/4'
           ? { targetWidth: 1080, targetHeight: 1440, fit: 'cover' as const }
           : { targetWidth: 1080, targetHeight: 1920, fit: 'cover' as const }
-        : { targetWidth: 1080, targetHeight: 1440, fit: 'contain' as const, background: '#08070a' };
+        : { targetWidth: 1920, targetHeight: 1080, fit: 'cover' as const };
     void recordSequence({
       stageEl: stageRef.current,
       filename: recFilename,
