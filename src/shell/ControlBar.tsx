@@ -35,7 +35,7 @@ interface ControlBarProps {
 }
 
 /** 자동 재생 속도 옵션 */
-const SPEEDS = [0.5, 1, 1.5, 2];
+const SPEEDS = [0.5, 1, 1.25, 1.5, 2];
 
 /** 하단 플로팅 컨트롤 바. 재생 중에는 숨고, 하단 가장자리에 마우스를 가져가면 나타난다. */
 export function ControlBar({ feature, variant, status, onPlay, onPause, onResume, onReset, onFullscreen, onRecord, canRecord }: ControlBarProps) {
