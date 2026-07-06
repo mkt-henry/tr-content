@@ -62,7 +62,7 @@ export function FeedScreen() {
   return (
     <div className="flex h-full flex-col" style={{ backgroundColor: '#f4f4f6' }}>
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
+      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-10">
         <Wordmark className="text-[20px]" />
         <GoldPill amount={gold} flash={flash} />
       </div>

@@ -24,7 +24,7 @@ function StreakRow({ streak }: { streak: number }) {
                 done ? 'bg-orange-500 text-white' : 'bg-zinc-200 text-zinc-400',
               )}
             >
-              {boost && !done ? 'x2' : <Check className="h-4 w-4" strokeWidth={3} />}
+              {done ? <Check className="h-4 w-4" strokeWidth={3} /> : boost ? 'x2' : day}
             </motion.div>
             <span className="text-[10px] text-zinc-500">{fmt(pick(STR.day, lang), { n: day })}</span>
           </div>
@@ -40,7 +40,7 @@ export function HomeScreen() {
 
   return (
     <div className="flex h-full flex-col bg-[#f4f4f6]">
-      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-4">
+      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-10">
         <Wordmark className="text-[22px]" />
         <GoldPill amount={gold} flash={goldFlash} />
       </header>
@@ -107,7 +107,7 @@ export function QuizScreen() {
 
   return (
     <div className="flex h-full flex-col bg-white">
-      <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
+      <header className="relative flex shrink-0 items-center justify-center px-5 pb-3.5 pt-10">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-700" />
         <span className="text-[16px] font-semibold text-zinc-900">{pick(STR.quiz, lang)}</span>
       </header>

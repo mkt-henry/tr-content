@@ -96,13 +96,13 @@ export function ResultScreen() {
           </p>
 
           {/* Since-collecting gain row */}
-          <div className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-950/60 px-3 py-1.5 ring-1 ring-emerald-800/50">
+          <div className="mt-2 flex items-start gap-2 rounded-xl bg-emerald-950/60 px-3 py-1.5 ring-1 ring-emerald-800/50">
             <span className="min-w-0 flex-1 text-[11px] leading-tight text-emerald-300">
               {pick(STR.sinceCollecting, lang)}
             </span>
-            <span className="flex shrink-0 items-center gap-1">
+            <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">
               <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
-              <span className="text-[13px] font-bold tabular-nums text-emerald-400">
+              <span className="whitespace-nowrap text-[13px] font-bold tabular-nums text-emerald-400">
                 +{(v.ret * 100).toFixed(1)}%
               </span>
               <span className="whitespace-nowrap text-[12px] tabular-nums text-emerald-500">

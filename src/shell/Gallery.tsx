@@ -74,7 +74,8 @@ export function Gallery() {
             Treasurer Content Inbox
           </p>
 
-          {/* 프로젝트 탭 */}
+          {/* 프로젝트 탭 — 단일 프로젝트 격리 배포에서는 숨김 */}
+          {projects.length > 1 && (
           <div className="mt-6 flex items-center gap-2">
             {projects.map((p) => (
               <button
@@ -92,6 +93,7 @@ export function Gallery() {
               </button>
             ))}
           </div>
+          )}
 
           <h1 className="mt-5 text-6xl font-bold tracking-tight text-zinc-100">
             {project.name}

@@ -90,7 +90,7 @@ export function TournamentScreen() {
 
   return (
     <div className="flex h-full flex-col bg-[#f4f4f6]">
-      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-4">
+      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-10">
         <Wordmark className="text-[22px]" />
         <GoldPill amount={gold} flash={goldFlash} />
       </header>
@@ -196,7 +196,7 @@ export function ResultScreen() {
 
   return (
     <div className="flex h-full flex-col bg-white">
-      <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
+      <header className="relative flex shrink-0 items-center justify-center px-5 pb-3.5 pt-10">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-700" />
         <span className="text-[16px] font-semibold text-zinc-900">{pickL(STR.result, lang)}</span>
       </header>

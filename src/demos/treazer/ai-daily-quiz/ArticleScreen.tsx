@@ -19,7 +19,7 @@ export function ArticleScreen() {
     <div className="flex h-full flex-col" style={{ backgroundColor: '#f4f4f6' }}>
 
       {/* Top bar */}
-      <div className="grid shrink-0 grid-cols-3 items-center px-3 pb-2 pt-4">
+      <div className="grid shrink-0 grid-cols-3 items-center px-3 pb-2 pt-10">
         <button
           onClick={goToFeed}
           className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-700 transition-colors active:bg-zinc-200"

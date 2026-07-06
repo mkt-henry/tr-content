@@ -141,7 +141,7 @@ export function GoldPriceScreen() {
   return (
     <div className="relative flex h-full flex-col bg-[#f4f4f6]">
       {/* 헤더 */}
-      <header className="flex shrink-0 items-center gap-3 bg-[#f4f4f6] px-4 pb-2 pt-4">
+      <header className="flex shrink-0 items-center gap-3 bg-[#f4f4f6] px-4 pb-2 pt-10">
         <button
           type="button"
           data-demo-id="price-back"

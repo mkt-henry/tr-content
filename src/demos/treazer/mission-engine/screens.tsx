@@ -184,7 +184,7 @@ export function MissionScreen() {
 
   return (
     <div className="flex h-full flex-col bg-[#f4f4f6]">
-      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-4">
+      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-10">
         <Wordmark className="text-[20px]" />
         <GoldPill amount={gold} flash={goldFlash} />
       </header>
@@ -271,7 +271,7 @@ export function AdScreen() {
 
   return (
     <div className="flex h-full flex-col bg-zinc-950 text-white">
-      <header className="relative flex shrink-0 items-center justify-center px-5 py-3.5">
+      <header className="relative flex shrink-0 items-center justify-center px-5 pb-3.5 pt-10">
         <ChevronLeft className="absolute left-4 h-5 w-5 text-zinc-600" />
         <span className="text-[14px] font-semibold text-zinc-400">{pick(STR.rewardedAd, lang)}</span>
       </header>

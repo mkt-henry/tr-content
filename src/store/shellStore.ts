@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { DeviceMode } from '../registry/types';
+import { projects } from '../registry/projects';
 
 interface ShellState {
   /** 갤러리에서 선택된 프로젝트 탭 */
@@ -41,7 +42,7 @@ interface ShellState {
 }
 
 export const useShellStore = create<ShellState>((set) => ({
-  projectId: 'aria',
+  projectId: projects[0]?.id ?? 'aria',
   projectLang: {},
   featureId: null,
   variantId: null,

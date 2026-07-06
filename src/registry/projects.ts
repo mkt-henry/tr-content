@@ -24,7 +24,7 @@ export interface ProjectDefinition {
   adAspect?: '9/16' | '3/4';
 }
 
-export const projects: ProjectDefinition[] = [
+const ALL_PROJECTS: ProjectDefinition[] = [
   {
     id: 'aria',
     name: 'ARIA',
@@ -80,6 +80,13 @@ export const projects: ProjectDefinition[] = [
     ],
   },
 ];
+
+/** 단일 프로젝트만 노출하는 격리 배포용 — 빌드 시 VITE_ONLY_PROJECT로 갤러리 탭·기본 진입 프로젝트를 고정 */
+const ONLY_PROJECT = import.meta.env.VITE_ONLY_PROJECT as string | undefined;
+
+export const projects: ProjectDefinition[] = ONLY_PROJECT
+  ? ALL_PROJECTS.filter((p) => p.id === ONLY_PROJECT)
+  : ALL_PROJECTS;
 
 export function getProject(id: string): ProjectDefinition | undefined {
   return projects.find((p) => p.id === id);

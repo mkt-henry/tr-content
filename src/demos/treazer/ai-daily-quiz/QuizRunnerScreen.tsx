@@ -45,7 +45,7 @@ export function QuizRunnerScreen() {
   return (
     <div className="flex h-full flex-col" style={{ backgroundColor: '#f4f4f6' }}>
       {/* 1. Top bar */}
-      <div className="relative grid shrink-0 grid-cols-3 items-center px-2 pb-2 pt-3">
+      <div className="relative grid shrink-0 grid-cols-3 items-center px-2 pb-2 pt-10">
         <button
           onClick={goToFeed}
           className="flex items-center justify-start text-zinc-600"

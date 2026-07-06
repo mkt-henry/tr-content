@@ -253,7 +253,7 @@ export function StoreScreen() {
 
   return (
     <div className="relative flex h-full flex-col bg-[#f4f4f6]">
-      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-4">
+      <header className="flex shrink-0 items-center justify-between bg-[#f4f4f6] px-5 pb-2 pt-10">
         <div className="flex items-baseline gap-2">
           <span className="text-[22px] font-bold tracking-tight text-zinc-900">{pick(STR.store, lang)}</span>
           <Wordmark className="text-[12px] opacity-50" />
