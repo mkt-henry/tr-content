@@ -217,6 +217,11 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             {phoneFrame && (
               <div className="absolute left-1/2 top-[22px] z-30 h-[26px] w-[92px] -translate-x-1/2 rounded-full bg-black ring-1 ring-white/[0.06]" />
             )}
+            {/* 폰은 실제 기기 비율(9/19.2)을 유지한다. 높이는 min(90vh, 780px) — 콘텐츠가 고정 px로
+                설계된 기준 크기가 높이 780px(→ 폭 ≈366px)이므로, 뷰포트가 충분히 높으면(전체화면 녹화)
+                780px에 도달해 텍스트가 잘리지 않는다. 스케일 래퍼(transform/zoom)는 쓰지 않는다 —
+                합성 레이어가 생겨 getDisplayMedia 탭 캡처가 얼기 때문. 녹화는 전체화면으로 진입하므로
+                (useRecorder에서 캡처 전에 전체화면 요청) 높은 뷰포트가 보장돼 780px가 그대로 들어간다. */}
             <div
               className={cn(
                 'relative flex flex-col overflow-hidden bg-[#131216]',
@@ -224,7 +229,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
                   ? 'rounded-[2.45rem]'
                   : 'rounded-2xl ring-1 ring-white/10 shadow-[0_50px_140px_-20px_rgba(0,0,0,0.85)]',
               )}
-              style={{ height: 'min(82vh, 780px)', aspectRatio: '9 / 19.2' }}
+              style={{ height: 'min(90vh, 780px)', aspectRatio: '9 / 19.2' }}
             >
               {/* 모바일은 네이티브 앱 화면이므로 주소창(BrowserChrome) 비표시 */}
               <div className="relative min-h-0 flex-1">

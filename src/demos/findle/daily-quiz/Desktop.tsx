@@ -53,14 +53,16 @@ export function Desktop(_: DemoComponentProps) {
   return <Shell>{variantId === 'narrated' ? <FlowCopy /> : <StaticCopy />}</Shell>;
 }
 
-/** 폰 목업 + 카피를 gap으로 묶어 무대 중앙에 배치 — 좌우 여백 균형 */
+/** 폰 목업 + 카피를 무대 중앙에 배치.
+ *  유동(flex) 레이아웃 — CSS transform을 두지 않아 가짜 커서 좌표(offset 기반)가
+ *  실제 화면 위치와 정확히 일치한다. 폰 높이는 무대 높이에 비례(%)해 자연스럽게 스케일한다. */
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-full items-center justify-center gap-14 bg-[#0e1512] px-16 text-zinc-200">
-      {/* 폰 목업 */}
+    <div className="relative flex h-full w-full items-center justify-center gap-[4%] overflow-hidden bg-[#0e1512] px-[4%] text-zinc-200">
+      {/* 폰 목업 — 비율(9:19.5) 유지하며 무대 높이의 ~90%로 크게. minWidth:0로 폭이 aspect-ratio를 따르게 한다 */}
       <div
-        className="relative shrink-0 rounded-[3rem] bg-[#0c0b0e] p-[10px] ring-1 ring-white/15 shadow-[0_50px_140px_-20px_rgba(0,0,0,0.85)]"
-        style={{ height: 'min(72vh, 660px)', aspectRatio: '9 / 19.5', minWidth: 0 }}
+        className="relative h-[90%] shrink-0 rounded-[3rem] bg-[#0c0b0e] p-[12px] ring-1 ring-white/15 shadow-[0_50px_140px_-20px_rgba(0,0,0,0.85)]"
+        style={{ aspectRatio: '9 / 19.5', minWidth: 0, width: 'auto' }}
       >
         <div className="absolute left-1/2 top-[20px] z-30 h-[22px] w-[78px] -translate-x-1/2 rounded-full bg-black ring-1 ring-white/[0.06]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[2.45rem] bg-[#131216]">
@@ -70,7 +72,7 @@ function Shell({ children }: { children: ReactNode }) {
       </div>
 
       {/* 카피 */}
-      <div className="w-[460px] shrink-0">{children}</div>
+      <div className="w-[42%] max-w-[560px] shrink-0">{children}</div>
     </div>
   );
 }
@@ -92,25 +94,25 @@ function StaticCopy() {
   return (
     <>
       <Kicker>{pick(COPY.kicker, lang)}</Kicker>
-      <h1 className="mt-5 text-[40px] font-extrabold leading-[1.14] tracking-tight text-white">
+      <h1 className="mt-5 text-[42px] font-extrabold leading-[1.13] tracking-tight text-white">
         {pick(COPY.headline1, lang)}
         <br />
         <span style={{ color: FINDLE_GREEN }}>{pick(COPY.headline2, lang)}</span>
       </h1>
-      <p className="mt-4 text-[15px] leading-relaxed text-zinc-400">{pick(COPY.lead, lang)}</p>
+      <p className="mt-4 text-[15.5px] leading-relaxed text-zinc-400">{pick(COPY.lead, lang)}</p>
 
       <div className="mt-7 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
         {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-          <div key={i} className="flex items-start gap-3.5 border-t border-white/[0.06] px-4 py-3.5 first:border-t-0">
+          <div key={i} className="flex items-start gap-3.5 border-t border-white/[0.06] px-4 py-4 first:border-t-0">
             <span
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{ background: 'rgba(21,160,106,0.14)' }}
             >
-              <Icon className="h-[18px] w-[18px]" style={{ color: FINDLE_GREEN }} />
+              <Icon className="h-[19px] w-[19px]" style={{ color: FINDLE_GREEN }} />
             </span>
             <div>
-              <p className="text-[15.5px] font-bold leading-snug text-white">{pick(title, lang)}</p>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-zinc-400">{pick(desc, lang)}</p>
+              <p className="text-[16px] font-bold leading-snug text-white">{pick(title, lang)}</p>
+              <p className="mt-0.5 text-[13.5px] leading-relaxed text-zinc-400">{pick(desc, lang)}</p>
             </div>
           </div>
         ))}
@@ -196,7 +198,7 @@ function FlowCopy() {
       <Kicker>{pick(COPY.kicker, lang)}</Kicker>
 
       {/* 단계별로 전환되는 카피 블록 */}
-      <div className="mt-6 min-h-[164px]">
+      <div className="mt-6 min-h-[172px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -216,10 +218,10 @@ function FlowCopy() {
                 {pick(copy.tag, lang)}
               </span>
             </div>
-            <h1 className="mt-3 text-[38px] font-extrabold leading-[1.14] tracking-tight text-white">
+            <h1 className="mt-3 text-[41px] font-extrabold leading-[1.13] tracking-tight text-white">
               {pick(copy.title, lang)}
             </h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-zinc-400">{pick(copy.desc, lang)}</p>
+            <p className="mt-3 text-[16px] leading-relaxed text-zinc-400">{pick(copy.desc, lang)}</p>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -242,7 +244,7 @@ function FlowCopy() {
                 <motion.span
                   animate={{ scale: active ? 1.12 : 1 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                  className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
                   style={{
                     background: done || active ? FINDLE_GREEN : 'rgba(255,255,255,0.05)',
                     boxShadow: active ? `0 0 0 4px rgba(21,160,106,0.22)` : 'none',
@@ -250,10 +252,10 @@ function FlowCopy() {
                   }}
                 >
                   {done ? (
-                    <Check className="h-[18px] w-[18px] text-white" strokeWidth={3} />
+                    <Check className="h-[19px] w-[19px] text-white" strokeWidth={3} />
                   ) : (
                     <Icon
-                      className="h-[18px] w-[18px]"
+                      className="h-[19px] w-[19px]"
                       style={{ color: active ? '#ffffff' : '#6b7280' }}
                     />
                   )}
