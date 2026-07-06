@@ -117,6 +117,7 @@ export const STR = {
   explorerFavorites: { ko: '즐겨찾기', en: 'Favourites' },
   explorerFolder: { ko: 'Reinsurance', en: 'Reinsurance' },
   explorerThisPc: { ko: '내 PC', en: 'This PC' },
+  explorerSelectAll: { ko: '전체 선택', en: 'Select all' },
   explorerColName: { ko: '이름', en: 'Name' },
   explorerColModified: { ko: '수정한 날짜', en: 'Date modified' },
   explorerColType: { ko: '유형', en: 'Type' },

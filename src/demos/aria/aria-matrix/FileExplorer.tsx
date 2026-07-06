@@ -1,15 +1,33 @@
 import { motion } from 'framer-motion';
-import { FileText, Folder, HardDrive, Star } from 'lucide-react';
+import { Check, FileText, Folder, HardDrive, Minus, Star } from 'lucide-react';
 import { useMatrix } from './state';
 import { DOCUMENTS, FILE_META, STR } from './data';
 import { pick, useLang } from '../_shared/i18n';
 import { cn } from '../../../lib/cn';
+
+/** 파일 리스트 좌측 체크박스 — checked/indeterminate 상태를 표시 */
+function CheckBox({ checked, indeterminate }: { checked: boolean; indeterminate?: boolean }) {
+  const active = checked || indeterminate;
+  return (
+    <span
+      className={cn(
+        'flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border transition-colors',
+        active ? 'border-[#0b6bcb] bg-[#0b6bcb] text-white' : 'border-black/30 bg-white',
+      )}
+    >
+      {checked && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
+      {!checked && indeterminate && <Minus className="h-2.5 w-2.5" strokeWidth={3} />}
+    </span>
+  );
+}
 
 /** Windows 탐색기 "열기" 다이얼로그 재현 — explorerOpen일 때 오버레이로 마운트 */
 export function FileExplorer() {
   const m = useMatrix();
   const lang = useLang();
   const selected = DOCUMENTS.filter((d) => m.selectedFiles.includes(d.id));
+  const allSelected = selected.length === DOCUMENTS.length;
+  const someSelected = selected.length > 0 && !allSelected;
 
   return (
     <motion.div
@@ -52,6 +70,14 @@ export function FileExplorer() {
           {/* 파일 리스트 */}
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex items-center border-b border-black/10 bg-[#f7f7f7] px-3 py-1.5 text-[10.5px] font-medium text-[#666]">
+              <button
+                data-demo-id="explorer-select-all"
+                onClick={() => m.toggleSelectAll()}
+                className="mr-2 flex shrink-0 items-center"
+                aria-label={pick(STR.explorerSelectAll, lang)}
+              >
+                <CheckBox checked={allSelected} indeterminate={someSelected} />
+              </button>
               <span className="flex-1">{pick(STR.explorerColName, lang)}</span>
               <span className="w-28 shrink-0">{pick(STR.explorerColModified, lang)}</span>
               <span className="w-24 shrink-0">{pick(STR.explorerColType, lang)}</span>
@@ -71,6 +97,9 @@ export function FileExplorer() {
                       sel ? 'bg-[#cfe4fb]' : 'hover:bg-[#eef2f7]',
                     )}
                   >
+                    <span className="mr-2 flex shrink-0 items-center">
+                      <CheckBox checked={sel} />
+                    </span>
                     <span className="flex flex-1 items-center gap-2 truncate">
                       <FileText className="h-3.5 w-3.5 shrink-0 text-[#c0392b]" />
                       <span className="truncate">{doc.fileName}</span>

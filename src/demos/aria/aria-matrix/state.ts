@@ -21,6 +21,8 @@ interface MatrixState {
 
   openExplorer: () => void;
   toggleFileSelect: (id: string) => void;
+  /** 헤더 "전체 선택" 체크박스 — 전부 선택돼 있으면 해제, 아니면 전체 선택 */
+  toggleSelectAll: () => void;
   confirmUpload: () => void;
   analyzeAll: () => void;
   openPopover: (docId: string, colId: string) => void;
@@ -54,6 +56,11 @@ export const useMatrix = create<MatrixState>((set, get) => ({
       selectedFiles: s.selectedFiles.includes(id)
         ? s.selectedFiles.filter((f) => f !== id)
         : [...s.selectedFiles, id],
+    })),
+
+  toggleSelectAll: () =>
+    set((s) => ({
+      selectedFiles: s.selectedFiles.length === DOCUMENTS.length ? [] : DOCUMENTS.map((d) => d.id),
     })),
 
   confirmUpload: () => {
@@ -98,27 +105,30 @@ export const useMatrix = create<MatrixState>((set, get) => ({
         set((s) => ({ activeColumns: [...s.activeColumns, col.id] }));
         await sleep(90 + Math.random() * 110);
       }
-      // 문서별로 "분석 중"에서 하나씩 빠져나오며 결과가 채워진다.
-      // 각 문서의 시작 시점(stagger) + 셀 채우는 속도를 불규칙하게 → 동시 완료·등속 느낌 제거.
-      for (const doc of get().uploadedDocs) {
-        // 이 문서가 "분석 중"에 머무는 시간 — 문서마다 다르게(랜덤 stagger)
-        await sleep(220 + Math.random() * 500);
-        if (id !== runId) return;
-        // 이 문서의 셀들을 먼저 "추출 중"으로 (행이 "분석 중"에서 빠져나옴)
-        const extracting: Record<string, CellStatus> = {};
-        for (const col of COLUMNS) extracting[key(doc, col.id)] = 'extracting';
-        set((s) => ({ cellStatus: { ...s.cellStatus, ...extracting } }));
-        await sleep(120 + Math.random() * 180);
-        if (id !== runId) return;
-        // 셀마다 지터 + 가끔 오래 걸리는 필드("추론 중")
-        for (const col of COLUMNS) {
-          let d = 80 + Math.random() * 160; // 80–240ms 기본 지터
-          if (Math.random() < 0.15) d += 180 + Math.random() * 280; // 가끔 조금 더
-          await sleep(d);
+      // 모든 문서를 "동시에" 읽는 것처럼 — 각 문서가 독립 async 태스크로 병렬 진행된다.
+      // 시작 시점만 아주 살짝 흩뿌리고(완전 동시 출발은 인위적), 셀마다 속도를 불규칙하게 →
+      // 여러 파일이 나란히 채워지다 뒤섞인 순서로 완료되는 병렬 처리 느낌.
+      await Promise.all(
+        get().uploadedDocs.map(async (doc) => {
+          // 짧은 시작 지터 — 거의 함께 출발하되 프레임을 살짝 어긋나게
+          await sleep(Math.random() * 350);
           if (id !== runId) return;
-          set((s) => ({ cellStatus: { ...s.cellStatus, [key(doc, col.id)]: 'done' } }));
-        }
-      }
+          // 이 문서의 셀들을 먼저 "추출 중"으로 (행이 "분석 중"에서 빠져나옴)
+          const extracting: Record<string, CellStatus> = {};
+          for (const col of COLUMNS) extracting[key(doc, col.id)] = 'extracting';
+          set((s) => ({ cellStatus: { ...s.cellStatus, ...extracting } }));
+          await sleep(120 + Math.random() * 180);
+          if (id !== runId) return;
+          // 셀마다 지터 + 가끔 오래 걸리는 필드("추론 중")
+          for (const col of COLUMNS) {
+            let d = 120 + Math.random() * 240; // 120–360ms 기본 지터
+            if (Math.random() < 0.18) d += 200 + Math.random() * 340; // 가끔 더 오래
+            await sleep(d);
+            if (id !== runId) return;
+            set((s) => ({ cellStatus: { ...s.cellStatus, [key(doc, col.id)]: 'done' } }));
+          }
+        }),
+      );
       if (id !== runId) return;
       set({ phase: 'done' });
     })();
