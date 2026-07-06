@@ -16,12 +16,12 @@ const EASE = 0.2; // origin 추종 보간 계수 (클수록 빠르게 따라붙�
  * origin을 대상 중심에 두므로 그 점은 배율과 무관하게 본래 위치에 고정되고,
  * 가짜 커서는 cameraNaturalCenter(본래 위치)를 가리켜 정렬을 유지한다.
  */
-export function Camera({ children }: { children: ReactNode }) {
+export function Camera({ children, disabled }: { children: ReactNode; disabled?: boolean }) {
   const spotlightId = usePlaybackStore((s) => s.spotlightId);
   const enabled = usePlaybackStore((s) => s.spotlightEnabled);
   const ref = useRef<HTMLDivElement>(null);
 
-  const active = enabled && !!spotlightId;
+  const active = !disabled && enabled && !!spotlightId;
 
   // 현재 적용 중인 origin(레이어 로컬). 비활성 구간엔 null로 두어 다음 줌인 때 새 대상으로 스냅.
   const originRef = useRef<{ x: number; y: number } | null>(null);

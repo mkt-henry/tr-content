@@ -56,6 +56,8 @@ export interface FeatureDefinition {
   Desktop: ComponentType<DemoComponentProps>;
   /** 없으면 Desktop을 모바일 뷰포트에 렌더 */
   Mobile?: ComponentType<DemoComponentProps>;
+  /** true면 데스크탑 모드에서도 브라우저 크롬(주소창)을 숨김 — 모바일 앱을 폰 목업으로 소개하는 기능 설명 레이아웃용 */
+  chromeless?: boolean;
   /** 데모 store 초기화 — 재생/리셋 시 호출 */
   resetState: () => void;
   variants: DemoVariant[];

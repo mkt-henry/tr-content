@@ -194,9 +194,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
             style={{ width: 'min(88vw, 138vh)', aspectRatio: '16 / 9.8' }}
             onPointerDownCapture={intervene}
           >
-            {browserChrome && <BrowserChrome url={url} device="desktop" />}
+            {browserChrome && !feature.chromeless && <BrowserChrome url={url} device="desktop" />}
             <div className="relative min-h-0 flex-1">
-              <Camera>
+              <Camera disabled={feature.chromeless}>
                 <Comp device="desktop" />
               </Camera>
             </div>

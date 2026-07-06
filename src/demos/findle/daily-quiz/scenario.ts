@@ -20,7 +20,7 @@ const NAV: Step[] = [
   { kind: 'wait', ms: 900 },
   { kind: 'cursor', target: 'todays-quiz', ms: 700 },
   { kind: 'click', target: 'todays-quiz', run: () => st().openNews() },
-  { kind: 'wait', ms: 1400 },
+  { kind: 'wait', ms: 2600 },
   { kind: 'cursor', target: 'start-quiz', ms: 600 },
   { kind: 'click', target: 'start-quiz', run: () => st().startQuiz() },
   { kind: 'wait', ms: 1000 },

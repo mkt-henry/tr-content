@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ChevronRight, Newspaper, Sparkles, Trophy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronRight, Lightbulb, ListChecks, Newspaper, Sparkles, Trophy } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import { fmt, pick, useLang } from '../_shared/i18n';
 import { FINDLE_APP_BG, FINDLE_GREEN, Fin, FindleBottomNav, FindleTopBar } from '../_shared/ui';
-import { INITIAL, NEWS, STR } from './data';
+import { INITIAL, MORE_NEWS, NEWS, STR } from './data';
 import { useDailyQuiz } from './state';
 
 /** 학생 데일리 퀴즈 앱 — 홈 → 뉴스 → 퀴즈 → 결과 */
@@ -83,6 +83,20 @@ function Home() {
           </span>
           <ChevronRight className="h-5 w-5 shrink-0 text-zinc-300" />
         </button>
+
+        {/* 추가 뉴스 — 시각적 볼륨용, 클릭 동작 없음 */}
+        {MORE_NEWS.map((item, i) => (
+          <div key={i} className="mt-2 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-50 text-zinc-400">
+              <Newspaper className="h-5 w-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="mt-0.5 block truncate text-[13.5px] font-bold text-zinc-700">{pick(item.headline, lang)}</span>
+              <span className="block text-[11px] text-zinc-400">{pick(item.topic, lang)}</span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0 text-zinc-200" />
+          </div>
+        ))}
       </div>
     </>
   );
@@ -110,6 +124,40 @@ function News() {
             {pick(NEWS.topic, lang)}
           </span>
         </div>
+
+        {/* 관련 지표 카드 */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {NEWS.stats.map((stat, i) => (
+            <div key={i} className="rounded-2xl bg-white p-3 text-center shadow-sm">
+              <p className="text-[15px] font-extrabold tabular-nums text-zinc-900">{pick(stat.value, lang)}</p>
+              <p className="mt-0.5 text-[10px] text-zinc-400">{pick(stat.label, lang)}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* 핵심 포인트 */}
+        <div className="mt-3 rounded-2xl bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-1.5 text-[12.5px] font-bold text-zinc-900">
+            <ListChecks className="h-4 w-4" style={{ color: FINDLE_GREEN }} /> {pick(STR.keyPointsLabel, lang)}
+          </div>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {pick(NEWS.keyPoints, lang).map((point, i) => (
+              <li key={i} className="flex gap-2 text-[12px] leading-relaxed text-zinc-500">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full" style={{ background: FINDLE_GREEN }} />
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 왜 중요한가 */}
+        <div className="mt-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+          <div className="flex items-center gap-1.5 text-[12.5px] font-bold text-emerald-700">
+            <Lightbulb className="h-4 w-4" /> {pick(STR.whyItMatters, lang)}
+          </div>
+          <p className="mt-2 text-[12px] leading-relaxed text-emerald-700/80">{pick(NEWS.impact, lang)}</p>
+        </div>
+
         <p className="mt-4 text-center text-[11.5px] font-medium" style={{ color: FINDLE_GREEN }}>
           ✨ {pick(STR.newsToLesson, lang)}
         </p>

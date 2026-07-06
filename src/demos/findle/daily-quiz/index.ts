@@ -14,6 +14,7 @@ const dailyQuiz: FeatureDefinition = {
   accent: FINDLE_GREEN,
   Desktop,
   Mobile,
+  chromeless: true,
   resetState: () => useDailyQuiz.getState().reset(),
   variants: [
     {
@@ -30,6 +31,15 @@ const dailyQuiz: FeatureDefinition = {
       label: '해설 · 오답 복습 문항',
       version: 'v2',
       sellingPoint: '약점 개념 AI 복습',
+      url: 'findle.io/learn',
+      background: FINDLE_BG,
+      scenario: deepScenario,
+    },
+    {
+      id: 'narrated',
+      label: '흐름 따라 설명 자막',
+      version: 'v3',
+      sellingPoint: '단계별 내레이션',
       url: 'findle.io/learn',
       background: FINDLE_BG,
       scenario: deepScenario,

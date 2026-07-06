@@ -26,7 +26,47 @@ export const NEWS = {
     en: 'The Bank of Korea kept its base rate unchanged, balancing easing inflation against growth and household debt.',
   } as L,
   topic: { ko: '금리 · 통화정책', en: 'Rates · Monetary policy' } as L,
+  /** 핵심 포인트 — 뉴스 화면 bullet 요약 */
+  keyPoints: {
+    ko: [
+      '금통위원 6명 전원 동결에 동의, 3연속 동결',
+      '소비자물가 상승률 2.1%로 목표치 2%에 근접',
+      '가계부채 증가세는 여전히 경계 대상',
+    ],
+    en: [
+      'All six board members voted to hold, a third straight hold',
+      'CPI inflation at 2.1%, nearing the 2% target',
+      'Household debt growth remains a key risk to watch',
+    ],
+  } as L<string[]>,
+  /** 관련 지표 카드 */
+  stats: [
+    { label: { ko: '기준금리', en: 'Base rate' } as L, value: { ko: '3.50%', en: '3.50%' } as L },
+    { label: { ko: '전월 대비', en: 'vs last month' } as L, value: { ko: '동결', en: 'Hold' } as L },
+    { label: { ko: '소비자물가', en: 'CPI' } as L, value: { ko: '2.1%', en: '2.1%' } as L },
+  ],
+  /** 왜 중요한가 — 영향 설명 */
+  impact: {
+    ko: '기준금리는 은행의 예금·대출 금리는 물론 카드 할부, 학자금 대출 이자에도 영향을 줍니다. 동결이 이어지면 대출 이자 부담이 급격히 늘지는 않지만, 예금 이자도 크게 오르진 않아요.',
+    en: "The base rate shapes deposit and loan rates — even credit installments and student loans. A continued hold means borrowing costs won't spike, but savings rates won't climb much either.",
+  } as L,
 };
+
+/** 홈 화면 리스트를 채우는 추가 뉴스 — 시각적 볼륨용, 실제 동작(퀴즈 연결)은 NEWS(최상단)만 */
+export const MORE_NEWS: { headline: L; topic: L }[] = [
+  {
+    headline: { ko: '미 연준, 다음 회의서 금리 동결 시사', en: 'Fed signals another rate hold at next meeting' },
+    topic: { ko: '환율 · 글로벌', en: 'FX · Global' },
+  },
+  {
+    headline: { ko: '반도체 수출 호조, 코스피 강세 견인', en: 'Chip export boom drives KOSPI rally' },
+    topic: { ko: '증시 · 산업', en: 'Markets · Industry' },
+  },
+  {
+    headline: { ko: '가상자산 시장, 하루 만에 5% 출렁', en: 'Crypto market swings 5% in a single day' },
+    topic: { ko: '디지털자산', en: 'Digital assets' },
+  },
+];
 
 export interface QuizItem {
   id: string;
@@ -101,6 +141,8 @@ export const STR = {
   todaysQuizTag: { ko: '오늘의 뉴스 퀴즈', en: "Today's news quiz" },
   startQuiz: { ko: '퀴즈 시작', en: 'Start quiz' },
   newsToLesson: { ko: '오늘의 뉴스가 오늘의 수업', en: "Today's news becomes today's lesson" },
+  keyPointsLabel: { ko: '핵심 포인트', en: 'Key points' },
+  whyItMatters: { ko: '왜 중요할까요?', en: 'Why it matters' },
   quizHeader: { ko: '퀴즈', en: 'Quiz' },
   questionLabel: { ko: 'Q.{n}', en: 'Q.{n}' },
   submit: { ko: '제출', en: 'Submit' },
