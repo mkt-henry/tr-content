@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ChevronRight, Lightbulb, ListChecks, Newspaper, Sparkles, Trophy } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import { fmt, pick, useLang } from '../_shared/i18n';
-import { FINDLE_APP_BG, FINDLE_GREEN, Fin, FindleBottomNav, FindleTopBar } from '../_shared/ui';
+import { FINDLE_APP_BG, FINDLE_GREEN, Fin, FindleBottomNav, FindleTopBar, PhoneStatusBar } from '../_shared/ui';
 import { INITIAL, MORE_NEWS, NEWS, STR } from './data';
 import { useDailyQuiz } from './state';
 
@@ -11,7 +11,8 @@ export function DailyQuizApp() {
   const s = useDailyQuiz();
 
   return (
-    <div className="flex h-full flex-col pt-8" style={{ background: FINDLE_APP_BG }}>
+    <div className="flex h-full flex-col" style={{ background: FINDLE_APP_BG }}>
+      <PhoneStatusBar />
       {s.screen === 'home' && <Home />}
       {s.screen === 'news' && <News />}
       {s.screen === 'quiz' && <QuizRunner />}
@@ -31,35 +32,35 @@ function Home() {
       <FindleTopBar streak={INITIAL.streak} fins={s.fins} />
       <div className="demo-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-1">
         {/* 인사 + 레벨 */}
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <p className="text-[12px] text-zinc-400">{pick(STR.greeting, lang)}</p>
+        <div className="rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-black/[0.04]">
+          <p className="text-[11.5px] text-zinc-400">{pick(STR.greeting, lang)}</p>
           <div className="flex items-end justify-between">
-            <h2 className="text-[22px] font-extrabold text-zinc-900">Hey, {pick(STR.userName, lang)}</h2>
+            <h2 className="text-[20px] font-extrabold text-zinc-900">Hey, {pick(STR.userName, lang)}</h2>
             <span
-              className="flex h-11 w-11 flex-col items-center justify-center rounded-xl text-white"
+              className="flex h-10 w-10 flex-col items-center justify-center rounded-xl text-white"
               style={{ background: FINDLE_GREEN }}
             >
-              <span className="text-[16px] font-extrabold leading-none">{INITIAL.level}</span>
+              <span className="text-[15px] font-extrabold leading-none">{INITIAL.level}</span>
               <span className="text-[7px] font-medium opacity-80">Level</span>
             </span>
           </div>
-          <p className="mt-1 text-[11.5px] font-medium text-zinc-500">
+          <p className="mt-1 text-[11px] font-medium text-zinc-500">
             {fmt(pick(STR.toLevel, lang), { n: INITIAL.level + 1, xp: INITIAL.xp })}
           </p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
             <div className="h-full rounded-full" style={{ width: `${INITIAL.xpInLevel * 100}%`, background: FINDLE_GREEN }} />
           </div>
         </div>
 
         {/* 스탯 */}
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-2.5 grid grid-cols-3 gap-2">
           {[
             { v: `${INITIAL.streak}`, l: pick(STR.dayStreak, lang), c: 'text-orange-500' },
             { v: s.fins.toLocaleString('en-US'), l: pick(STR.finsLabel, lang), c: 'text-emerald-600' },
             { v: `#${INITIAL.rankInClass}`, l: pick(STR.inClass, lang), c: 'text-zinc-900' },
           ].map((x, i) => (
-            <div key={i} className="rounded-2xl bg-white p-3 text-center shadow-sm">
-              <p className={cn('text-[18px] font-extrabold tabular-nums', x.c)}>{x.v}</p>
+            <div key={i} className="rounded-2xl bg-white p-2.5 text-center shadow-sm ring-1 ring-black/[0.04]">
+              <p className={cn('text-[17px] font-extrabold tabular-nums', x.c)}>{x.v}</p>
               <p className="text-[10px] text-zinc-400">{x.l}</p>
             </div>
           ))}
@@ -69,13 +70,13 @@ function Home() {
         <button
           data-demo-id="todays-quiz"
           onClick={() => s.openNews()}
-          className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-emerald-100"
+          className="mt-2.5 flex w-full items-center gap-3 rounded-2xl bg-white p-3.5 text-left shadow-sm ring-1 ring-emerald-200/70"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-            <Newspaper className="h-5 w-5" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <Newspaper className="h-[18px] w-[18px]" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[10.5px] font-bold uppercase tracking-wide text-emerald-600">
+            <span className="block text-[10px] font-bold uppercase tracking-wide text-emerald-600">
               {pick(STR.todaysQuizTag, lang)}
             </span>
             <span className="mt-0.5 block truncate text-[13.5px] font-bold text-zinc-900">{pick(NEWS.headline, lang)}</span>
@@ -86,9 +87,9 @@ function Home() {
 
         {/* 추가 뉴스 — 시각적 볼륨용, 클릭 동작 없음 */}
         {MORE_NEWS.map((item, i) => (
-          <div key={i} className="mt-2 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-50 text-zinc-400">
-              <Newspaper className="h-5 w-5" />
+          <div key={i} className="mt-2 flex w-full items-center gap-3 rounded-2xl bg-white p-3.5 text-left shadow-sm ring-1 ring-black/[0.04]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-50 text-zinc-400">
+              <Newspaper className="h-[18px] w-[18px]" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="mt-0.5 block truncate text-[13.5px] font-bold text-zinc-700">{pick(item.headline, lang)}</span>
@@ -107,7 +108,7 @@ function News() {
   const lang = useLang();
   return (
     <>
-      <header className="flex shrink-0 items-center gap-2 px-4 pb-2 pt-3.5">
+      <header className="flex shrink-0 items-center gap-2 px-4 pb-2 pt-2">
         <button onClick={() => useDailyQuiz.setState({ screen: 'home' })} className="text-zinc-700">
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -192,7 +193,7 @@ function QuizRunner() {
 
   return (
     <>
-      <header className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3.5">
+      <header className="flex shrink-0 items-center justify-between px-4 pb-2 pt-2">
         <span className="text-[15px] font-bold text-zinc-900">{pick(STR.quizHeader, lang)}</span>
         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-zinc-500">
           <Fin className="h-3.5 w-3.5" />

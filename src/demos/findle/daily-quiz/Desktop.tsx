@@ -59,10 +59,12 @@ export function Desktop(_: DemoComponentProps) {
 function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex h-full w-full items-center justify-center gap-[4%] overflow-hidden bg-[#0e1512] px-[4%] text-zinc-200">
-      {/* 폰 목업 — 비율(9:19.5) 유지하며 무대 높이의 ~90%로 크게. minWidth:0로 폭이 aspect-ratio를 따르게 한다 */}
+      {/* 폰 목업 — 비율(9.5:19.5) 유지. 높이는 min(90%, 720px)로 상한 고정 →
+          뷰포트 높이 ≈946px↑이면 창(재생·최대화)·전체화면(녹화) 모두 720px로 잠겨
+          안의 고정 px 앱 UI가 동일하게 렌더된다. (순수 폰 뷰의 min(90vh,780px)와 같은 원리) */}
       <div
-        className="relative h-[90%] shrink-0 rounded-[3rem] bg-[#0c0b0e] p-[12px] ring-1 ring-white/15 shadow-[0_50px_140px_-20px_rgba(0,0,0,0.85)]"
-        style={{ aspectRatio: '9 / 19.5', minWidth: 0, width: 'auto' }}
+        className="relative shrink-0 rounded-[3rem] bg-[#0c0b0e] p-[12px] ring-1 ring-white/15 shadow-[0_50px_140px_-20px_rgba(0,0,0,0.85)]"
+        style={{ height: 'min(90%, 720px)', aspectRatio: '9.5 / 19.5', minWidth: 0, width: 'auto' }}
       >
         <div className="absolute left-1/2 top-[20px] z-30 h-[22px] w-[78px] -translate-x-1/2 rounded-full bg-black ring-1 ring-white/[0.06]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[2.45rem] bg-[#131216]">
@@ -94,16 +96,16 @@ function StaticCopy() {
   return (
     <>
       <Kicker>{pick(COPY.kicker, lang)}</Kicker>
-      <h1 className="mt-5 text-[42px] font-extrabold leading-[1.13] tracking-tight text-white">
+      <h1 className="mt-5 text-[46px] font-extrabold leading-[1.06] tracking-[-0.02em] text-white">
         {pick(COPY.headline1, lang)}
         <br />
         <span style={{ color: FINDLE_GREEN }}>{pick(COPY.headline2, lang)}</span>
       </h1>
-      <p className="mt-4 text-[15.5px] leading-relaxed text-zinc-400">{pick(COPY.lead, lang)}</p>
+      <p className="mt-4 text-[16.5px] leading-[1.6] text-zinc-300">{pick(COPY.lead, lang)}</p>
 
       <div className="mt-7 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
         {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-          <div key={i} className="flex items-start gap-3.5 border-t border-white/[0.06] px-4 py-4 first:border-t-0">
+          <div key={i} className="flex items-start gap-3.5 border-t border-white/[0.06] px-4 py-[18px] first:border-t-0">
             <span
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{ background: 'rgba(21,160,106,0.14)' }}
@@ -111,8 +113,8 @@ function StaticCopy() {
               <Icon className="h-[19px] w-[19px]" style={{ color: FINDLE_GREEN }} />
             </span>
             <div>
-              <p className="text-[16px] font-bold leading-snug text-white">{pick(title, lang)}</p>
-              <p className="mt-0.5 text-[13.5px] leading-relaxed text-zinc-400">{pick(desc, lang)}</p>
+              <p className="text-[16.5px] font-bold leading-snug tracking-[-0.01em] text-white">{pick(title, lang)}</p>
+              <p className="mt-1 text-[14px] leading-[1.55] text-zinc-400">{pick(desc, lang)}</p>
             </div>
           </div>
         ))}
@@ -218,10 +220,10 @@ function FlowCopy() {
                 {pick(copy.tag, lang)}
               </span>
             </div>
-            <h1 className="mt-3 text-[41px] font-extrabold leading-[1.13] tracking-tight text-white">
+            <h1 className="mt-3 text-[44px] font-extrabold leading-[1.07] tracking-[-0.02em] text-white">
               {pick(copy.title, lang)}
             </h1>
-            <p className="mt-3 text-[16px] leading-relaxed text-zinc-400">{pick(copy.desc, lang)}</p>
+            <p className="mt-3.5 text-[17px] leading-[1.6] text-zinc-300">{pick(copy.desc, lang)}</p>
           </motion.div>
         </AnimatePresence>
       </div>

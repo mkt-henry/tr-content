@@ -8,3 +8,9 @@ dist
 
 # 브레인스토밍 비주얼 컴패니언 스크래치
 .superpowers/
+
+# Remotion 렌더 산출물 (프레임 시퀀스·mp4·로그) — 로컬 전용
+remotion-out/
+
+# Claude Code 작업 폴더
+.claude/worktrees/

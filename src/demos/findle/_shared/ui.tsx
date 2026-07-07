@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Flame, Gift, Home, User } from 'lucide-react';
+import { BarChart3, BookOpen, Flame, Gift, Home, Signal, User, Wifi } from 'lucide-react';
 import { cn } from '../../../lib/cn';
 import type { DemoBackground } from '../../../registry/types';
 
@@ -17,6 +17,28 @@ export const FINDLE_BG: DemoBackground = {
 
 /** 앱 화면 라이트 배경색 */
 export const FINDLE_APP_BG = '#f1f3f5';
+
+/** iOS 스타일 상태바 — 시간 + 신호·와이파이·배터리. 노치 좌우로 갈라 실제 캡처처럼 보이게 한다. */
+export function PhoneStatusBar({ time = '9:41' }: { time?: string }) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-between px-7 pb-1 pt-[9px] text-zinc-900"
+      style={{ background: FINDLE_APP_BG }}
+    >
+      <span className="text-[14px] font-semibold tracking-[-0.01em] tabular-nums">{time}</span>
+      <div className="flex items-center gap-[5px]">
+        <Signal className="h-[13px] w-[13px]" strokeWidth={2.4} />
+        <Wifi className="h-[13px] w-[13px]" strokeWidth={2.4} />
+        {/* 배터리 픽토그램 */}
+        <span className="relative ml-[1px] flex h-[12px] w-[23px] items-center">
+          <span className="absolute inset-0 rounded-[3.5px] border-[1.3px] border-zinc-900/35" />
+          <span className="absolute bottom-[2.5px] left-[2px] top-[2.5px] w-[13px] rounded-[1.5px] bg-zinc-900" />
+          <span className="absolute right-[-2.5px] top-1/2 h-[4px] w-[2px] -translate-y-1/2 rounded-r bg-zinc-900/35" />
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /** Findle 로고 마크 — 그린 라운드 + 흰 F */
 export function FindleMark({ className }: { className?: string }) {
@@ -45,7 +67,7 @@ export function Fin({ className }: { className?: string }) {
 /** 학생 앱 상단바 — 로고 + 스트릭/Fins/아바타 */
 export function FindleTopBar({ streak, fins, initials = 'AK' }: { streak: number; fins: number; initials?: string }) {
   return (
-    <header className="flex shrink-0 items-center gap-2 px-4 pb-2 pt-3.5" style={{ background: FINDLE_APP_BG }}>
+    <header className="flex shrink-0 items-center gap-2 px-4 pb-2 pt-1.5" style={{ background: FINDLE_APP_BG }}>
       <FindleMark className="h-6.5 w-6.5 text-[13px]" />
       <span className="text-[15px] font-extrabold text-zinc-900">Findle</span>
       <div className="ml-auto flex items-center gap-1.5">

@@ -9,6 +9,7 @@ import { VariantCard } from './FeatureCard';
 import { getDecksByProject, hasCardnews } from '../cardnews/registry';
 import { CardNewsGallery } from './cardnews/CardNewsGallery';
 import { toLang } from '../cardnews/lang';
+import { REMOTION_STUDIO_URL } from '../../remotion/studio';
 
 /** 런처: 프로젝트 탭 → 기능 카드 그리드 → 버전/소구점 선택 → 스테이지 진입 */
 export function Gallery() {
@@ -20,6 +21,7 @@ export function Gallery() {
   const setProject = useShellStore((s) => s.setProject);
   const projectLang = useShellStore((s) => s.projectLang);
   const setProjectLang = useShellStore((s) => s.setProjectLang);
+  const openStudio = useShellStore((s) => s.openStudio);
 
   const project = projects.find((p) => p.id === projectId) ?? projects[0];
   const features = getFeaturesByProject(project.id);
@@ -138,6 +140,18 @@ export function Gallery() {
                     {assets.length}
                   </span>
                 </button>
+              )}
+              {/* Remotion Studio 진입 — 로컬(dev)에서만. production엔 localhost 서버가 없다. */}
+              {import.meta.env.DEV && (
+              <button
+                type="button"
+                onClick={() => openStudio(REMOTION_STUDIO_URL)}
+                title="Remotion Studio 열기 (npm run studio 실행 중)"
+                className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[13px] font-medium text-zinc-300 transition-colors hover:border-white/25 hover:bg-white/[0.07]"
+              >
+                <Film className="h-4 w-4" />
+                Remotion Studio
+              </button>
               )}
             </div>
           </div>
