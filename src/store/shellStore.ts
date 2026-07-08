@@ -15,9 +15,9 @@ interface ShellState {
   /** null이 아니면 카드뉴스 뷰어 화면 */
   cardnewsId: string | null;
   openCardnews: (deckId: string) => void;
-  /** null이 아니면 Remotion Studio를 iframe으로 띄운 화면 (기존 화면 위에 오버레이) */
-  studioUrl: string | null;
-  openStudio: (url: string) => void;
+  /** true면 인앱 Remotion Studio-lite 페이지를 오버레이로 띄운다 */
+  studioOpen: boolean;
+  openStudio: () => void;
   closeStudio: () => void;
   device: DeviceMode;
   /** 모바일일 때 폰 목업 프레임 표시 여부 */
@@ -63,9 +63,9 @@ export const useShellStore = create<ShellState>((set) => ({
   setGalleryMode: (projectId, mode) =>
     set((s) => ({ galleryMode: { ...s.galleryMode, [projectId]: mode } })),
   openCardnews: (deckId) => set({ cardnewsId: deckId }),
-  studioUrl: null,
-  openStudio: (studioUrl) => set({ studioUrl }),
-  closeStudio: () => set({ studioUrl: null }),
+  studioOpen: false,
+  openStudio: () => set({ studioOpen: true }),
+  closeStudio: () => set({ studioOpen: false }),
   open: (featureId, variantId) => set({ featureId, variantId, showPosts: false }),
   backToGallery: () => set({ featureId: null, variantId: null, cardnewsId: null, showPosts: false }),
   setDevice: (device) => set({ device }),

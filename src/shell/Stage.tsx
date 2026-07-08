@@ -12,7 +12,7 @@ import { SpotlightCaption } from './SpotlightCaption';
 import { DistributionPanel } from './DistributionPanel';
 import { Camera } from './Camera';
 import { RemotionPreview } from './RemotionPreview';
-import { hasRemotion, studioUrlFor } from '../../remotion/studio';
+import { hasRemotion } from '../../remotion/studio';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
 import { cn } from '../lib/cn';
@@ -312,15 +312,13 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           >
             🎞 Remotion 미리보기
           </button>
-          {import.meta.env.DEV && studioUrlFor(feature.id) && (
-            <button
-              onClick={() => useShellStore.getState().openStudio(studioUrlFor(feature.id)!)}
-              title="Remotion Studio에서 열기 (npm run studio 실행 중). 상단 '← 목록으로'로 복귀."
-              className="rounded-lg bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white/80 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/15 hover:text-white"
-            >
-              Studio ↗
-            </button>
-          )}
+          <button
+            onClick={() => useShellStore.getState().openStudio()}
+            title="Remotion Studio에서 열기 — 데모 영상 재생·스크럽"
+            className="rounded-lg bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white/80 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/15 hover:text-white"
+          >
+            Studio ↗
+          </button>
         </div>
       )}
       {showRemotion && (
