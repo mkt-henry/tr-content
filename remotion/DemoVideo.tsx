@@ -7,7 +7,8 @@ import { FakeCursor } from '../src/shell/FakeCursor';
 import { SpotlightCaption } from '../src/shell/SpotlightCaption';
 import { usePlaybackStore } from '../src/engine/playbackStore';
 import { useShellStore } from '../src/store/shellStore';
-import { cameraNaturalCenter } from '../src/lib/cameraGeom';
+import type { Lang } from '../src/demos/findle/_shared/i18n';
+import { localCenter } from '../src/lib/cameraGeom';
 import { buildTimeline, computeFrameState } from './timeline';
 
 const feature = dailyQuiz;
@@ -19,16 +20,25 @@ const variant = feature.variants.find((v) => v.id === 'narrated') ?? feature.var
  * framer-motion 스프링이 담당(순차 렌더에서 결정론적). 벽시계(setTimeout/Date.now) 의존 없음
  * → 페이싱 보정 불필요, 1프레임 = 정확히 1/fps.
  */
-export const DemoVideo: React.FC = () => {
+export const DemoVideo: React.FC<{ lang?: Lang }> = ({ lang }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const Comp = feature.Desktop;
 
   // 셸 스토어 구성 — 마운트 시 1회 (렌더 밖 effect라 렌더 중 외부 컴포넌트 갱신 경고 없음)
+  // lang이 주어지면(Studio/CLI 컴포지션) 프로젝트 언어를 고정한다. 미지정(앱 내 미리보기)이면
+  // 건드리지 않아 앱의 현재 언어 토글을 그대로 따른다.
   useLayoutEffect(() => {
-    useShellStore.setState({ featureId: feature.id, variantId: variant.id, device: 'desktop' });
+    useShellStore.setState({
+      featureId: feature.id,
+      variantId: variant.id,
+      device: 'desktop',
+      ...(lang
+        ? { projectLang: { ...useShellStore.getState().projectLang, findle: lang } }
+        : {}),
+    });
     usePlaybackStore.getState().setSpotlight(null);
-  }, []);
+  }, [lang]);
 
   const timeline = useMemo(() => buildTimeline(variant.scenario, fps), [fps]);
   const state = useMemo(() => computeFrameState(frame, timeline), [frame, timeline]);
@@ -66,20 +76,18 @@ export const DemoVideo: React.FC = () => {
   // 쓰면 외부 구독 컴포넌트를 렌더 중 갱신하게 되어 React 18이 렌더를 폐기·재시도(Player 정지)한다.
   // 커서 타깃은 현재 DOM(직전 프레임 화면)에서 측정 — 화면은 여러 프레임 안정적이라 1프레임 지연은 무시 가능.
   // 좌표 이동/펄스 애니메이션은 FakeCursor의 스프링이 담당한다.
+  // 컴포지션 루트(AbsoluteFill 직속 div) — 커서/캡션 좌표의 기준 프레임.
+  // FakeCursor·SpotlightCaption은 position:fixed라 Remotion 프리뷰의 축소 래퍼를 기준으로 배치된다.
+  // 이 루트를 offset 기준으로 삼으면(=래퍼 원본 좌표계) 프리뷰 배율과 무관하게 정렬이 맞는다.
+  // getBoundingClientRect(화면 픽셀)를 쓰면 Studio/Player의 scale만큼 커서가 어긋난다.
+  const rootRef = useRef<HTMLDivElement>(null);
   const lastPos = useRef({ x: width / 2, y: height * 0.7 });
   useLayoutEffect(() => {
-    // 1) 커서 타깃 측정 (store 적용 전, 현재 DOM 기준)
+    // 1) 커서 타깃 측정 (store 적용 전, 현재 DOM 기준). offset 체인이라 카메라 줌에도 불변.
     let pos = lastPos.current;
-    if (state.cursorTarget) {
+    if (state.cursorTarget && rootRef.current) {
       const el = document.querySelector<HTMLElement>(`[data-demo-id="${state.cursorTarget}"]`);
-      if (el) {
-        const nat = cameraNaturalCenter(el);
-        if (nat) pos = nat;
-        else {
-          const r = el.getBoundingClientRect();
-          pos = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-        }
-      }
+      if (el) pos = localCenter(el, rootRef.current);
     }
     lastPos.current = pos;
     usePlaybackStore.getState().setCursor({ x: pos.x, y: pos.y, pressed: state.pressed, visible: true });
@@ -92,7 +100,7 @@ export const DemoVideo: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <div className="relative h-full w-full overflow-hidden bg-ink-950">
+      <div ref={rootRef} className="relative h-full w-full overflow-hidden bg-ink-950">
         <Background bg={variant.background} />
         <div className="relative z-10 flex h-full w-full items-center justify-center">
           <div
@@ -107,7 +115,7 @@ export const DemoVideo: React.FC = () => {
           </div>
         </div>
         <FakeCursor />
-        <SpotlightCaption />
+        <SpotlightCaption rootRef={rootRef} />
       </div>
     </AbsoluteFill>
   );

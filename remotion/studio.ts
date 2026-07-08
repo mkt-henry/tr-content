@@ -10,7 +10,8 @@
 export const REMOTION_STUDIO_URL = 'http://localhost:3000';
 
 export const REMOTION_COMPOSITIONS: Record<string, { folder: string; id: string }> = {
-  'findle-daily-quiz': { folder: 'findle', id: 'daily-quiz-narrated' },
+  // 언어별 컴포지션 중 한국어를 딥링크 기본으로 — Studio 좌측 목록에서 -en으로 바로 전환 가능.
+  'findle-daily-quiz': { folder: 'findle', id: 'daily-quiz-narrated-ko' },
 };
 
 export function hasRemotion(featureId: string): boolean {

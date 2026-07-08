@@ -37,6 +37,35 @@ export function localCenter(el: HTMLElement, layer: HTMLElement): { x: number; y
 }
 
 /**
+ * 요소의 좌상단·크기를 root(조상) 로컬 좌표로 계산한다 — offset 체인 기반이라
+ * CSS transform(Remotion 프리뷰 축소 scale, 카메라 zoom)에 영향받지 않는다.
+ * root는 el의 offsetParent 체인 상의 조상이어야 한다(보통 컴포지션 루트 div).
+ * position:fixed 오버레이가 축소된 컴포지션 래퍼 기준으로 배치될 때, 그 래퍼 원본 좌표계와
+ * 일치하는 값을 준다 → 프리뷰 배율과 무관하게 정렬 유지.
+ */
+export function localRect(
+  el: HTMLElement,
+  root: HTMLElement,
+): { left: number; top: number; width: number; height: number } {
+  let x = 0;
+  let y = 0;
+  let node: HTMLElement | null = el;
+  while (node && node !== root) {
+    x += node.offsetLeft;
+    y += node.offsetTop;
+    const op = node.offsetParent as HTMLElement | null;
+    let a: HTMLElement | null = node.parentElement;
+    while (a && a !== op && a !== root) {
+      x -= a.scrollLeft;
+      y -= a.scrollTop;
+      a = a.parentElement;
+    }
+    node = op;
+  }
+  return { left: x, top: y, width: el.offsetWidth, height: el.offsetHeight };
+}
+
+/**
  * 요소의 "본래(scale 1) 뷰포트 중심"을 구한다 — 현재 카메라 줌 상태와 무관.
  * 카메라 레이어가 없으면(줌 비대상) null.
  *

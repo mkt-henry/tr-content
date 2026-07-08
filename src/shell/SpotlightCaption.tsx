@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePlaybackStore } from '../engine/playbackStore';
-import { CAMERA_LAYER_ATTR } from '../lib/cameraGeom';
+import { CAMERA_LAYER_ATTR, localRect } from '../lib/cameraGeom';
 
 interface Rect {
   left: number;
@@ -10,11 +10,16 @@ interface Rect {
   height: number;
 }
 
-/** 데모 프레임(카메라 레이어의 부모) 화면 사각형을 구한다. 없으면 null. */
-function frameRect(): Rect | null {
+/**
+ * 데모 프레임(카메라 레이어의 부모) 사각형을 구한다. 없으면 null.
+ * root가 주어지면(Remotion 컴포지션) offset 기준의 컴포지션 로컬 좌표 — 프리뷰 축소 배율과 무관.
+ * 없으면(라이브 앱) 뷰포트 기준 getBoundingClientRect — 캡션이 뷰포트에 fixed되므로 그대로 맞다.
+ */
+function frameRect(root: HTMLElement | null): Rect | null {
   const layer = document.querySelector<HTMLElement>(`[${CAMERA_LAYER_ATTR}]`);
   const frame = layer?.parentElement;
   if (!frame) return null;
+  if (root) return localRect(frame, root);
   const r = frame.getBoundingClientRect();
   return { left: r.left, top: r.top, width: r.width, height: r.height };
 }
@@ -25,7 +30,7 @@ function frameRect(): Rect | null {
  * 카메라 변환 밖(Stage 레벨)에서 렌더되어 줌 배율과 무관하게 항상 같은 크기.
  * 위치는 프레임 크기 변화(리사이즈/전체화면)에만 갱신 — 매 프레임 추적하지 않는다.
  */
-export function SpotlightCaption() {
+export function SpotlightCaption({ rootRef }: { rootRef?: RefObject<HTMLElement | null> }) {
   const id = usePlaybackStore((s) => s.spotlightId);
   const caption = usePlaybackStore((s) => s.spotlightCaption);
   const enabled = usePlaybackStore((s) => s.spotlightEnabled);
@@ -36,16 +41,16 @@ export function SpotlightCaption() {
   // 활성화 시 프레임 사각형을 한 번 측정. 매 프레임 추적하지 않아 캡션이 흔들리지 않는다.
   useLayoutEffect(() => {
     if (!active) return;
-    setRect(frameRect());
-  }, [active]);
+    setRect(frameRect(rootRef?.current ?? null));
+  }, [active, rootRef]);
 
   // 창 리사이즈/전체화면 전환 때만 위치 재측정
   useEffect(() => {
     if (!active) return;
-    const onResize = () => setRect(frameRect());
+    const onResize = () => setRect(frameRect(rootRef?.current ?? null));
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [active]);
+  }, [active, rootRef]);
 
   return (
     <AnimatePresence>
