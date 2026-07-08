@@ -17,6 +17,18 @@ interface ShellState {
   openCardnews: (deckId: string) => void;
   /** true면 인앱 Remotion Studio-lite 페이지를 오버레이로 띄운다 */
   studioOpen: boolean;
+  /**
+   * Studio 진입 직전 셸 스냅샷 — 닫을 때 원위치로 복원한다.
+   * StudioLite에 임베드된 DemoVideo가 렌더 side-effect로 featureId/variantId/device/projectLang을
+   * 전역 store에 써넣으므로(iframe이 아닌 인앱 Player), 복원하지 않으면 갤러리에서 열고 닫을 때
+   * 오염된 featureId 때문에 Stage로 잘못 빠진다.
+   */
+  studioReturn: {
+    featureId: string | null;
+    variantId: string | null;
+    device: DeviceMode;
+    projectLang: Record<string, string>;
+  } | null;
   openStudio: () => void;
   closeStudio: () => void;
   device: DeviceMode;
@@ -64,8 +76,24 @@ export const useShellStore = create<ShellState>((set) => ({
     set((s) => ({ galleryMode: { ...s.galleryMode, [projectId]: mode } })),
   openCardnews: (deckId) => set({ cardnewsId: deckId }),
   studioOpen: false,
-  openStudio: () => set({ studioOpen: true }),
-  closeStudio: () => set({ studioOpen: false }),
+  studioReturn: null,
+  openStudio: () =>
+    set((s) => ({
+      studioOpen: true,
+      studioReturn: {
+        featureId: s.featureId,
+        variantId: s.variantId,
+        device: s.device,
+        projectLang: s.projectLang,
+      },
+    })),
+  closeStudio: () =>
+    set((s) => ({
+      studioOpen: false,
+      // 진입 직전 상태로 복원 (DemoVideo가 오염시킨 featureId/variantId/device/projectLang 되돌림)
+      ...(s.studioReturn ?? {}),
+      studioReturn: null,
+    })),
   open: (featureId, variantId) => set({ featureId, variantId, showPosts: false }),
   backToGallery: () => set({ featureId: null, variantId: null, cardnewsId: null, showPosts: false }),
   setDevice: (device) => set({ device }),
