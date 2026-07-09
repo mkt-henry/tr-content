@@ -24,8 +24,6 @@ export function Gallery() {
 
   const project = projects.find((p) => p.id === projectId) ?? projects[0];
   const features = getFeaturesByProject(project.id);
-  // 변형(version × 소구점)마다 독립 카드 — 기능 안에 드롭다운으로 묶지 않고 평탄화
-  const cards = features.flatMap((f) => f.variants.map((variant) => ({ feature: f, variant })));
   const assets = getAssetsByProject(project.id);
   const lang = projectLang[project.id] ?? project.languages?.[0]?.id;
 
@@ -172,10 +170,47 @@ export function Gallery() {
         {mode === 'cardnews' ? (
           <CardNewsGallery decks={decks} lang={toLang(lang)} />
         ) : (
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {cards.map((c, i) => (
-              <VariantCard key={`${c.feature.id}:${c.variant.id}`} feature={c.feature} variant={c.variant} index={i} />
-            ))}
+          <div className="mt-12 space-y-11">
+            {/* 서비스(기능)별 섹션 — 헤더 + 변형 카드 그리드 */}
+            {features.map((feature, fi) => {
+              const Icon = feature.icon;
+              return (
+                <motion.section
+                  key={feature.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.05 + fi * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {/* 카테고리 헤더 */}
+                  <div className="flex items-center gap-3 border-b border-white/[0.07] pb-3.5">
+                    {Icon && (
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]"
+                        style={{ color: feature.accent }}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-[17px] font-semibold text-zinc-100">{feature.title}</h2>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-zinc-500">
+                          {feature.variants.length}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 truncate text-[13px] text-zinc-500">{feature.description}</p>
+                    </div>
+                  </div>
+
+                  {/* 변형 카드 */}
+                  <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {feature.variants.map((variant, i) => (
+                      <VariantCard key={variant.id} feature={feature} variant={variant} index={i} grouped />
+                    ))}
+                  </div>
+                </motion.section>
+              );
+            })}
 
             {features.length === 0 && (
               <motion.div
@@ -195,11 +230,11 @@ export function Gallery() {
               type="button"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 + features.length * 0.08 }}
+              transition={{ duration: 0.5, delay: 0.1 + features.length * 0.05 }}
               onClick={() => setShowGuide(true)}
-              className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 text-zinc-500 transition-colors hover:border-brass-500/40 hover:text-brass-300"
+              className="flex min-h-28 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 text-zinc-500 transition-colors hover:border-brass-500/40 hover:text-brass-300"
             >
-              <Plus className="h-7 w-7" />
+              <Plus className="h-6 w-6" />
               <span className="text-sm font-medium">새 데모 추가</span>
               <span className="text-xs text-zinc-600">폴더 하나로 자동 등록</span>
             </motion.button>

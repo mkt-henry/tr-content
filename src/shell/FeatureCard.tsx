@@ -11,10 +11,13 @@ export function VariantCard({
   feature,
   variant,
   index,
+  grouped,
 }: {
   feature: FeatureDefinition;
   variant: DemoVariant;
   index: number;
+  /** 기능(서비스) 섹션 안에서 렌더될 때 — 카드에서 기능명/설명을 생략(섹션 헤더가 대신 표시) */
+  grouped?: boolean;
 }) {
   const open = useShellStore((s) => s.open);
   const thumb = variant.background;
@@ -58,9 +61,11 @@ export function VariantCard({
       <div className="flex flex-1 flex-col p-5">
         {/* 출처 기능 태그 + 버전 + 소구점 */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
-          <span className="font-medium" style={{ color: feature.accent }}>
-            {feature.title}
-          </span>
+          {!grouped && (
+            <span className="font-medium" style={{ color: feature.accent }}>
+              {feature.title}
+            </span>
+          )}
           {variant.version && <span className="font-mono text-zinc-500">{variant.version}</span>}
           {variant.sellingPoint && (
             <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-zinc-400">
@@ -71,7 +76,9 @@ export function VariantCard({
 
         {/* 제목 = 변형 라벨 */}
         <h3 className="mt-1.5 text-[16px] font-semibold text-zinc-100">{variant.label}</h3>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-400">{feature.description}</p>
+        {!grouped && (
+          <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-400">{feature.description}</p>
+        )}
       </div>
     </motion.button>
   );
