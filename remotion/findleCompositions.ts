@@ -6,6 +6,7 @@ import rewards from '../src/demos/findle/rewards';
 import teacherReport from '../src/demos/findle/teacher-report';
 import { buildTimeline } from './timeline';
 import { FPS } from './meta';
+import { useShellStore } from '../src/store/shellStore';
 
 /**
  * findle 데모 → Remotion 컴포지션 매핑 단일 출처.
@@ -43,6 +44,28 @@ function variantOf(s: Spec) {
   return s.feature.variants.find((v) => v.id === s.variantId) ?? s.feature.variants[0];
 }
 
+/**
+ * 컴포지션 길이(프레임) — ko/en 중 더 긴 타임라인 기준(+여운).
+ * buildTimeline은 스텝 텍스트를 getLang()(store)로 1회 캡처하므로, 언어별로 store lang을
+ * 잠시 바꿔 각 언어의 total을 재고 max를 취한다(모듈 로드 시 1회, 이전 값 정확 복원).
+ */
+function durationOf(spec: Spec): number {
+  const variant = variantOf(spec);
+  const prev = useShellStore.getState().projectLang.findle;
+  let maxTotal = 0;
+  for (const lang of ['ko', 'en'] as const) {
+    useShellStore.setState((s) => ({ projectLang: { ...s.projectLang, findle: lang } }));
+    maxTotal = Math.max(maxTotal, buildTimeline(variant.scenario, FPS).total);
+  }
+  useShellStore.setState((s) => {
+    const pl = { ...s.projectLang };
+    if (prev === undefined) delete pl.findle;
+    else pl.findle = prev;
+    return { projectLang: pl };
+  });
+  return maxTotal + TAIL_FRAMES;
+}
+
 export const FINDLE_COMPOSITIONS: FindleComposition[] = SPECS.map((s) => {
   const variant = variantOf(s);
   return {
@@ -50,7 +73,7 @@ export const FINDLE_COMPOSITIONS: FindleComposition[] = SPECS.map((s) => {
     featureId: s.feature.id,
     variantId: variant.id,
     title: s.feature.title,
-    durationInFrames: buildTimeline(variant.scenario, FPS).total + TAIL_FRAMES,
+    durationInFrames: durationOf(s),
   };
 });
 
