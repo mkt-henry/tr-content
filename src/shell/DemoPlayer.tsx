@@ -7,7 +7,7 @@ import type { Lang } from '../demos/findle/_shared/i18n';
 /**
  * Remotion daily-quiz 데모를 브라우저에서 재생하는 공유 Player 래퍼.
  * 자동재생 unstick 로직(프레임 0 초기 버퍼링 정지 → seekTo(1)로 깨운 뒤 play, 3초 후 포기)을 포함.
- * RemotionPreview(모달)와 StudioLite(전용 페이지)가 공통 사용한다.
+ * StudioLite(전용 페이지)에서 사용한다.
  * lang 지정 시 해당 언어 컴포지션으로 고정, 미지정 시 앱 현재 언어 토글을 따른다.
  */
 export function DemoPlayer({

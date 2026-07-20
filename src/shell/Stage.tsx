@@ -11,7 +11,6 @@ import { FakeCursor } from './FakeCursor';
 import { SpotlightCaption } from './SpotlightCaption';
 import { DistributionPanel } from './DistributionPanel';
 import { Camera } from './Camera';
-import { RemotionPreview } from './RemotionPreview';
 import { hasRemotion } from '../../remotion/studio';
 import { toggleFullscreen } from '../lib/fullscreen';
 import { useRecorder } from './useRecorder';
@@ -38,9 +37,6 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
   const { recording, countdown, supported: canRecord, recordSequence } = useRecorder();
   const lang = projectId ? projectLang[projectId] : undefined;
   const recFilename = [projectId, variant.id, lang].filter(Boolean).join('-') + '.webm';
-
-  // Remotion 인앱 미리보기 모달 (daily-quiz 전용, 프레임 기반)
-  const [showRemotion, setShowRemotion] = useState(false);
 
   // 인트로/아웃트로 시퀀스 상태
   const [seqPhase, setSeqPhase] = useState<'intro' | 'outro' | null>(null);
@@ -306,28 +302,14 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
           <button
             onClick={() => {
               handleReset();
-              setShowRemotion(true);
+              useShellStore.getState().openStudio();
             }}
+            title="Remotion Studio에서 열기 — 데모 영상 재생·스크럽"
             className="rounded-lg bg-white/10 px-3 py-1.5 text-[12px] font-semibold text-white ring-1 ring-white/15 backdrop-blur transition-colors hover:bg-white/20"
           >
-            🎞 Remotion 미리보기
-          </button>
-          <button
-            onClick={() => useShellStore.getState().openStudio()}
-            title="Remotion Studio에서 열기 — 데모 영상 재생·스크럽"
-            className="rounded-lg bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white/80 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/15 hover:text-white"
-          >
-            Studio ↗
+            🎞 Remotion Studio
           </button>
         </div>
-      )}
-      {showRemotion && (
-        <RemotionPreview
-          onClose={() => {
-            setShowRemotion(false);
-            handleReset();
-          }}
-        />
       )}
 
       <FakeCursor />
