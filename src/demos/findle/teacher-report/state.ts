@@ -41,6 +41,21 @@ interface State {
   startDispatch: () => void;
   closeDispatch: () => void;
   notify: (msg: string) => void;
+
+  // 프레임 결정론용 동기 setter — 시나리오가 타이밍/스트리밍을 구동 (append는 누적)
+  beginReport: () => void;
+  reportWriting: () => void;
+  appendReport: (chunk: string) => void;
+  reportSectionsReady: () => void;
+  reportDone: () => void;
+  beginCoach: (name: string) => void;
+  coachWriting: () => void;
+  appendCoach: (chunk: string) => void;
+  coachDone: () => void;
+  beginDispatch: () => void;
+  setSentCount: (n: number) => void;
+  dispatchDone: () => void;
+  showNotice: (msg: string) => void;
   reset: () => void;
 }
 
@@ -153,6 +168,38 @@ export const useTeacherReport = create<State>((set, get) => ({
       if (id === noticeId) set({ notice: null });
     })();
   },
+
+  beginReport: () =>
+    set((s) => ({
+      flow: ahead(s.flow, 'report'),
+      phase: 'analyzing',
+      statusText: STR.statusAnalyzing[getLang()],
+      reportText: '',
+      sectionsReady: false,
+    })),
+  reportWriting: () => set({ phase: 'writing', statusText: STR.statusWriting[getLang()] }),
+  appendReport: (chunk) => set((s) => ({ reportText: s.reportText + chunk })),
+  reportSectionsReady: () => set({ sectionsReady: true }),
+  reportDone: () => set({ phase: 'done' }),
+
+  beginCoach: (name) =>
+    set((s) => ({
+      flow: ahead(s.flow, 'student'),
+      selectedStudent: name,
+      coachPhase: 'analyzing',
+      coachStatus: STR.statusCoaching[getLang()],
+      coachText: '',
+    })),
+  coachWriting: () => set({ coachPhase: 'writing' }),
+  appendCoach: (chunk) => set((s) => ({ coachText: s.coachText + chunk })),
+  coachDone: () => set({ coachPhase: 'done' }),
+
+  beginDispatch: () =>
+    set((s) => ({ flow: ahead(s.flow, 'send'), dispatchOpen: true, dispatchPhase: 'sending', sentCount: 0 })),
+  setSentCount: (n) => set({ sentCount: n }),
+  dispatchDone: () => set({ dispatchPhase: 'done' }),
+
+  showNotice: (msg) => set({ notice: msg }),
 
   reset: () => {
     runId++;
