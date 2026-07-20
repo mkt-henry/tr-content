@@ -17,6 +17,8 @@ interface State {
   myRank: () => number;
   /** 정답 → XP 획득 → 재정렬, 순위 상승·뱃지 트리거 */
   study: () => void;
+  /** 프레임 결정론용 동기 뱃지 오픈 (setTimeout 없이) */
+  openBadge: () => void;
   closeBadge: () => void;
   reset: () => void;
 }
@@ -64,6 +66,8 @@ export const useLeaderboard = create<State>((set, get) => ({
       }, 700);
     }
   },
+
+  openBadge: () => set({ badgeOpen: true, badgeEarned: true }),
 
   closeBadge: () => set({ badgeOpen: false }),
 
