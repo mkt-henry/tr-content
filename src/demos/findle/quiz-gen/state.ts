@@ -15,6 +15,14 @@ interface State {
   setCount: (n: number) => void;
   setDifficulty: (d: Difficulty) => void;
   generate: () => void;
+
+  /** 프레임 결정론용 동기 생성 단계 setter — 시나리오가 타이밍을 구동 */
+  beginReading: () => void;
+  beginGenerating: () => void;
+  /** GENERATED 앞에서 index+1개까지 노출(멱등 — 프레임 재생 안전) */
+  pushQuestion: (index: number) => void;
+  finishGenerate: () => void;
+
   reset: () => void;
 }
 
@@ -56,6 +64,12 @@ export const useQuizGen = create<State>((set, get) => ({
       set({ phase: 'done' });
     })();
   },
+
+  beginReading: () => set({ phase: 'reading', questions: [] }),
+  beginGenerating: () => set({ phase: 'generating' }),
+  pushQuestion: (index) =>
+    set({ questions: GENERATED.slice(0, Math.min(index + 1, GENERATED.length)) }),
+  finishGenerate: () => set({ phase: 'done' }),
 
   reset: () => {
     runId++;

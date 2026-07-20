@@ -1,33 +1,29 @@
 import { Composition, Folder } from 'remotion';
 import './styles.css';
 import { DemoVideo } from './DemoVideo';
-import { DURATION_IN_FRAMES, FPS, HEIGHT, WIDTH } from './meta';
+import { FPS, HEIGHT, WIDTH } from './meta';
+import { FINDLE_COMPOSITIONS } from './findleCompositions';
+
+const LANGS = ['ko', 'en'] as const;
 
 export const RemotionRoot: React.FC = () => {
+  // 프로젝트 폴더로 그룹핑 → Studio URL이 /findle/<컴포지션id>. 언어별 컴포지션 분리(lang prop만 다름).
   return (
-    // 프로젝트별 폴더로 그룹핑 → Studio URL이 /findle/<컴포지션id> 형태가 된다.
-    // (컴포지션 id 자체는 그대로라 CLI 렌더는 영향 없음)
-    // 언어별로 컴포지션을 분리한다 — 같은 프레임 드라이버에 lang prop만 달리 준다.
-    // UI 문구는 useLang/pick으로 이미 이중언어라 실제로 한/영 다른 영상이 렌더된다.
     <Folder name="findle">
-      <Composition
-        id="daily-quiz-narrated-ko"
-        component={DemoVideo}
-        durationInFrames={DURATION_IN_FRAMES}
-        fps={FPS}
-        width={WIDTH}
-        height={HEIGHT}
-        defaultProps={{ lang: 'ko' as const }}
-      />
-      <Composition
-        id="daily-quiz-narrated-en"
-        component={DemoVideo}
-        durationInFrames={DURATION_IN_FRAMES}
-        fps={FPS}
-        width={WIDTH}
-        height={HEIGHT}
-        defaultProps={{ lang: 'en' as const }}
-      />
+      {FINDLE_COMPOSITIONS.flatMap((c) =>
+        LANGS.map((lang) => (
+          <Composition
+            key={`${c.name}-${c.variantId}-${lang}`}
+            id={`${c.name}-${c.variantId}-${lang}`}
+            component={DemoVideo}
+            durationInFrames={c.durationInFrames}
+            fps={FPS}
+            width={WIDTH}
+            height={HEIGHT}
+            defaultProps={{ featureId: c.featureId, variantId: c.variantId, lang }}
+          />
+        )),
+      )}
     </Folder>
   );
 };

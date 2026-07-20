@@ -22,7 +22,7 @@ export const fastScenario: Scenario = {
   ],
 };
 
-/** v2 — 난이도 적응(중→대학): 고급 선택 후 생성, 레벨 태그 강조 */
+/** v2 — 난이도 적응(중→대학): 고급 선택 후 생성, 레벨 태그 강조 (프레임 결정론 스텝) */
 export const adaptiveScenario: Scenario = {
   id: 'findle-quiz-gen-adaptive',
   steps: [
@@ -34,10 +34,17 @@ export const adaptiveScenario: Scenario = {
     { kind: 'do', run: () => st().setDifficulty('advanced') },
     { kind: 'wait', ms: 700 },
     { kind: 'cursor', target: 'generate-btn', ms: 600 },
-    { kind: 'click', target: 'generate-btn', run: () => st().generate() },
-    { kind: 'wait', ms: 1500 },
+    { kind: 'click', target: 'generate-btn', run: () => st().beginReading() },
+    { kind: 'wait', ms: 1300 }, // 기사 분석
+    { kind: 'do', run: () => st().beginGenerating() },
     { kind: 'cursor', target: 'result-panel', ms: 700 },
-    { kind: 'wait', ms: 3400 },
+    { kind: 'do', run: () => st().pushQuestion(0) },
+    { kind: 'wait', ms: 900 },
+    { kind: 'do', run: () => st().pushQuestion(1) },
+    { kind: 'wait', ms: 900 },
+    { kind: 'do', run: () => st().pushQuestion(2) },
+    { kind: 'wait', ms: 900 },
+    { kind: 'do', run: () => st().finishGenerate() },
     { kind: 'wait', ms: 1600 },
   ],
 };

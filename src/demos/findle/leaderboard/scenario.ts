@@ -39,6 +39,8 @@ export const badgeScenario: Scenario = {
   id: 'findle-leaderboard-badge',
   steps: [
     ...CLIMB,
+    // 프레임 결정론: study()의 setTimeout 대신 명시적 동기 오픈
+    { kind: 'do', run: () => st().openBadge() },
     { kind: 'cursor', target: 'badge-modal', ms: 800 },
     { kind: 'wait', ms: 2600 }, // 뱃지 연출 길게
     { kind: 'click', target: 'badge-cta', run: () => st().closeBadge() },

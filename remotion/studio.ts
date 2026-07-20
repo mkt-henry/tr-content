@@ -1,24 +1,27 @@
 /**
- * Remotion 미리보기/Studio 연동 설정 — 앱(Stage)에서 가볍게 임포트 (무거운 의존 없음).
- * feature.id → { folder, id } 매핑. 프레임 기반 드라이버가 준비된 데모만 등록한다.
- * 데모를 확장할 때 여기에 추가하면 카드/스테이지에 미리보기·Studio 버튼이 자동 노출된다.
- *
- * folder는 Remotion <Folder>와 일치시켜야 Studio 딥링크 경로(/{folder}/{id})가 맞는다.
+ * Remotion 미리보기/Studio 연동 설정 — 앱(Stage)에서 임포트.
+ * FINDLE_COMPOSITIONS를 단일 출처로 삼아 feature.id → { folder, id } 매핑을 파생한다.
+ * hasRemotion이 true인 데모에 카드/스테이지의 "🎞 Remotion Studio" 버튼이 자동 노출된다.
  */
+import { FINDLE_COMPOSITIONS } from './findleCompositions';
 
 /** `npm run studio`가 고정하는 포트(3000)에 맞춘 Studio 베이스 URL */
 export const REMOTION_STUDIO_URL = 'http://localhost:3000';
 
-export const REMOTION_COMPOSITIONS: Record<string, { folder: string; id: string }> = {
-  // 언어별 컴포지션 중 한국어를 딥링크 기본으로 — Studio 좌측 목록에서 -en으로 바로 전환 가능.
-  'findle-daily-quiz': { folder: 'findle', id: 'daily-quiz-narrated-ko' },
-};
+/** feature.id → 한국어 컴포지션 딥링크 경로 조각. Studio 좌측에서 -en으로 전환 가능. */
+export const REMOTION_COMPOSITIONS: Record<string, { folder: string; id: string }> =
+  Object.fromEntries(
+    FINDLE_COMPOSITIONS.map((c) => [
+      c.featureId,
+      { folder: 'findle', id: `${c.name}-${c.variantId}-ko` },
+    ]),
+  );
 
 export function hasRemotion(featureId: string): boolean {
   return featureId in REMOTION_COMPOSITIONS;
 }
 
-/** 해당 데모의 Studio 딥링크 (컴포지션 없으면 null) — 예: .../findle/daily-quiz-narrated */
+/** 해당 데모의 Studio 딥링크 (컴포지션 없으면 null) */
 export function studioUrlFor(featureId: string): string | null {
   const c = REMOTION_COMPOSITIONS[featureId];
   return c ? `${REMOTION_STUDIO_URL}/${c.folder}/${c.id}` : null;
