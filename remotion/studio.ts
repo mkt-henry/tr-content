@@ -26,3 +26,17 @@ export function studioUrlFor(featureId: string): string | null {
   const c = REMOTION_COMPOSITIONS[featureId];
   return c ? `${REMOTION_STUDIO_URL}/${c.folder}/${c.id}` : null;
 }
+
+/**
+ * 인앱 iframe에 임베드할 Remotion Studio URL.
+ * dev는 `npm run studio`(:3000), prod는 vercel.json이 서빙하는 정적 번들(/studio).
+ * featureId가 있으면 해당 컴포지션으로 딥링크(경로 포맷은 remotion/Root.tsx의 Folder+id와 일치),
+ * 없으면(갤러리 진입 등) Studio 루트 — 사용자가 사이드바에서 선택한다.
+ */
+const STUDIO_EMBED_BASE = import.meta.env.DEV ? REMOTION_STUDIO_URL : '/studio';
+
+export function studioEmbedSrc(featureId: string | null, lang: 'ko' | 'en' = 'ko'): string {
+  const c = featureId ? FINDLE_COMPOSITIONS.find((x) => x.featureId === featureId) : undefined;
+  if (!c) return STUDIO_EMBED_BASE;
+  return `${STUDIO_EMBED_BASE}/findle/${c.name}-${c.variantId}-${lang}`;
+}
