@@ -54,6 +54,18 @@ const ljc = (s: number, c: number, t: number) => r({ ko: '리노공업', en: 'LE
 const dbhitek = (s: number, c: number, t: number) => r({ ko: 'DB하이텍', en: 'DB HiTek' }, '000990', s, c, t, 2.1);
 const hmm = (s: number, c: number, t: number) => r({ ko: 'HMM', en: 'HMM' }, '011200', s, c, t, 16.4);
 const krafton = (s: number, c: number, t: number) => r({ ko: '크래프톤', en: 'KRAFTON' }, '259960', s, c, t, 14.7);
+const lgensol = (s: number, c: number, t: number) => r({ ko: 'LG에너지솔루션', en: 'LG Energy Sol.' }, '373220', s, c, t, 90.5);
+const samsungbio = (s: number, c: number, t: number) => r({ ko: '삼성바이오로직스', en: 'Samsung Biologics' }, '207940', s, c, t, 71.2);
+const hyundai = (s: number, c: number, t: number) => r({ ko: '현대차', en: 'Hyundai Motor' }, '005380', s, c, t, 55.4);
+const kia = (s: number, c: number, t: number) => r({ ko: '기아', en: 'Kia' }, '000270', s, c, t, 45.1);
+const samsungSDI = (s: number, c: number, t: number) => r({ ko: '삼성SDI', en: 'Samsung SDI' }, '006400', s, c, t, 24.8);
+const hanwhaaero = (s: number, c: number, t: number) => r({ ko: '한화에어로스페이스', en: 'Hanwha Aerospace' }, '012450', s, c, t, 34.6);
+const apple = (s: number, c: number, t: number) => r({ ko: '애플', en: 'Apple' }, 'AAPL', s, c, t, 5020.0);
+const microsoft = (s: number, c: number, t: number) => r({ ko: '마이크로소프트', en: 'Microsoft' }, 'MSFT', s, c, t, 5480.0);
+const amazon = (s: number, c: number, t: number) => r({ ko: '아마존', en: 'Amazon' }, 'AMZN', s, c, t, 3010.0);
+const broadcom = (s: number, c: number, t: number) => r({ ko: '브로드컴', en: 'Broadcom' }, 'AVGO', s, c, t, 1490.0);
+const micron = (s: number, c: number, t: number) => r({ ko: '마이크론', en: 'Micron' }, 'MU', s, c, t, 210.0);
+const coinbase = (s: number, c: number, t: number) => r({ ko: '코인베이스', en: 'Coinbase' }, 'COIN', s, c, t, 118.0);
 
 export const STRATEGIES: Strategy[] = [
   {
@@ -61,16 +73,28 @@ export const STRATEGIES: Strategy[] = [
     name: 'CANSLIM',
     sub: { ko: '실적·주도주 성장 모멘텀', en: 'Earnings-led growth leaders' },
     rows: [
-      hynix(94, 3.8, 8420),
-      nvidia(92, 2.4, 11250),
+      hynix(96, 3.8, 8420),
+      nvidia(94, 2.4, 11250),
+      samsungbio(92, 3.5, 2860),
       alteogen(90, 5.1, 1380),
-      palantir(88, 4.2, 6210),
+      palantir(89, 4.2, 6210),
+      lgensol(88, 2.8, 4520),
       hanmi(86, 6.3, 2240),
-      celltrion(83, 1.9, 980),
-      naver(80, 2.1, 1640),
-      meta(78, 1.2, 5320),
-      ecopro(75, 3.0, 1120),
-      krafton(72, 2.6, 870),
+      broadcom(85, 3.0, 7180),
+      hyundai(83, 1.9, 3240),
+      celltrion(82, 1.9, 980),
+      microsoft(80, 1.4, 8900),
+      naver(79, 2.1, 1640),
+      kia(77, 2.7, 1980),
+      meta(76, 1.2, 5320),
+      apple(75, 0.9, 9210),
+      samsungSDI(73, 3.3, 1340),
+      ecopro(72, 3.0, 1120),
+      amazon(71, 1.7, 6840),
+      hanwhaaero(69, 4.5, 1560),
+      krafton(68, 2.6, 870),
+      micron(66, 5.2, 3420),
+      coinbase(64, 6.8, 2180),
     ],
   },
   {

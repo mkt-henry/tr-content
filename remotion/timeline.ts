@@ -1,4 +1,5 @@
 import type { Scenario, Step, StepText } from '../src/engine/types';
+import { CAMERA_ZOOM } from '../src/lib/cameraGeom';
 
 /**
  * 시나리오(실시간 ms 기반)를 프레임 타임라인으로 변환한다.
@@ -17,6 +18,24 @@ function textOf(t: StepText): string {
   return typeof t === 'function' ? t() : t;
 }
 
+/**
+ * cursor/click/type 스텝의 강조 상태를 계산한다 — run.ts moveCursorTo와 동일 규칙.
+ * zoom=true면 원점(spotlight ?? target)으로 줌인(zoomScale 배율), 아니면 줌 해제(id=null).
+ */
+function spotlightOf(
+  step: Extract<Step, { kind: 'cursor' | 'click' | 'type' }>,
+): { id: string | null; scale: number; caption: string | null } {
+  if (!step.zoom) return { id: null, scale: CAMERA_ZOOM, caption: null };
+  const target = 'target' in step ? step.target : undefined;
+  const spotlight = 'spotlight' in step ? step.spotlight : undefined;
+  const caption = 'caption' in step ? step.caption : undefined;
+  return {
+    id: spotlight ?? target ?? null,
+    scale: step.zoomScale ?? CAMERA_ZOOM,
+    caption: caption != null ? textOf(caption) : null,
+  };
+}
+
 export interface TimelineEntry {
   step: Step;
   startFrame: number;
@@ -31,6 +50,11 @@ export interface TimelineEntry {
   pulseEnd?: number;
   /** type/stream 진행형 텍스트: 프레임별 부분 문자열을 store에 반영 */
   progressive?: { fromFrame: number; toFrame: number; full: string; apply: (s: string) => void };
+  /**
+   * 이 스텝이 startFrame에서 setSpotlight로 바꾸는 강조 상태 (run.ts moveCursorTo 대응).
+   * id=null이면 줌 해제. 정의된 엔트리만 상태를 바꾸고, wait/do 등은 이전 상태를 유지한다.
+   */
+  spotlightSet?: { id: string | null; scale: number; caption: string | null };
 }
 
 export interface Timeline {
@@ -64,6 +88,7 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
       case 'cursor':
         span = f(step.ms ?? MOVE_MS);
         e.cursorTarget = step.target;
+        e.spotlightSet = spotlightOf(step);
         break;
       case 'click': {
         const move = f(MOVE_MS);
@@ -75,6 +100,7 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
         e.pulseEnd = startFrame + move + press;
         e.actionFrame = startFrame + move + press + release;
         e.run = step.run;
+        e.spotlightSet = spotlightOf(step);
         break;
       }
       case 'type': {
@@ -83,6 +109,8 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
         const typeSpan = f([...full].length * (1000 / (step.cps ?? 16)));
         span = pre + typeSpan;
         if (step.target) e.cursorTarget = step.target;
+        // target 있는 type만 moveCursorTo를 호출 → 강조 상태를 바꾼다 (target 없으면 무변화)
+        if (step.target) e.spotlightSet = spotlightOf(step);
         e.progressive = { fromFrame: startFrame + pre, toFrame: startFrame + pre + typeSpan, full, apply: step.set };
         break;
       }
@@ -93,10 +121,12 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
         // stream은 append 방식이나, 프레임 기반에선 매 프레임 전체를 리셋 후 부분 재구성하므로
         // apply를 "누적 대체"로 감싼다 — 호출 측에서 리셋 후 이 apply로 부분 문자열을 세팅.
         e.progressive = { fromFrame: startFrame, toFrame: startFrame + streamSpan, full, apply: (s) => step.append(s) };
+        e.spotlightSet = { id: null, scale: CAMERA_ZOOM, caption: null }; // run.ts: stream 시작 시 줌 해제
         break;
       }
       case 'scroll':
         span = f(step.ms ?? 800);
+        e.spotlightSet = { id: null, scale: CAMERA_ZOOM, caption: null }; // run.ts: scroll 시작 시 줌 해제
         break;
     }
 
@@ -117,6 +147,12 @@ export interface FrameState {
   cursorTarget?: string;
   /** 클릭 펄스 여부 */
   pressed: boolean;
+  /** 현재 강조(줌) 대상 data-demo-id (없으면 null) */
+  spotlightId: string | null;
+  /** 현재 줌 배율 */
+  spotlightScale: number;
+  /** 현재 강조 캡션 (없으면 null) */
+  spotlightCaption: string | null;
 }
 
 /** 프레임 F의 상태를 타임라인에서 순수 계산한다 (부수효과 없음 — 반환된 것을 호출 측이 적용). */
@@ -125,9 +161,20 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
   const progressive: Array<{ apply: (s: string) => void; text: string }> = [];
   let cursorTarget: string | undefined;
   let pressed = false;
+  let spotlightId: string | null = null;
+  let spotlightScale = CAMERA_ZOOM;
+  let spotlightCaption: string | null = null;
 
   for (const e of timeline.entries) {
     if (e.run && e.actionFrame != null && frame >= e.actionFrame) runs.push(e.run);
+
+    // 강조 상태: setSpotlight를 부르는 스텝(정의된 spotlightSet)만 startFrame에서 상태를 갈아끼운다.
+    // wait/do 등은 건드리지 않아 이전 상태가 유지된다 (run.ts와 동일).
+    if (e.spotlightSet && frame >= e.startFrame) {
+      spotlightId = e.spotlightSet.id;
+      spotlightScale = e.spotlightSet.scale;
+      spotlightCaption = e.spotlightSet.caption;
+    }
 
     if (e.progressive) {
       const { fromFrame, toFrame, full, apply } = e.progressive;
@@ -145,5 +192,5 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
     }
   }
 
-  return { runs, progressive, cursorTarget, pressed };
+  return { runs, progressive, cursorTarget, pressed, spotlightId, spotlightScale, spotlightCaption };
 }

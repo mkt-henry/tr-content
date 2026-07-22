@@ -94,6 +94,7 @@ async function moveCursorTo(
   zoom = false,
   caption?: StepText,
   spotlight?: string,
+  zoomScale?: number,
 ) {
   const el = document.querySelector<HTMLElement>(`[data-demo-id="${target}"]`);
   if (!el) return;
@@ -101,20 +102,21 @@ async function moveCursorTo(
   el.scrollIntoView({ block: 'nearest' });
   // 줌 원점: spotlight가 있으면 그 요소, 아니면 target 자신. zoom=false면 줌 해제.
   const originId = zoom ? (spotlight ?? target) : null;
+  const scale = zoomScale ?? CAMERA_ZOOM; // 스텝별 배율 오버라이드(없으면 전역 기본)
   const r = el.getBoundingClientRect();
   const fallback = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   let point: { x: number; y: number };
   if (originId && originId !== target) {
     // 줌 원점이 커서 대상과 다르면, 고정된 원점 기준 줌된 화면 좌표로 커서를 둔다.
     const originEl = document.querySelector<HTMLElement>(`[data-demo-id="${originId}"]`);
-    point = (originEl && cameraZoomedCenter(el, originEl, CAMERA_ZOOM)) || cameraNaturalCenter(el) || fallback;
+    point = (originEl && cameraZoomedCenter(el, originEl, scale)) || cameraNaturalCenter(el) || fallback;
   } else {
     // 원점=대상(또는 줌 없음): 본래 위치면 배율과 무관하게 정렬 유지.
     point = cameraNaturalCenter(el) ?? fallback;
   }
   const { setCursor, setSpotlight } = usePlaybackStore.getState();
   setCursor({ x: point.x, y: point.y, visible: true });
-  setSpotlight(originId, originId && caption ? resolveText(caption) : null);
+  setSpotlight(originId, originId && caption ? resolveText(caption) : null, scale);
   await delay(ms, signal);
 }
 
@@ -205,17 +207,17 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         await waitForCondition(step.check, step.timeoutMs ?? 8000, signal);
         break;
       case 'cursor':
-        await moveCursorTo(step.target, signal, step.ms, step.zoom, step.caption, step.spotlight);
+        await moveCursorTo(step.target, signal, step.ms, step.zoom, step.caption, step.spotlight, step.zoomScale);
         break;
       case 'click':
-        await moveCursorTo(step.target, signal, 650, step.zoom, step.caption, step.spotlight);
+        await moveCursorTo(step.target, signal, 650, step.zoom, step.caption, step.spotlight, step.zoomScale);
         await clickPulse(signal);
         if (signal.aborted) return;
         step.run?.();
         break;
       case 'type': {
         if (step.target) {
-          await moveCursorTo(step.target, signal, 650, step.zoom);
+          await moveCursorTo(step.target, signal, 650, step.zoom, undefined, undefined, step.zoomScale);
           await clickPulse(signal);
         }
         const interval = 1000 / (step.cps ?? 16);
@@ -244,7 +246,7 @@ export async function runScenario(scenario: Scenario, signal: AbortSignal): Prom
         break;
       }
       case 'scroll':
-        usePlaybackStore.getState().setSpotlight(null);
+        if (!step.keepZoom) usePlaybackStore.getState().setSpotlight(null);
         await scrollContainer(step.target, { to: step.to, toId: step.toId, ms: step.ms }, signal);
         break;
       case 'do':

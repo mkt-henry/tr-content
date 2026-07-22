@@ -13,7 +13,7 @@ export const REMOTION_COMPOSITIONS: Record<string, { folder: string; id: string 
   Object.fromEntries(
     FINDLE_COMPOSITIONS.map((c) => [
       c.featureId,
-      { folder: 'findle', id: `${c.name}-${c.variantId}-ko` },
+      { folder: c.projectId, id: `${c.name}-${c.variantId}-ko` },
     ]),
   );
 
@@ -38,5 +38,5 @@ const STUDIO_EMBED_BASE = import.meta.env.DEV ? REMOTION_STUDIO_URL : '/studio';
 export function studioEmbedSrc(featureId: string | null, lang: 'ko' | 'en' = 'ko'): string {
   const c = featureId ? FINDLE_COMPOSITIONS.find((x) => x.featureId === featureId) : undefined;
   if (!c) return STUDIO_EMBED_BASE;
-  return `${STUDIO_EMBED_BASE}/findle/${c.name}-${c.variantId}-${lang}`;
+  return `${STUDIO_EMBED_BASE}/${c.projectId}/${c.name}-${c.variantId}-${lang}`;
 }

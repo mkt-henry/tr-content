@@ -16,11 +16,17 @@ import {
 import { pick, useLang } from '../_shared/i18n';
 import { AL } from '../_shared/theme';
 import { cn } from '../../../lib/cn';
+import { usePlaybackStore } from '../../../engine/playbackStore';
 
 /** 상단 전략 칩 행 */
 export function StrategyChips({ compact }: { compact?: boolean }) {
   const { selected, select } = useScreener();
   const lang = useLang();
+  // 전략 칩 확대(포커스) 중이면: 칩 "그룹"만 z-50으로 블러 오버레이 위에 띄워 선명하게 두고
+  // 살짝 테두리를 둘러 강조한다. (행 전체가 아니라 칩 묶음에만 테두리가 붙는다.)
+  const spotlightId = usePlaybackStore((s) => s.spotlightId);
+  const enabled = usePlaybackStore((s) => s.spotlightEnabled);
+  const focused = enabled && !!spotlightId && spotlightId.startsWith('strategy-');
   return (
     <div
       className={cn(
@@ -29,30 +35,39 @@ export function StrategyChips({ compact }: { compact?: boolean }) {
       )}
       style={{ borderColor: AL.border, background: AL.panelBg }}
     >
-      {!compact && (
-        <span className="mr-1 text-[11px] font-medium text-zinc-500">{pick(STR.strategyRow, lang)}</span>
-      )}
-      {STRATEGIES.map((s) => {
-        const active = selected === s.id;
-        return (
-          <button
-            key={s.id}
-            data-demo-id={`strategy-${s.id}`}
-            onClick={() => select(s.id)}
-            className={cn(
-              'shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all',
-              active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200',
-            )}
-            style={
-              active
-                ? { background: AL.accent, boxShadow: `0 0 24px -6px ${AL.accentRing}` }
-                : { background: 'rgba(255,255,255,0.04)', border: `1px solid ${AL.border}` }
-            }
-          >
-            {s.name}
-          </button>
-        );
-      })}
+      <div
+        className={cn(
+          'flex items-center gap-2 transition-all duration-300',
+          // 음수 마진 + 패딩으로 레이아웃은 그대로 두고 칩 묶음 둘레에만 프레임을 만든다.
+          focused && 'relative z-50 -m-1.5 rounded-xl p-1.5 ring-1 ring-white/25',
+        )}
+        style={focused ? { background: AL.panelBg } : undefined}
+      >
+        {!compact && (
+          <span className="mr-1 text-[11px] font-medium text-zinc-500">{pick(STR.strategyRow, lang)}</span>
+        )}
+        {STRATEGIES.map((s) => {
+          const active = selected === s.id;
+          return (
+            <button
+              key={s.id}
+              data-demo-id={`strategy-${s.id}`}
+              onClick={() => select(s.id)}
+              className={cn(
+                'shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all',
+                active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200',
+              )}
+              style={
+                active
+                  ? { background: AL.accent, boxShadow: `0 0 24px -6px ${AL.accentRing}` }
+                  : { background: 'rgba(255,255,255,0.04)', border: `1px solid ${AL.border}` }
+              }
+            >
+              {s.name}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -140,7 +155,7 @@ export function ResultsTable({ compact }: { compact?: boolean }) {
   const label = resultLabel(lang);
 
   return (
-    <div className="demo-scroll min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6">
+    <div data-demo-id="results-scroll" className="demo-scroll min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6">
       {/* 결과 헤더 */}
       <div className="mb-3 flex items-baseline gap-2.5">
         <h2 className="text-[15px] font-semibold text-zinc-100">{strategy.name}</h2>
