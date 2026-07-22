@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { CAMERA_ZOOM } from '../lib/cameraGeom';
 
 export type PlaybackStatus = 'idle' | 'playing' | 'paused' | 'done';
 
@@ -21,9 +22,11 @@ interface PlaybackState {
   spotlightId: string | null;
   /** 현재 표시할 액션 캡션 (없으면 null) */
   spotlightCaption: string | null;
+  /** 현재 줌 배율 (활성 시 Camera가 적용). 스텝별 zoomScale 오버라이드용. 기본 CAMERA_ZOOM */
+  spotlightScale: number;
   /** 인터랙션 강조 토글. 기본 켬 */
   spotlightEnabled: boolean;
-  setSpotlight: (id: string | null, caption?: string | null) => void;
+  setSpotlight: (id: string | null, caption?: string | null, scale?: number) => void;
   toggleSpotlight: () => void;
 }
 
@@ -36,7 +39,9 @@ export const usePlaybackStore = create<PlaybackState>((set) => ({
   setSpeed: (speed) => set({ speed }),
   spotlightId: null,
   spotlightCaption: null,
+  spotlightScale: CAMERA_ZOOM,
   spotlightEnabled: true,
-  setSpotlight: (spotlightId, spotlightCaption = null) => set({ spotlightId, spotlightCaption }),
+  setSpotlight: (spotlightId, spotlightCaption = null, spotlightScale = CAMERA_ZOOM) =>
+    set({ spotlightId, spotlightCaption, spotlightScale }),
   toggleSpotlight: () => set((s) => ({ spotlightEnabled: !s.spotlightEnabled })),
 }));
