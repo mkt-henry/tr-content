@@ -42,16 +42,45 @@ export const sixScenario: Scenario = {
   ],
 };
 
-/** v2 — 실시간 급등 포착: Surge → PEAD 전환 */
+/**
+ * v2 — 실시간 급등 포착: Surge 선별(줌 연출) → 상위 급등종목 수치 강조 → PEAD 전환 → 어닝 서프라이즈 훑기.
+ * six와 동일한 카메라 문법(칩 좌상단 확대 + 포커스 블러 → 역재생 줌아웃 → 결과 확대/스크롤)을 따르되,
+ * '타이밍·급등' 셀링포인트에 맞춰 상위 급등종목(한미 +9.2%, 에코프로 +11.4%)의 등락률을 클로즈업으로 부각한다.
+ */
 export const surgeScenario: Scenario = {
   id: 'screener-surge',
   steps: [
     { kind: 'wait', ms: 900 },
-    { kind: 'click', target: 'strategy-surge', run: () => st().select('surge') },
-    { kind: 'wait', ms: 2600 },
-    { kind: 'click', target: 'strategy-pead', run: () => st().select('pead') },
-    { kind: 'wait', ms: 2400 },
-    { kind: 'cursor', target: 'row-0' },
+    // Surge 선택 — 칩 확대(좌상단 앵커 원점) + 주변 블러로 전략 선택 강조. 커서는 Surge 칩으로 정확히 이동.
+    { kind: 'click', target: 'strategy-surge', run: () => st().select('surge'), zoom: true, spotlight: 'strategy-anchor', zoomScale: 1.3 },
+    { kind: 'wait', ms: 1400 }, // 확대+블러 유지 — 급등 종목이 결과 테이블에 채워지는 순간을 확대 상태로 보여준다
+    // 줌아웃 — 커서를 칩에 둔 채 원래 배율로 복귀(역재생). spotlight 해제로 블러도 함께 사라진다.
+    { kind: 'cursor', target: 'strategy-surge', ms: 550 },
+    { kind: 'wait', ms: 250 }, // 배율이 완전히 1로 돌아올 때까지 잠깐 유지
+    // 결과 첫 행으로 이동(배율 1) — 줌 왜곡 없이 상위 급등종목 위치로 시선 이동.
+    { kind: 'cursor', target: 'row-0', ms: 550 },
+    { kind: 'wait', ms: 700 },
+    // 상위 급등종목 클로즈업 — origin=row-0(한미 +9.2%)로 확대해 등락률 컬럼(+9~11%)을 부각. '급등' 셀링포인트 강조.
+    { kind: 'cursor', target: 'row-0', zoom: true, zoomScale: 1.4, ms: 600 },
+    { kind: 'wait', ms: 1600 }, // +9.2% / +11.4% 수치를 충분히 부각
+    // 줌아웃 — 커서를 row-0에 둔 채 복귀(역재생).
+    { kind: 'cursor', target: 'row-0', ms: 550 },
+    { kind: 'wait', ms: 400 },
+    // PEAD 전환 — (1) 칩 확대 + 블러로 전략 전환 강조.
+    { kind: 'scroll', target: 'results-scroll', to: 'top', ms: 1 }, // 리스트 맨 위로 (배율 1)
+    { kind: 'click', target: 'strategy-pead', run: () => st().select('pead'), zoom: true, spotlight: 'strategy-anchor', zoomScale: 1.3 },
+    { kind: 'wait', ms: 1300 }, // 확대+블러 유지 — PEAD(어닝 서프라이즈) 선택 강조
+    // (2) 줌아웃 — 커서를 칩에 둔 채 복귀(역재생).
+    { kind: 'cursor', target: 'strategy-pead', ms: 500 },
+    { kind: 'wait', ms: 300 },
+    // (3) 결과 영역(컨테이너)을 원점으로 재확대. origin=results-scroll는 내용이 스크롤돼도 위치가 안 변해 카메라가 고정된다.
+    { kind: 'cursor', target: 'results-scroll', zoom: true, zoomScale: 1.2, ms: 600 },
+    { kind: 'wait', ms: 600 },
+    // 확대·카메라 고정 상태에서 어닝 서프라이즈 종목(8종목)을 위→아래로 훑는다.
+    { kind: 'scroll', target: 'results-scroll', to: 'bottom', ms: 2400, keepZoom: true },
+    { kind: 'wait', ms: 700 },
+    // 줌아웃 — 커서 이동 없이 spotlight만 해제(큰 스크롤 컨테이너로 커서를 옮기면 scrollIntoView가 스크롤을 튕기므로 회피).
+    { kind: 'do', run: () => usePlaybackStore.getState().setSpotlight(null) },
     { kind: 'wait', ms: 1000 },
   ],
 };
