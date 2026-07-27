@@ -37,6 +37,7 @@ const SPECS: Spec[] = [
   { feature: rewards, variantId: 'redeem', name: 'rewards', projectId: 'findle', chrome: false },
   { feature: teacherReport, variantId: 'full', name: 'teacher-report', projectId: 'findle', chrome: false },
   { feature: screener, variantId: 'six', name: 'screener', projectId: 'alphalenz', chrome: true },
+  { feature: screener, variantId: 'surge', name: 'screener', projectId: 'alphalenz', chrome: true },
 ];
 
 /** 타임라인 총길이 뒤에 붙이는 마무리 여운 */
@@ -96,7 +97,10 @@ export const FINDLE_COMPOSITIONS: FindleComposition[] = SPECS.map((s) => {
 
 /** 컴포지션 props(문자열 id)를 실제 feature/variant로 해석. props는 JSON 직렬화 가능해야 하므로 객체는 여기서만. */
 export function resolveFindle(featureId: string, variantId: string) {
-  const s = SPECS.find((x) => x.feature.id === featureId);
+  // 한 feature가 여러 variant 스펙을 가질 수 있으므로 (featureId, variantId) 정확 일치를 우선한다.
+  const s =
+    SPECS.find((x) => x.feature.id === featureId && x.variantId === variantId) ??
+    SPECS.find((x) => x.feature.id === featureId);
   if (!s) return null;
   const variant =
     s.feature.variants.find((v) => v.id === variantId) ??

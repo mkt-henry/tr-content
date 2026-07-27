@@ -126,6 +126,27 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
     feature.resetState();
     state.runs.forEach((r) => r());
     state.progressive.forEach((p) => p.apply(p.text));
+
+    // 3) 스크롤 컨테이너 위치 재구성 — 모든 scroll 스텝을 순서대로 적용해 절대 위치를 확정한다.
+    //    프레임마다 처음부터 다시 계산하므로 렌더 순서와 무관하게 결정론적이다(Remotion 병렬 렌더 안전).
+    //    측정값(scrollHeight)은 직전 프레임 DOM 기준이라 1프레임 늦지만, 스크롤 중 목록은 고정이라 무해.
+    const prev = new Map<string, number>();
+    for (const s of state.scrolls) {
+      const el = document.querySelector<HTMLElement>(`[data-demo-id="${s.target}"]`);
+      if (!el) continue;
+      const max = Math.max(0, el.scrollHeight - el.clientHeight);
+      let dest = s.to === 'top' ? 0 : max;
+      if (s.toId) {
+        const child = el.querySelector<HTMLElement>(`[data-demo-id="${s.toId}"]`);
+        // run.ts scrollContainer와 동일: 자식을 컨테이너 상단에서 12px 아래로 맞춘다.
+        if (child) dest = el.scrollTop + (child.getBoundingClientRect().top - el.getBoundingClientRect().top) - 12;
+      }
+      dest = Math.max(0, Math.min(max, dest));
+      const start = prev.get(s.target) ?? 0;
+      const pos = start + (dest - start) * s.progress;
+      el.scrollTop = pos;
+      prev.set(s.target, pos);
+    }
   }, [frame, state, feature]);
 
   return (

@@ -55,6 +55,12 @@ export interface TimelineEntry {
    * id=null이면 줌 해제. 정의된 엔트리만 상태를 바꾸고, wait/do 등은 이전 상태를 유지한다.
    */
   spotlightSet?: { id: string | null; scale: number; caption: string | null };
+  /**
+   * 스크롤 컨테이너 이동 구간 — run.ts scrollContainer 대응.
+   * 목적지(scrollHeight/자식 offset)는 DOM 측정이 필요하므로 여기선 "무엇을 어디로 몇 프레임 동안"만
+   * 기록하고, 실제 scrollTop 계산은 렌더 측(DemoVideo)이 프레임마다 수행한다.
+   */
+  scroll?: { target: string; to?: 'top' | 'bottom'; toId?: string; fromFrame: number; toFrame: number };
 }
 
 export interface Timeline {
@@ -126,7 +132,15 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
       }
       case 'scroll':
         span = f(step.ms ?? 800);
-        e.spotlightSet = { id: null, scale: CAMERA_ZOOM, caption: null }; // run.ts: scroll 시작 시 줌 해제
+        // run.ts: keepZoom이면 줌을 유지한 채(카메라 고정) 스크롤, 아니면 시작 시 줌 해제
+        if (!step.keepZoom) e.spotlightSet = { id: null, scale: CAMERA_ZOOM, caption: null };
+        e.scroll = {
+          target: step.target,
+          to: step.to,
+          toId: step.toId,
+          fromFrame: startFrame,
+          toFrame: startFrame + span,
+        };
         break;
     }
 
@@ -153,6 +167,17 @@ export interface FrameState {
   spotlightScale: number;
   /** 현재 강조 캡션 (없으면 null) */
   spotlightCaption: string | null;
+  /**
+   * 시나리오의 모든 scroll 스텝을 등장 순서대로, 이 프레임 기준 진행도(0~1, easeInOut 적용)와 함께.
+   * 아직 시작 안 한 스텝은 progress=0, 끝난 스텝은 1. 호출 측이 순서대로 적용하면
+   * "직전 스텝이 멈춘 위치 → 이번 목적지" 체인이 프레임만으로 결정된다(렌더 순서 무관).
+   */
+  scrolls: Array<{ target: string; to?: 'top' | 'bottom'; toId?: string; progress: number }>;
+}
+
+/** run.ts scrollOver와 동일한 이징 — 영상/인앱 스크롤 곡선을 일치시킨다. */
+function easeInOut(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
 /** 프레임 F의 상태를 타임라인에서 순수 계산한다 (부수효과 없음 — 반환된 것을 호출 측이 적용). */
@@ -164,8 +189,15 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
   let spotlightId: string | null = null;
   let spotlightScale = CAMERA_ZOOM;
   let spotlightCaption: string | null = null;
+  const scrolls: FrameState['scrolls'] = [];
 
   for (const e of timeline.entries) {
+    if (e.scroll) {
+      const { target, to, toId, fromFrame, toFrame } = e.scroll;
+      const raw = toFrame > fromFrame ? (frame - fromFrame) / (toFrame - fromFrame) : frame >= fromFrame ? 1 : 0;
+      scrolls.push({ target, to, toId, progress: easeInOut(Math.min(1, Math.max(0, raw))) });
+    }
+
     if (e.run && e.actionFrame != null && frame >= e.actionFrame) runs.push(e.run);
 
     // 강조 상태: setSpotlight를 부르는 스텝(정의된 spotlightSet)만 startFrame에서 상태를 갈아끼운다.
@@ -192,5 +224,5 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
     }
   }
 
-  return { runs, progressive, cursorTarget, pressed, spotlightId, spotlightScale, spotlightCaption };
+  return { runs, progressive, cursorTarget, pressed, spotlightId, spotlightScale, spotlightCaption, scrolls };
 }
