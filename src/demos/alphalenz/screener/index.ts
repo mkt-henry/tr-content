@@ -15,6 +15,8 @@ const screener: FeatureDefinition = {
   Desktop,
   Mobile,
   resetState: () => useScreener.getState().reset(),
+  // 전략 선택이 결과 리스트를 갈아끼우는 유일한 상태 변화 → 영상에서 행 등장/카운트업의 기준 프레임.
+  videoStateKey: () => useScreener.getState().selected ?? '',
   variants: [
     {
       id: 'six',
