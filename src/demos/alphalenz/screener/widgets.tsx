@@ -17,6 +17,7 @@ import { pick, useLang } from '../_shared/i18n';
 import { AL } from '../_shared/theme';
 import { cn } from '../../../lib/cn';
 import { usePlaybackStore } from '../../../engine/playbackStore';
+import { entranceProgress, useVideoClock } from '../../../engine/videoClock';
 
 /** 상단 전략 칩 행 */
 export function StrategyChips({ compact }: { compact?: boolean }) {
@@ -196,15 +197,24 @@ export function ResultsTable({ compact }: { compact?: boolean }) {
   );
 }
 
+const ROW_IN = { duration: 0.45, stagger: 0.05 };
+
 function Row({ row, index, compact }: { row: ScreenRow; index: number; compact?: boolean }) {
   const lang = useLang();
   const up = row.changePct >= 0;
+  // 영상 렌더에서는 벽시계 대신 프레임으로 등장 진행도를 구한다(같은 곡선·같은 stagger).
+  const clock = useVideoClock();
+  const p = clock ? entranceProgress(clock, ROW_IN.duration, index * ROW_IN.stagger) : null;
   return (
     <motion.div
       data-demo-id={`row-${index}`}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      initial={p == null ? { opacity: 0, y: 14 } : false}
+      animate={p == null ? { opacity: 1, y: 0 } : { opacity: p, y: 14 * (1 - p) }}
+      transition={
+        p == null
+          ? { duration: ROW_IN.duration, delay: index * ROW_IN.stagger, ease: [0.22, 1, 0.36, 1] }
+          : { duration: 0 }
+      }
       className="grid items-center gap-2 px-3 py-2.5 text-[12.5px]"
       style={{
         gridTemplateColumns: compact ? '2.2rem 1fr 3rem 3.4rem' : '2.6rem 1fr 4.5rem 4.5rem 6rem 5rem',

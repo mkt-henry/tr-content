@@ -60,6 +60,12 @@ export interface FeatureDefinition {
   chromeless?: boolean;
   /** 데모 store 초기화 — 재생/리셋 시 호출 */
   resetState: () => void;
+  /**
+   * 영상 렌더에서 등장 애니메이션을 프레임 기반으로 돌리기 위한 opt-in (src/engine/videoClock).
+   * 현재 데모 store 상태를 나타내는 문자열을 돌려주면, DemoVideo가 이 값이 바뀐 프레임을 기준점으로
+   * VideoClock을 내려준다. 지정하지 않으면 기존 벽시계 애니메이션을 그대로 쓴다.
+   */
+  videoStateKey?: () => string;
   variants: DemoVariant[];
   /** 데모 영상 배포용 게시 카피(유튜브·링크드인). 있으면 컨트롤 바에 "게시 본문" 버튼 노출 */
   posts?: DistributionPost[];

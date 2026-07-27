@@ -9,6 +9,7 @@ import { SpotlightCaption } from '../src/shell/SpotlightCaption';
 import { usePlaybackStore } from '../src/engine/playbackStore';
 import { useShellStore } from '../src/store/shellStore';
 import { localCenter } from '../src/lib/cameraGeom';
+import { VideoClockContext } from '../src/engine/videoClock';
 import { cn } from '../src/lib/cn';
 import { buildTimeline, computeFrameState } from './timeline';
 import { resolveFindle } from './findleCompositions';
@@ -79,6 +80,36 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
 
   const timeline = useMemo(() => buildTimeline(variant.scenario, fps), [variant.scenario, fps, lang]);
   const state = useMemo(() => computeFrameState(frame, timeline), [frame, timeline]);
+
+  // videoStateKey를 제공하는 데모만 프레임 기반 등장 애니메이션을 쓴다.
+  // 타임라인을 한 번 미리 재생해 "데모 상태가 바뀐 프레임" 목록을 뽑는다 — 이후 프레임마다
+  // 그중 마지막 값을 기준점(sinceFrame)으로 주면 벽시계 없이 등장 진행도가 결정된다.
+  // (store를 잠시 건드리지만 아래 레이아웃 이펙트가 매 프레임 올바른 상태로 다시 세우므로 무해)
+  const changeFrames = useMemo(() => {
+    const keyOf = feature.videoStateKey;
+    if (!keyOf) return null;
+    const frames: number[] = [];
+    feature.resetState();
+    let key = keyOf();
+    for (const e of timeline.entries) {
+      if (!e.run || e.actionFrame == null) continue;
+      e.run();
+      const next = keyOf();
+      if (next !== key) {
+        key = next;
+        frames.push(e.actionFrame);
+      }
+    }
+    feature.resetState();
+    return frames;
+  }, [timeline, feature]);
+
+  const clock = useMemo(() => {
+    if (!changeFrames) return null;
+    let sinceFrame = 0;
+    for (const cf of changeFrames) if (frame >= cf) sinceFrame = cf;
+    return { frame, fps, sinceFrame };
+  }, [changeFrames, frame, fps]);
 
   // Pretendard 폰트 로드 — CLI 렌더(폰트 없음)에선 완료까지 delayRender로 지연.
   // 앱 임베드(Player)에선 이미 로드돼 delayRender를 만들지 않는다(StrictMode 고아 핸들 방지).
@@ -163,7 +194,9 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
               {showChrome && <BrowserChrome url={url} device="desktop" />}
               <div className="relative min-h-0 flex-1">
                 <Camera disabled={feature.chromeless}>
-                  <Comp device="desktop" />
+                  <VideoClockContext.Provider value={clock}>
+                    <Comp device="desktop" />
+                  </VideoClockContext.Provider>
                 </Camera>
               </div>
             </div>
@@ -190,7 +223,9 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
               >
                 <div className="relative min-h-0 flex-1">
                   <Camera>
-                    <Comp device="mobile" />
+                    <VideoClockContext.Provider value={clock}>
+                      <Comp device="mobile" />
+                    </VideoClockContext.Provider>
                   </Camera>
                 </div>
                 {phoneFrame && (
