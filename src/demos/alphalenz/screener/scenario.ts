@@ -76,8 +76,8 @@ export const surgeScenario: Scenario = {
     // (3) 결과 영역(컨테이너)을 원점으로 재확대. origin=results-scroll는 내용이 스크롤돼도 위치가 안 변해 카메라가 고정된다.
     { kind: 'cursor', target: 'results-scroll', zoom: true, zoomScale: 1.2, ms: 600 },
     { kind: 'wait', ms: 600 },
-    // 확대·카메라 고정 상태에서 어닝 서프라이즈 종목(8종목)을 위→아래로 훑는다.
-    { kind: 'scroll', target: 'results-scroll', to: 'bottom', ms: 2400, keepZoom: true },
+    // 확대·카메라 고정 상태에서 어닝 서프라이즈 종목(16종목)을 위→아래로 천천히 훑는다.
+    { kind: 'scroll', target: 'results-scroll', to: 'bottom', ms: 3200, keepZoom: true },
     { kind: 'wait', ms: 700 },
     // 줌아웃 — 커서 이동 없이 spotlight만 해제(큰 스크롤 컨테이너로 커서를 옮기면 scrollIntoView가 스크롤을 튕기므로 회피).
     { kind: 'do', run: () => usePlaybackStore.getState().setSpotlight(null) },
