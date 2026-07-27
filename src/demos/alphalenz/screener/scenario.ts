@@ -44,8 +44,8 @@ export const sixScenario: Scenario = {
 
 /**
  * v2 — 실시간 급등 포착: Surge 선별(줌 연출) → 상위 급등종목 수치 강조 → PEAD 전환 → 어닝 서프라이즈 훑기.
- * six와 동일한 카메라 문법(칩 좌상단 확대 + 포커스 블러 → 역재생 줌아웃 → 결과 확대/스크롤)을 따르되,
- * '타이밍·급등' 셀링포인트에 맞춰 상위 급등종목(한미 +9.2%, 에코프로 +11.4%)의 등락률을 클로즈업으로 부각한다.
+ * six와 동일한 카메라 문법(칩 좌상단 확대 + 포커스 블러 → 역재생 줌아웃 → 결과 확대/스크롤)을 따른다.
+ * 줌은 '전략 선택'과 '결과 스크롤'에만 쓰고, 그 사이 상위 급등종목은 배율 1에서 머무름(wait)으로 보여준다.
  */
 export const surgeScenario: Scenario = {
   id: 'screener-surge',
@@ -59,13 +59,9 @@ export const surgeScenario: Scenario = {
     { kind: 'wait', ms: 250 }, // 배율이 완전히 1로 돌아올 때까지 잠깐 유지
     // 결과 첫 행으로 이동(배율 1) — 줌 왜곡 없이 상위 급등종목 위치로 시선 이동.
     { kind: 'cursor', target: 'row-0', ms: 550 },
-    { kind: 'wait', ms: 700 },
-    // 상위 급등종목 클로즈업 — origin=row-0(한미 +9.2%)로 확대해 등락률 컬럼(+9~11%)을 부각. '급등' 셀링포인트 강조.
-    { kind: 'cursor', target: 'row-0', zoom: true, zoomScale: 1.4, ms: 600 },
-    { kind: 'wait', ms: 1600 }, // +9.2% / +11.4% 수치를 충분히 부각
-    // 줌아웃 — 커서를 row-0에 둔 채 복귀(역재생).
-    { kind: 'cursor', target: 'row-0', ms: 550 },
-    { kind: 'wait', ms: 400 },
+    // 배율 1 상태로 상위 급등종목(한미 +9.2%, 에코프로 +11.4%)을 충분히 보여준다.
+    // (칩 줌인/줌아웃 직후 같은 화면을 다시 확대하면 줌이 반복돼 산만해지므로 클로즈업은 넣지 않는다.)
+    { kind: 'wait', ms: 1600 },
     // PEAD 전환 — (1) 칩 확대 + 블러로 전략 전환 강조.
     { kind: 'scroll', target: 'results-scroll', to: 'top', ms: 1 }, // 리스트 맨 위로 (배율 1)
     { kind: 'click', target: 'strategy-pead', run: () => st().select('pead'), zoom: true, spotlight: 'strategy-anchor', zoomScale: 1.3 },
