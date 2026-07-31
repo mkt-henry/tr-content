@@ -106,6 +106,10 @@ export interface DeckVariant {
   height?: number;
   /** 게시용 본문 — 미지정 시 덱 caption */
   caption?: Caption;
+  /** 'cards'(기본) = 정적 카드 · 'reels' = 9:16 자동 전환 영상 */
+  kind?: 'cards' | 'reels';
+  /** 릴스 슬라이드별 노출 시간(초). 미지정 시 reels.ts의 타입별 기본값 */
+  seconds?: number[];
   slides: AnySlide[];
 }
 
@@ -136,6 +140,8 @@ export interface ResolvedVariant {
   width: number;
   height: number;
   caption?: Caption;
+  kind: 'cards' | 'reels';
+  seconds?: number[];
   slides: AnySlide[];
 }
 
@@ -150,8 +156,10 @@ export function getVariants(deck: CardNewsDeck): ResolvedVariant[] {
       width: v.width ?? w,
       height: v.height ?? h,
       caption: v.caption ?? deck.caption,
+      kind: v.kind ?? 'cards',
+      seconds: v.seconds,
       slides: v.slides,
     }));
   }
-  return [{ id: 'default', label: '', width: w, height: h, caption: deck.caption, slides: deck.slides ?? [] }];
+  return [{ id: 'default', label: '', width: w, height: h, caption: deck.caption, kind: 'cards', slides: deck.slides ?? [] }];
 }
