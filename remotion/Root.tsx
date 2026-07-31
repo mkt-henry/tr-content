@@ -3,6 +3,10 @@ import './styles.css';
 import { DemoVideo, demoVideoSchema } from './DemoVideo';
 import { FPS, HEIGHT, WIDTH } from './meta';
 import { FINDLE_COMPOSITIONS } from './findleCompositions';
+import { CardNewsReels, cardNewsReelsSchema } from './CardNewsReels';
+import { REELS_DECKS } from './cardnewsReelsCompositions';
+import { REELS_FPS, reelsTiming } from '../src/cardnews/reels';
+import { getVariants } from '../src/cardnews/types';
 
 const LANGS = ['ko', 'en'] as const;
 
@@ -43,6 +47,31 @@ export const RemotionRoot: React.FC = () => {
           )}
         </Folder>
       ))}
+
+      {/* 카드뉴스 릴스 — macro 슬라이드는 영어 고정이라 언어별 분리를 하지 않는다(Findle과 다른 점) */}
+      <Folder name="cardnews">
+        {REELS_DECKS.flatMap((deck) => {
+          const v = getVariants(deck).find((x) => x.kind === 'reels');
+          if (!v || v.slides.length === 0) {
+            console.warn(`[cardnews:reels] ${deck.id} — reels variant 없음 또는 슬라이드 0장, 컴포지션 등록 생략`);
+            return [];
+          }
+          const timing = reelsTiming(v.slides, v.seconds);
+          return [
+            <Composition
+              key={deck.id}
+              id={`reels-${deck.id}`}
+              component={CardNewsReels}
+              schema={cardNewsReelsSchema}
+              durationInFrames={timing.totalFrames}
+              fps={REELS_FPS}
+              width={v.width}
+              height={v.height}
+              defaultProps={{ deckId: deck.id }}
+            />,
+          ];
+        })}
+      </Folder>
     </>
   );
 };

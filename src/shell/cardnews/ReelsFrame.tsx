@@ -29,9 +29,15 @@ export function ReelsFrame({ slides, timing, frame, meta }: ReelsFrameProps) {
   const { index, local } = slideAtFrame(timing, frame);
   const slide = index >= 0 ? slides[index] : undefined;
 
-  // 등장 전환 — ease-out cubic. CSS transition을 쓰지 않는다(프레임 결정론)
-  const p = Math.min(1, Math.max(0, local / TRANSITION_FRAMES));
+  // 등장 전환 — ease-out cubic. CSS transition을 쓰지 않는다(프레임 결정론).
+  // 첫 슬라이드는 전환을 건너뛴다 — frame 0이 mp4의 커버 프레임이 되므로 비어 있으면 안 된다.
+  const p = index === 0 ? 1 : Math.min(1, Math.max(0, local / TRANSITION_FRAMES));
   const e = 1 - Math.pow(1 - p, 3);
+
+  // m-cover·m-cta는 카드 자체에 브랜드 헤더를, m-cta는 URL까지 갖는다 → 해당 요소를 프레임에서 숨겨
+  // 중복을 없앤다. opacity로만 숨겨야 진행 바·카드 위치가 슬라이드마다 튀지 않는다.
+  const cardHasBrand = slide?.type === 'm-cover' || slide?.type === 'm-cta';
+  const cardHasCta = slide?.type === 'm-cta';
 
   return (
     <div style={{
@@ -45,8 +51,11 @@ export function ReelsFrame({ slides, timing, frame, meta }: ReelsFrameProps) {
         background: 'radial-gradient(120% 60% at 100% 0%, rgba(79,209,165,0.10), transparent 55%)',
       }} />
 
-      {/* 브랜드 + 날짜 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+      {/* 브랜드 + 날짜 — 카드가 자체 헤더를 가진 슬라이드에선 숨기고 높이만 유지 */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'relative', height: 38, opacity: cardHasBrand ? 0 : 1,
+      }}>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: '0.04em' }}>
           AlphaLenz<span style={{ color: '#6A727C', fontWeight: 400 }}> Macro</span>
         </div>
@@ -80,8 +89,11 @@ export function ReelsFrame({ slides, timing, frame, meta }: ReelsFrameProps) {
         )}
       </div>
 
-      {/* CTA */}
-      <div style={{ marginTop: 44, fontFamily: MONO, fontSize: 26, color: MINT, letterSpacing: '0.1em', position: 'relative' }}>
+      {/* CTA — m-cta는 카드 안에 이미 URL이 있어 숨긴다(높이는 유지) */}
+      <div style={{
+        marginTop: 44, fontFamily: MONO, fontSize: 26, color: MINT,
+        letterSpacing: '0.1em', position: 'relative', opacity: cardHasCta ? 0 : 1,
+      }}>
         alpha-lenz.com →
       </div>
     </div>

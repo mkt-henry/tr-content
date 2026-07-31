@@ -38,9 +38,14 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
     [isReels, variant.slides, variant.seconds],
   );
 
-  // 릴스 프리뷰 클럭 — Task 4에서 Remotion <Player>로 교체된다.
-  // 의존성은 원시값(totalFrames)이어야 한다. 객체를 쓰면 매 렌더 재실행되며 setRf(0)이 프레임을 되돌린다.
   const totalFrames = timing?.totalFrames ?? 0;
+
+  /* 프리뷰 프레임 클럭.
+     @remotion/player를 임베드해봤으나 autoPlay·ref.play() 모두 재생이 시작되지 않아(프레임 0 고정)
+     자체 클럭으로 돌린다. mp4는 Remotion CLI가 렌더하므로 산출물 품질과는 무관하고,
+     프리뷰와 렌더가 같은 reelsTiming + ReelsFrame을 쓰므로 타이밍 파리티는 유지된다.
+     의존성은 원시값(totalFrames)이어야 한다 — getVariants(deck)가 매 렌더 새 객체를 만들기 때문에
+     variant를 의존성에 쓰면 effect가 매 렌더 재실행되며 프레임이 0으로 되돌아간다. */
   const [rf, setRf] = useState(0);
   useEffect(() => {
     if (!isReels || totalFrames === 0) return;
@@ -92,6 +97,17 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
       setTimeout(() => setCopied(false), 1600);
     } catch (err) { console.error('[cardnews:copy]', err); }
   };
+  /** 릴스 mp4 렌더 명령 — 덱 id를 넣어주므로 덱이 늘어도 수정이 필요 없다 */
+  const [cmdCopied, setCmdCopied] = useState(false);
+  const renderCmd = `npx remotion render remotion/index.ts reels-${deck.id} remotion-out/${deck.id}-reels.mp4 --concurrency=4`;
+  const copyRenderCmd = async () => {
+    try {
+      await navigator.clipboard.writeText(renderCmd);
+      setCmdCopied(true);
+      setTimeout(() => setCmdCopied(false), 1600);
+    } catch (err) { console.error('[cardnews:copy]', err); }
+  };
+
   /** 내보내기용 원본 노드 refs */
   const exportRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -163,7 +179,7 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
 
       {/* 슬라이드 + 좌우 네비 */}
       <div className="flex flex-1 items-center justify-center gap-5">
-        {isReels && timing ? (
+        {isReels && timing && totalFrames > 0 ? (
           <div style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: 16, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: W, height: H }}>
               <ReelsFrame slides={variant.slides} timing={timing} frame={rf} meta={macroMeta} />
@@ -206,10 +222,16 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
             </button>
           </>
         )}
-        {isReels && timing && (
-          <span className="font-mono text-[12px] tabular-nums text-zinc-500">
-            {(timing.totalFrames / REELS_FPS).toFixed(1)}s · {W}×{H} · {REELS_FPS}fps
-          </span>
+        {isReels && totalFrames > 0 && (
+          <>
+            <span className="font-mono text-[12px] tabular-nums text-zinc-500">
+              {(totalFrames / REELS_FPS).toFixed(1)}s · {W}×{H} · {REELS_FPS}fps
+            </span>
+            <button onClick={copyRenderCmd}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${cmdCopied ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'}`}>
+              {cmdCopied ? <><Check className="h-4 w-4" /> 복사됨</> : <><FileDown className="h-4 w-4" /> mp4 렌더 명령 복사</>}
+            </button>
+          </>
         )}
         {caption && (
           <button onClick={() => setShowCaption((v) => !v)}
