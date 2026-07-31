@@ -40,3 +40,14 @@ export function studioEmbedSrc(featureId: string | null, lang: 'ko' | 'en' = 'ko
   if (!c) return STUDIO_EMBED_BASE;
   return `${STUDIO_EMBED_BASE}/${c.projectId}/${c.name}-${c.variantId}-${lang}`;
 }
+
+/**
+ * 카드뉴스 릴스 컴포지션 Studio 딥링크.
+ * 경로는 remotion/Root.tsx의 <Folder name="cardnews"> + 컴포지션 id `reels-<deckId>`와 일치한다.
+ * Studio의 Render 버튼으로 브라우저에서 바로 mp4를 다운로드할 수 있다
+ * (remotion.config.ts의 setExperimentalClientSideRenderingEnabled 덕분).
+ * dev에서는 `npm run studio`(:3000)가 떠 있어야 한다.
+ */
+export function reelsStudioUrl(deckId: string): string {
+  return `${STUDIO_EMBED_BASE}/cardnews/reels-${deckId}`;
+}

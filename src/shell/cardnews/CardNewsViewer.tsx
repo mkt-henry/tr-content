@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X, ZoomIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X, ZoomIn, Film } from 'lucide-react';
 import type { CardNewsDeck, Lang, Slide as ResearchSlideData, MacroSlide as MacroSlideData } from '../../cardnews/types';
 import { getVariants } from '../../cardnews/types';
 import { toLang } from '../../cardnews/lang';
@@ -9,6 +9,7 @@ import { Slide } from './Slide';
 import { MacroSlide } from './MacroSlide';
 import { ReelsFrame } from './ReelsFrame';
 import { reelsTiming, REELS_FPS } from '../../cardnews/reels';
+import { reelsStudioUrl } from '../../../remotion/studio';
 import { exportSlidePng, exportAllPng, exportPdf } from './export';
 
 export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
@@ -227,9 +228,16 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
             <span className="font-mono text-[12px] tabular-nums text-zinc-500">
               {(totalFrames / REELS_FPS).toFixed(1)}s · {W}×{H} · {REELS_FPS}fps
             </span>
+            {/* Studio의 Render 버튼으로 브라우저에서 바로 mp4 다운로드 (dev는 npm run studio 필요) */}
+            <a href={reelsStudioUrl(deck.id)} target="_blank" rel="noreferrer"
+              title="Remotion Studio에서 Render 버튼으로 mp4를 바로 다운로드 (dev: npm run studio 실행 필요)"
+              className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-500/20">
+              <Film className="h-4 w-4" /> Studio에서 열기
+            </a>
             <button onClick={copyRenderCmd}
-              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${cmdCopied ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'}`}>
-              {cmdCopied ? <><Check className="h-4 w-4" /> 복사됨</> : <><FileDown className="h-4 w-4" /> mp4 렌더 명령 복사</>}
+              title="CLI로 렌더 — 검증된 안정 경로. remotion-out/에 저장된다"
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${cmdCopied ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 text-zinc-300 hover:border-white/25'}`}>
+              {cmdCopied ? <><Check className="h-4 w-4" /> 복사됨</> : <><FileDown className="h-4 w-4" /> CLI 렌더 명령 복사</>}
             </button>
           </>
         )}
