@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build && npm run build:studio",
     "build:studio": "remotion bundle remotion/index.ts --public-path=./ --out-dir=dist/studio",
     "preview": "vite preview",
-    "studio": "remotion studio remotion/index.ts --port 3000",
+    "studio": "remotion studio remotion/index.ts --port 3010",
     "test": "node --test \"tests/**/*.test.ts\"",
     "render:reels": "remotion render remotion/index.ts reels-stock-excessfear-2026-07-27 remotion-out/stock-excessfear-2026-07-27-reels.mp4 --concurrency=4"
   },

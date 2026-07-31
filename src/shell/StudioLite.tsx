@@ -4,7 +4,7 @@ import type { Lang } from '../demos/findle/_shared/i18n';
 
 /**
  * 인앱 Remotion Studio — iframe realm 격리.
- * 별도 JS realm(dev :3000 / prod /studio 번들)의 Studio를 임베드하므로, 프레임 결정론 DemoVideo가
+ * 별도 JS realm(dev :3010 / prod /studio 번들)의 Studio를 임베드하므로, 프레임 결정론 DemoVideo가
  * 부모 앱의 전역 store(shell/playback/데모 상태)를 절대 오염시키지 않는다. 진입 시 현재 보던
  * 데모/언어로 딥링크한다. 데모 목록·언어 전환·스크럽은 iframe 안 Studio가 제공한다.
  */
