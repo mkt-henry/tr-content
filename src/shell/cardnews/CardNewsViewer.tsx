@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ArrowLeft, Download, FileDown, Images, FileText, Copy, Check, X, ZoomIn } from 'lucide-react';
 import type { CardNewsDeck, Lang, Slide as ResearchSlideData, MacroSlide as MacroSlideData } from '../../cardnews/types';
 import { getVariants } from '../../cardnews/types';
@@ -7,6 +7,8 @@ import { useShellStore } from '../../store/shellStore';
 import { getProject } from '../../registry';
 import { Slide } from './Slide';
 import { MacroSlide } from './MacroSlide';
+import { ReelsFrame } from './ReelsFrame';
+import { reelsTiming, REELS_FPS } from '../../cardnews/reels';
 import { exportSlidePng, exportAllPng, exportPdf } from './export';
 
 export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
@@ -26,6 +28,26 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   const [vi, setVi] = useState(0);
   const variant = variants[vi];
   const multi = variants.length > 1;
+
+  // 릴스 variant — 카드 대신 9:16 프레임을 자동 전환으로 재생한다.
+  // getVariants(deck)는 매 렌더마다 새 객체를 만든다 → variant 자체를 의존성에 쓰면 안 된다.
+  // slides는 덱 모듈의 const를 참조하므로 identity가 안정적이다.
+  const isReels = variant.kind === 'reels';
+  const timing = useMemo(
+    () => (isReels ? reelsTiming(variant.slides, variant.seconds) : null),
+    [isReels, variant.slides, variant.seconds],
+  );
+
+  // 릴스 프리뷰 클럭 — Task 4에서 Remotion <Player>로 교체된다.
+  // 의존성은 원시값(totalFrames)이어야 한다. 객체를 쓰면 매 렌더 재실행되며 setRf(0)이 프레임을 되돌린다.
+  const totalFrames = timing?.totalFrames ?? 0;
+  const [rf, setRf] = useState(0);
+  useEffect(() => {
+    if (!isReels || totalFrames === 0) return;
+    setRf(0);
+    const id = window.setInterval(() => setRf((v) => (v + 1) % totalFrames), 1000 / REELS_FPS);
+    return () => window.clearInterval(id);
+  }, [isReels, totalFrames]);
 
   const W = variant.width;
   const H = variant.height;
@@ -79,13 +101,13 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
   // 키보드 네비 — total이 variant 전환으로 바뀌면 재바인딩
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') setI((v) => (v - 1 + total) % total);
-      else if (e.key === 'ArrowRight') setI((v) => (v + 1) % total);
+      if (e.key === 'ArrowLeft') { if (!isReels) setI((v) => (v - 1 + total) % total); }
+      else if (e.key === 'ArrowRight') { if (!isReels) setI((v) => (v + 1) % total); }
       else if (e.key === 'Escape') { if (zoomed) setZoomed(false); else useShellStore.getState().backToGallery(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [total, zoomed]);
+  }, [total, zoomed, isReels]);
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -141,35 +163,54 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
 
       {/* 슬라이드 + 좌우 네비 */}
       <div className="flex flex-1 items-center justify-center gap-5">
-        <button onClick={prev} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronLeft className="h-7 w-7" /></button>
-        <button type="button" onClick={() => setZoomed(true)} title="클릭하면 확대"
-          className="group relative block cursor-zoom-in"
-          style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: isMacro ? 16 : 6, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
-          <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: W, height: H }}>
-            {renderCard(variant.slides[i], i)}
+        {isReels && timing ? (
+          <div style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: 16, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
+            <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: W, height: H }}>
+              <ReelsFrame slides={variant.slides} timing={timing} frame={rf} meta={macroMeta} />
+            </div>
           </div>
-          <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
-            <ZoomIn className="h-5 w-5" />
-          </span>
-        </button>
-        <button onClick={next} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronRight className="h-7 w-7" /></button>
+        ) : (
+          <>
+            <button onClick={prev} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronLeft className="h-7 w-7" /></button>
+            <button type="button" onClick={() => setZoomed(true)} title="클릭하면 확대"
+              className="group relative block cursor-zoom-in"
+              style={{ width: dispW, height: dispH, overflow: 'hidden', borderRadius: isMacro ? 16 : 6, boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}>
+              <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: W, height: H }}>
+                {renderCard(variant.slides[i], i)}
+              </div>
+              <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+                <ZoomIn className="h-5 w-5" />
+              </span>
+            </button>
+            <button onClick={next} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06] text-zinc-200 hover:bg-white/[0.14]"><ChevronRight className="h-7 w-7" /></button>
+          </>
+        )}
       </div>
 
       {/* 하단 컨트롤 */}
       <div className="flex w-full items-center justify-center gap-3 px-6 py-5">
-        <span className="font-mono text-[12px] tabular-nums text-zinc-500">{i + 1} / {total}</span>
-        <button disabled={busy} onClick={() => run(() => exportSlidePng(nodes()[i], exportId, fileLang, i, dims))}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
-          <Download className="h-4 w-4" /> 이 슬라이드 PNG
-        </button>
-        <button disabled={busy} onClick={() => run(() => exportAllPng(nodes(), exportId, fileLang, dims))}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
-          <Images className="h-4 w-4" /> 전체 PNG (ZIP)
-        </button>
-        <button disabled={busy} onClick={() => run(() => exportPdf(nodes(), exportId, fileLang, dims))}
-          className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-500/20 disabled:opacity-50">
-          <FileDown className="h-4 w-4" /> PDF
-        </button>
+        {!isReels && (
+          <>
+            <span className="font-mono text-[12px] tabular-nums text-zinc-500">{i + 1} / {total}</span>
+            <button disabled={busy} onClick={() => run(() => exportSlidePng(nodes()[i], exportId, fileLang, i, dims))}
+              className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
+              <Download className="h-4 w-4" /> 이 슬라이드 PNG
+            </button>
+            <button disabled={busy} onClick={() => run(() => exportAllPng(nodes(), exportId, fileLang, dims))}
+              className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:border-white/25 disabled:opacity-50">
+              <Images className="h-4 w-4" /> 전체 PNG (ZIP)
+            </button>
+            <button disabled={busy} onClick={() => run(() => exportPdf(nodes(), exportId, fileLang, dims))}
+              className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-500/20 disabled:opacity-50">
+              <FileDown className="h-4 w-4" /> PDF
+            </button>
+          </>
+        )}
+        {isReels && timing && (
+          <span className="font-mono text-[12px] tabular-nums text-zinc-500">
+            {(timing.totalFrames / REELS_FPS).toFixed(1)}s · {W}×{H} · {REELS_FPS}fps
+          </span>
+        )}
         {caption && (
           <button onClick={() => setShowCaption((v) => !v)}
             className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${showCaption ? 'border-white/30 bg-white/[0.06] text-zinc-100' : 'border-white/10 text-zinc-300 hover:border-white/25'}`}>
@@ -211,12 +252,15 @@ export function CardNewsViewer({ deck }: { deck: CardNewsDeck }) {
         </div>
       )}
 
-      {/* 내보내기용 원본(화면 밖) — variant 전환 시 해당 슬라이드로 재렌더 */}
-      <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
-        {variant.slides.map((s, idx) => (
-          <div key={`${variant.id}-${idx}`}>{renderCard(s, idx, (el) => { exportRefs.current[idx] = el; })}</div>
-        ))}
-      </div>
+      {/* 내보내기용 원본(화면 밖) — variant 전환 시 해당 슬라이드로 재렌더.
+          릴스는 PNG/PDF 대상이 아니라 렌더하지 않는다(슬라이드 7장 상시 마운트 비용 회피) */}
+      {!isReels && (
+        <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
+          {variant.slides.map((s, idx) => (
+            <div key={`${variant.id}-${idx}`}>{renderCard(s, idx, (el) => { exportRefs.current[idx] = el; })}</div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

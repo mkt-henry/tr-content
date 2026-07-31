@@ -269,6 +269,7 @@ const deck: CardNewsDeck = {
     { id: 'linkedin', label: 'LinkedIn', width: 1080, height: 1350, slides },
     { id: 'x', label: 'X', width: 1920, height: 1080, caption: { ko: xCaptionKo, en: xCaptionEn }, slides: twitterSlides },
     { id: 'instagram', label: 'Instagram', width: 1080, height: 1350, caption: { ko: igCaptionKo, en: igCaptionEn }, slides },
+    { id: 'reels', label: 'Reels', width: 1080, height: 1920, kind: 'reels', caption: { ko: igCaptionKo, en: igCaptionEn }, slides },
   ],
 };
 
