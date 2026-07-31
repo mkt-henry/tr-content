@@ -1,9 +1,10 @@
-import type { CardNewsDeck } from '../../types';
+import type { AnySlide, CardNewsDeck } from '../../types';
 
-/* AlphaLenz · Stock Angle Report (2026-06-22) — macro 테마(세로 1080×1350 LinkedIn + X 16:9).
+/* AlphaLenz · Stock Angle Report (2026-06-22) — macro 테마.
+   LinkedIn 4:5 7장 · X 16:9 1장 · Instagram 4:5 7장 · Reels 9:16 영상.
    레짐 Slowdown · 확신 HIGH. 승리 가설 B(SHORT the fear): 시장의 침체 공포는 과잉반응, 연착륙이 진행 중.
    ACTION: Overweight NDX · Overweight COPPER · Maintain VIX short (리스크온).
-   슬라이드 카피는 영어(macro 테마 규칙) · 게시 본문(caption)은 한/영 언어별로 분리해 토글 전환.
+   슬라이드 카피는 영어(macro 테마 규칙) · 게시 본문(caption)은 한/영 + 플랫폼별로 분리.
    데이터 출처: alpha-lenz.com 2026-06-22 Stock Angle Report.
    직전 06-17 'Fake Rebound'의 반대 국면 — 공포를 매수. */
 
@@ -112,6 +113,158 @@ Not advice · research only
 
 #Macro #Nasdaq #Copper #AlphaLenz`;
 
+/* 인스타그램 전용 — 링크가 클릭되지 않고 첫 2줄만 펼침 전에 보이는 매체.
+   첫 2줄에 결론까지, URL 대신 프로필 링크 안내, 해시태그 15~20개. 릴스와 공유한다. */
+const igCaptionKo = `'침체'가 컨센서스다. 그런데 데이터는 정반대를 가리킨다.
+위험은 경착륙이 아니라 연착륙을 놓치는 것이다 — 공포를 매수하라.
+
+콜 (확신 HIGH)
+↑ 나스닥(NDX) 비중확대
+↑ 구리(COPPER) 비중확대
+↓ VIX 숏 유지
+
+리스크온으로 기우는 이유
+• 산업생산 102.65 — 제조업 견고
+• 신규 실업수당 22.6만 건 — 24만 스트레스선 한참 아래
+• 10Y-2Y 금리차 +0.27% — 역전이 아니라 수렴
+• 나스닥100 +27.23%, 구리 +16.5%(3개월) — AI 주도 성장 사이클
+• 원/달러 1,529.89는 일시적 유동성 불균형 (DXY 100.85 안정)
+
+시장은 원/달러 1,520 돌파와 0.27% 금리차를 침체 신호로 읽는다. 그러나 실물 데이터가 반박한다 — 중국의 반도체 반격과 미국 CHIPS Act가 오히려 국내 투자를 가속하는 '공급 재편'이고, 그게 나스닥과 구리를 끌어올린다.
+
+무효화 조건: 신규 실업수당이 2주 연속 24만 건을 넘으면 논지를 뒤집는다. 모든 AlphaLenz 앵글은 점수화되고 반증 가능하다.
+
+전체 리포트는 프로필 링크에서 👆
+
+투자 자문이 아닙니다. 리서치·정보 제공 목적입니다.
+
+#매크로 #증시 #나스닥 #구리 #연착륙 #주식투자 #해외주식 #미국주식 #원자재 #연준 #금리 #경제지표 #투자공부 #재테크 #AI투자 #반도체 #AlphaLenz #알파렌즈 #InvestingKR #StockMarket`;
+
+const igCaptionEn = `Recession is the consensus trade. The data disagrees.
+The risk isn't a hard landing — it's missing the soft one. Fade the fear.
+
+THE CALL (conviction HIGH)
+↑ Overweight NDX
+↑ Overweight COPPER
+↓ Maintain VIX short
+
+WHY WE LEAN RISK-ON
+• Industrial production 102.65 — manufacturing firm
+• Jobless claims 226K — well below the 240K stress line
+• 10Y–2Y at +0.27% — converging, not inverted
+• Nasdaq-100 +27.23% and copper +16.5% over 3 months — an AI-led growth cycle
+• USD/KRW at 1,529.89 is a liquidity blip; DXY sits calm at 100.85
+
+The market reads KRW past 1,520 and the 0.27% curve as recession signals. The real-economy data refutes it: China's semiconductor counterattack and the US CHIPS Act are accelerating domestic investment — a supply realignment that lifts the Nasdaq and copper.
+
+Invalidation: jobless claims above 240K for two straight weeks flips the thesis. Every AlphaLenz angle is scored and falsifiable.
+
+Full report via the link in bio 👆
+
+Not investment advice. For research & informational purposes.
+
+#macro #markets #investing #nasdaq #copper #softlanding #stocks #stockmarket #commodities #fed #interestrates #economy #semiconductors #quant #aiinfinance #fintech #investor #marketanalysis #AlphaLenz`;
+
+/** 링크드인·인스타·릴스가 공유하는 7장. 배열을 공유하므로 수치 불일치가 발생할 수 없다. */
+const slides: AnySlide[] = [
+  { type: 'm-cover',
+    kicker: 'STOCK ANGLE · AI MARKET ANALYSIS',
+    title: 'Recession?\nNot in the\nData',
+    subtitle: 'The market prices a recession. Production, jobs, and copper say soft landing — stay risk-on.',
+    signals: [
+      { side: 'LONG', ticker: 'NDX', tone: 'pos' },
+      { side: 'LONG', ticker: 'COPPER', tone: 'pos' },
+    ],
+    conviction: 4, max: 5, convLabel: 'HIGH', regime: 'SOFT LANDING' },
+
+  { type: 'm-call',
+    idx: '01 / THE CALL',
+    title: 'Stay\nrisk-on',
+    subtitle: 'The fear is overdone. Real-economy data refutes the recession narrative — lean into the AI-led growth cycle.',
+    cards: [
+      { tone: 'pos', arrow: '↑', tag: 'INCREASE EXPOSURE', headline: 'Overweight NDX', desc: 'Nasdaq-100 — up +27.23% in 3 months on an AI-led growth cycle, not a bubble to fear.' },
+      { tone: 'pos', arrow: '↑', tag: 'INCREASE EXPOSURE', headline: 'Overweight COPPER', desc: 'Copper +16.5% in 3 months — vigorous industrial demand; pair it with a maintained VIX short.' },
+    ],
+    conviction: 4, max: 5, convText: '4 / 5 · HIGH' },
+
+  { type: 'm-narrative',
+    idx: '02 / THE THESIS',
+    title: 'Narrative\nvs. Reality',
+    narrative: ['The market reads ', { t: 'USD/KRW past 1,520', tone: 'white' }, ' and a converging ', { t: '10Y–2Y at 0.27%', tone: 'white' }, ' as recession signals — pricing in a failed soft landing on Fed-hawkish fears.'],
+    reality: ['Industrial output holds at ', { t: '102.65', tone: 'white' }, ', jobless claims sit at ', { t: '226K', tone: 'white' }, ', and the curve is converging — not inverted. ', { t: 'NDX +27.23%', tone: 'white' }, ' and ', { t: 'copper +16.5%', tone: 'white' }, ' confirm an AI-led growth cycle.'],
+    verdict: [{ t: 'Verdict:', tone: 'white' }, ' excessive fear is an overreaction — a soft landing, not a recession. Buy the fear.'] },
+
+  { type: 'm-data',
+    idx: '03 / THE DATA',
+    title: 'The macro reality',
+    source: 'Source: FRED · price feeds',
+    metrics: [
+      { code: 'INDPRO', status: 'RESILIENT', statusTone: 'pos', value: '102.65', caption: 'Industrial output · manufacturing firm', viz: { kind: 'bar', pct: 82, tone: 'pos' } },
+      { code: 'ICSA', status: 'HEALTHY', statusTone: 'pos', value: '226K', caption: 'Jobless claims · below 240K stress line', viz: { kind: 'bar', pct: 56, tone: 'pos' } },
+      { code: 'T10Y2Y', status: '+0.27%', statusTone: 'pos', value: '+0.27%', caption: 'Curve converging · not inverted', viz: { kind: 'bar', from: 50, pct: 7, tone: 'pos', marker: 'center' } },
+      { code: 'NDX · 3M', status: 'GROWTH', statusTone: 'pos', value: '+27.23%', caption: 'AI-led cycle · momentum strong', viz: { kind: 'bars', heights: [40, 55, 62, 75, 88, 100], tone: 'pos' } },
+      { code: 'COPPER · 3M', status: 'STRONG', statusTone: 'pos', value: '+16.5%', caption: 'Industrial demand · supply realignment', viz: { kind: 'bars', heights: [45, 55, 68, 78, 90, 100], tone: 'pos' } },
+      { code: 'USD/KRW', status: 'LIQUIDITY', statusTone: 'warn', value: '1,529.89', caption: 'Temporary imbalance · DXY calm at 100.85', viz: { kind: 'bar', pct: 85, tone: 'warn' } },
+    ] },
+
+  { type: 'm-tensions',
+    idx: '04 / TENSIONS',
+    title: 'Three tensions\nto watch',
+    items: [
+      { n: '01', text: ['A ', { t: 'recession scare', tone: 'neg' }, ' (KRW, curve) vs. a ', { t: 'resilient real economy', tone: 'pos' }, ' (output, jobs, copper).'], tags: ['NDX', 'COPPER', 'VIX'] },
+      { n: '02', text: ['Soft ', { t: 'consumer sentiment 49.8', tone: 'warn' }, ' vs. ', { t: 'firm production 102.65', tone: 'pos' }, ' and sticky ', { t: 'CPI 333.98', tone: 'warn' }, '.'], tags: ['SPX', 'CPI', 'US10Y'] },
+      { n: '03', text: ['A ', { t: 'China semi counterattack', tone: 'warn' }, ' & US rules vs. a ', { t: 'CHIPS-Act supply realignment', tone: 'pos' }, ' lifting tech.'], tags: ['NDX', 'COPPER', 'SOX'] },
+    ] },
+
+  { type: 'm-plan',
+    idx: '05 / THE PLAN',
+    title: 'Trade plan',
+    action: 'Overweight NDX & COPPER · Maintain VIX short',
+    invalidation: 'ICSA above 240K for 2 weeks straight',
+    risks: [
+      { tag: 'MACRO', text: 'Delayed Fed cuts or resurgent inflation push US10Y above 4.5% → growth-stock valuations compress.' },
+      { tag: 'POSITIONING', text: 'NDX & copper overbought — profit-taking once 3-month gains clear +30% spikes volatility.' },
+      { tag: 'EVENT', text: 'Geopolitical escalation spikes WTI and USD/KRW → renewed supply-chain fears.' },
+    ] },
+
+  { type: 'm-cta',
+    idx: '06 / METHOD',
+    title: 'Scored &\nfalsifiable',
+    subtitle: 'Every tension is graded for narrative-vs-reality divergence before the angle ships.',
+    score: '0.7',
+    breakdown: [
+      { label: 'Fear vs. data', value: '0.7', tone: 'pos' },
+      { label: 'KRW vs. DXY', value: '0.6' },
+      { label: 'Output vs. sentiment', value: '0.5' },
+      { label: 'Direction', value: 'RISK-ON', tone: 'pos' },
+    ],
+    ctaTitle: 'See the full angle report\nand live signals.',
+    url: 'alpha-lenz.com',
+    disclaimer: 'Not investment advice. For research & informational purposes.' },
+];
+
+/** X(16:9) 전용 단일 카드 */
+const twitterSlides: AnySlide[] = [
+  { type: 'm-twitter',
+    kicker: 'STOCK ANGLE · AI MARKET ANALYSIS',
+    title: 'Recession? Not\nin the Data',
+    subtitle: 'The market prices a recession. Production, jobs, and copper say soft landing — stay risk-on.',
+    signals: [
+      { side: 'LONG', ticker: 'NDX', tone: 'pos' },
+      { side: 'LONG', ticker: 'COPPER', tone: 'pos' },
+    ],
+    conviction: 4, max: 5, convLabel: 'HIGH', regime: 'SOFT LANDING',
+    metrics: [
+      { code: 'INDPRO', status: 'RESILIENT', statusTone: 'pos', value: '102.65', caption: 'Industrial output · manufacturing firm', viz: { kind: 'bar', pct: 82, tone: 'pos' } },
+      { code: 'ICSA', status: 'HEALTHY', statusTone: 'pos', value: '226K', caption: 'Jobless claims · below 240K stress line', viz: { kind: 'bar', pct: 56, tone: 'pos' } },
+      { code: 'NDX · 3M', status: 'GROWTH', statusTone: 'pos', value: '+27.23%', caption: 'AI-led cycle · momentum strong', viz: { kind: 'bars', heights: [40, 55, 62, 75, 88, 100], tone: 'pos' } },
+      { code: 'COPPER · 3M', status: 'STRONG', statusTone: 'pos', value: '+16.5%', caption: 'Industrial demand · supply realignment', viz: { kind: 'bars', heights: [45, 55, 68, 78, 90, 100], tone: 'pos' } },
+    ],
+    verdict: [{ t: 'Verdict:', tone: 'white' }, ' excessive fear is an overreaction — a soft landing, not a recession. Buy the fear.'],
+    url: 'alpha-lenz.com',
+    disclaimer: 'Not investment advice. For research & informational purposes.' },
+];
+
 const deck: CardNewsDeck = {
   id: 'stock-softlanding-2026-06-22',
   project: 'alphalenz',
@@ -122,115 +275,10 @@ const deck: CardNewsDeck = {
   accent: '#4FD1A5',
   caption: { ko: captionKo, en: captionEn },
   variants: [
-    {
-      id: 'linkedin',
-      label: 'LinkedIn',
-      width: 1080,
-      height: 1350,
-      slides: [
-        { type: 'm-cover',
-          kicker: 'STOCK ANGLE · AI MARKET ANALYSIS',
-          title: 'Recession?\nNot in the\nData',
-          subtitle: 'The market prices a recession. Production, jobs, and copper say soft landing — stay risk-on.',
-          signals: [
-            { side: 'LONG', ticker: 'NDX', tone: 'pos' },
-            { side: 'LONG', ticker: 'COPPER', tone: 'pos' },
-          ],
-          conviction: 4, max: 5, convLabel: 'HIGH', regime: 'SOFT LANDING' },
-
-        { type: 'm-call',
-          idx: '01 / THE CALL',
-          title: 'Stay\nrisk-on',
-          subtitle: 'The fear is overdone. Real-economy data refutes the recession narrative — lean into the AI-led growth cycle.',
-          cards: [
-            { tone: 'pos', arrow: '↑', tag: 'INCREASE EXPOSURE', headline: 'Overweight NDX', desc: 'Nasdaq-100 — up +27.23% in 3 months on an AI-led growth cycle, not a bubble to fear.' },
-            { tone: 'pos', arrow: '↑', tag: 'INCREASE EXPOSURE', headline: 'Overweight COPPER', desc: 'Copper +16.5% in 3 months — vigorous industrial demand; pair it with a maintained VIX short.' },
-          ],
-          conviction: 4, max: 5, convText: '4 / 5 · HIGH' },
-
-        { type: 'm-narrative',
-          idx: '02 / THE THESIS',
-          title: 'Narrative\nvs. Reality',
-          narrative: ['The market reads ', { t: 'USD/KRW past 1,520', tone: 'white' }, ' and a converging ', { t: '10Y–2Y at 0.27%', tone: 'white' }, ' as recession signals — pricing in a failed soft landing on Fed-hawkish fears.'],
-          reality: ['Industrial output holds at ', { t: '102.65', tone: 'white' }, ', jobless claims sit at ', { t: '226K', tone: 'white' }, ', and the curve is converging — not inverted. ', { t: 'NDX +27.23%', tone: 'white' }, ' and ', { t: 'copper +16.5%', tone: 'white' }, ' confirm an AI-led growth cycle.'],
-          verdict: [{ t: 'Verdict:', tone: 'white' }, ' excessive fear is an overreaction — a soft landing, not a recession. Buy the fear.'] },
-
-        { type: 'm-data',
-          idx: '03 / THE DATA',
-          title: 'The macro reality',
-          source: 'Source: FRED · price feeds',
-          metrics: [
-            { code: 'INDPRO', status: 'RESILIENT', statusTone: 'pos', value: '102.65', caption: 'Industrial output · manufacturing firm', viz: { kind: 'bar', pct: 82, tone: 'pos' } },
-            { code: 'ICSA', status: 'HEALTHY', statusTone: 'pos', value: '226K', caption: 'Jobless claims · below 240K stress line', viz: { kind: 'bar', pct: 56, tone: 'pos' } },
-            { code: 'T10Y2Y', status: '+0.27%', statusTone: 'pos', value: '+0.27%', caption: 'Curve converging · not inverted', viz: { kind: 'bar', from: 50, pct: 7, tone: 'pos', marker: 'center' } },
-            { code: 'NDX · 3M', status: 'GROWTH', statusTone: 'pos', value: '+27.23%', caption: 'AI-led cycle · momentum strong', viz: { kind: 'bars', heights: [40, 55, 62, 75, 88, 100], tone: 'pos' } },
-            { code: 'COPPER · 3M', status: 'STRONG', statusTone: 'pos', value: '+16.5%', caption: 'Industrial demand · supply realignment', viz: { kind: 'bars', heights: [45, 55, 68, 78, 90, 100], tone: 'pos' } },
-            { code: 'USD/KRW', status: 'LIQUIDITY', statusTone: 'warn', value: '1,529.89', caption: 'Temporary imbalance · DXY calm at 100.85', viz: { kind: 'bar', pct: 85, tone: 'warn' } },
-          ] },
-
-        { type: 'm-tensions',
-          idx: '04 / TENSIONS',
-          title: 'Three tensions\nto watch',
-          items: [
-            { n: '01', text: ['A ', { t: 'recession scare', tone: 'neg' }, ' (KRW, curve) vs. a ', { t: 'resilient real economy', tone: 'pos' }, ' (output, jobs, copper).'], tags: ['NDX', 'COPPER', 'VIX'] },
-            { n: '02', text: ['Soft ', { t: 'consumer sentiment 49.8', tone: 'warn' }, ' vs. ', { t: 'firm production 102.65', tone: 'pos' }, ' and sticky ', { t: 'CPI 333.98', tone: 'warn' }, '.'], tags: ['SPX', 'CPI', 'US10Y'] },
-            { n: '03', text: ['A ', { t: 'China semi counterattack', tone: 'warn' }, ' & US rules vs. a ', { t: 'CHIPS-Act supply realignment', tone: 'pos' }, ' lifting tech.'], tags: ['NDX', 'COPPER', 'SOX'] },
-          ] },
-
-        { type: 'm-plan',
-          idx: '05 / THE PLAN',
-          title: 'Trade plan',
-          action: 'Overweight NDX & COPPER · Maintain VIX short',
-          invalidation: 'ICSA above 240K for 2 weeks straight',
-          risks: [
-            { tag: 'MACRO', text: 'Delayed Fed cuts or resurgent inflation push US10Y above 4.5% → growth-stock valuations compress.' },
-            { tag: 'POSITIONING', text: 'NDX & copper overbought — profit-taking once 3-month gains clear +30% spikes volatility.' },
-            { tag: 'EVENT', text: 'Geopolitical escalation spikes WTI and USD/KRW → renewed supply-chain fears.' },
-          ] },
-
-        { type: 'm-cta',
-          idx: '06 / METHOD',
-          title: 'Scored &\nfalsifiable',
-          subtitle: 'Every tension is graded for narrative-vs-reality divergence before the angle ships.',
-          score: '0.7',
-          breakdown: [
-            { label: 'Fear vs. data', value: '0.7', tone: 'pos' },
-            { label: 'KRW vs. DXY', value: '0.6' },
-            { label: 'Output vs. sentiment', value: '0.5' },
-            { label: 'Direction', value: 'RISK-ON', tone: 'pos' },
-          ],
-          ctaTitle: 'See the full angle report\nand live signals.',
-          url: 'alpha-lenz.com',
-          disclaimer: 'Not investment advice. For research & informational purposes.' },
-      ],
-    },
-    {
-      id: 'x',
-      label: 'X',
-      width: 1920,
-      height: 1080,
-      caption: { ko: xCaptionKo, en: xCaptionEn },
-      slides: [
-        { type: 'm-twitter',
-          kicker: 'STOCK ANGLE · AI MARKET ANALYSIS',
-          title: 'Recession? Not\nin the Data',
-          subtitle: 'The market prices a recession. Production, jobs, and copper say soft landing — stay risk-on.',
-          signals: [
-            { side: 'LONG', ticker: 'NDX', tone: 'pos' },
-            { side: 'LONG', ticker: 'COPPER', tone: 'pos' },
-          ],
-          conviction: 4, max: 5, convLabel: 'HIGH', regime: 'SOFT LANDING',
-          metrics: [
-            { code: 'INDPRO', status: 'RESILIENT', statusTone: 'pos', value: '102.65', caption: 'Industrial output · manufacturing firm', viz: { kind: 'bar', pct: 82, tone: 'pos' } },
-            { code: 'ICSA', status: 'HEALTHY', statusTone: 'pos', value: '226K', caption: 'Jobless claims · below 240K stress line', viz: { kind: 'bar', pct: 56, tone: 'pos' } },
-            { code: 'NDX · 3M', status: 'GROWTH', statusTone: 'pos', value: '+27.23%', caption: 'AI-led cycle · momentum strong', viz: { kind: 'bars', heights: [40, 55, 62, 75, 88, 100], tone: 'pos' } },
-            { code: 'COPPER · 3M', status: 'STRONG', statusTone: 'pos', value: '+16.5%', caption: 'Industrial demand · supply realignment', viz: { kind: 'bars', heights: [45, 55, 68, 78, 90, 100], tone: 'pos' } },
-          ],
-          verdict: [{ t: 'Verdict:', tone: 'white' }, ' excessive fear is an overreaction — a soft landing, not a recession. Buy the fear.'],
-          url: 'alpha-lenz.com',
-          disclaimer: 'Not investment advice. For research & informational purposes.' },
-      ],
-    },
+    { id: 'linkedin', label: 'LinkedIn', width: 1080, height: 1350, slides },
+    { id: 'x', label: 'X', width: 1920, height: 1080, caption: { ko: xCaptionKo, en: xCaptionEn }, slides: twitterSlides },
+    { id: 'instagram', label: 'Instagram', width: 1080, height: 1350, caption: { ko: igCaptionKo, en: igCaptionEn }, slides },
+    { id: 'reels', label: 'Reels', width: 1080, height: 1920, kind: 'reels', caption: { ko: igCaptionKo, en: igCaptionEn }, slides },
   ],
 };
 
