@@ -127,7 +127,7 @@ test('빈 슬라이드 배열은 totalFrames 0이고 index -1을 준다', () => 
 
 - [ ] **Step 2: 테스트가 실패하는 것을 확인한다**
 
-Run: `node --test tests/`
+Run: `node --test "tests/**/*.test.ts"`
 Expected: FAIL — `Cannot find module` (`src/cardnews/reels.ts`가 아직 없음)
 
 - [ ] **Step 3: `reels.ts`를 구현한다**
@@ -206,7 +206,7 @@ export function slideAtFrame(t: ReelsTiming, frame: number): { index: number; lo
 
 - [ ] **Step 4: 테스트가 통과하는 것을 확인한다**
 
-Run: `node --test tests/`
+Run: `node --test "tests/**/*.test.ts"`
 Expected: PASS — 7 tests. 콘솔에 `[cardnews:reels]` 경고가 2건 보이는 건 정상이다(길이 불일치·미등록 타입 테스트가 의도적으로 유발).
 
 - [ ] **Step 5: `types.ts`에 variant 필드를 추가한다**
@@ -954,7 +954,7 @@ git commit -m "docs(cardnews): 인스타 캐러셀·릴스 제작 규칙 반영"
 
 ## 완료 기준
 
-1. `node --test tests/` — 7 tests PASS
+1. `node --test "tests/**/*.test.ts"` — 7 tests PASS
 2. `npx tsc --noEmit` — 통과
 3. `npm run build` — 통과 (Remotion 번들 포함)
 4. 뷰어에서 07-27 덱의 토글 4개(`LinkedIn · X · Instagram · Reels`)가 모두 정상
