@@ -1,4 +1,5 @@
 import type { CardNewsDeck } from '../src/cardnews/types';
+import btcMacroWins from '../src/cardnews/alphalenz/btc-macrowins-2026-08-06/deck';
 import excessFear from '../src/cardnews/alphalenz/stock-excessfear-2026-07-27/deck';
 import oversold from '../src/cardnews/alphalenz/stock-oversold-2026-07-25/deck';
 import softLanding from '../src/cardnews/alphalenz/stock-softlanding-2026-06-22/deck';
@@ -12,6 +13,7 @@ import fakeRebound15 from '../src/cardnews/alphalenz/stock-fakerebound-2026-06-1
  * kind:'reels' variant가 없는 덱은 Root.tsx가 경고와 함께 건너뛴다.
  */
 export const REELS_DECKS: CardNewsDeck[] = [
+  btcMacroWins,
   excessFear,
   oversold,
   softLanding,
