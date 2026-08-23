@@ -133,6 +133,7 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
       const t = e.target as HTMLElement;
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
       const shell = useShellStore.getState();
+      if (shell.studioOpen) return; // Studio 오버레이가 떠 있으면 무대 단축키를 받지 않는다
       switch (e.key) {
         case ' ': {
           e.preventDefault();
@@ -301,7 +302,9 @@ export function Stage({ feature, variant }: { feature: FeatureDefinition; varian
         <div className="absolute right-4 top-4 z-30 flex items-center gap-2">
           <button
             onClick={() => {
-              handleReset();
+              // 리셋하지 않는다 — 영상만 확인하고 돌아오면 보던 데모가 그대로 있어야 한다.
+              // 오버레이 뒤에서 시나리오가 계속 흐르지 않도록 일시정지만 걸어둔다.
+              pause();
               useShellStore.getState().openStudio();
             }}
             title="Remotion Studio에서 열기 — 데모 영상 재생·스크럽"

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && npm run build:studio",
-    "build:studio": "remotion bundle remotion/index.ts --public-path=./ --out-dir=dist/studio",
+    "build:studio": "remotion bundle remotion/index.ts --public-path=/studio/ --out-dir=dist/studio",
     "preview": "vite preview",
     "studio": "remotion studio remotion/index.ts --port 3010",
     "test": "node --test \"tests/**/*.test.ts\"",

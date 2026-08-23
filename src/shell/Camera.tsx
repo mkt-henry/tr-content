@@ -14,11 +14,15 @@ const EASE = 0.2; // origin 추종 보간 계수 (클수록 빠르게 따라붙�
  *
  * origin을 대상 중심에 두므로 그 점은 배율과 무관하게 본래 위치에 고정되고,
  * 가짜 커서는 cameraNaturalCenter(본래 위치)를 가리켜 정렬을 유지한다.
+ *
+ * 영상 렌더 중(frameLock 있음)에는 스프링과 rAF 추종을 모두 끄고, 프레임 F에서 계산된
+ * 배율·원점을 그대로 그린다 — 벽시계에 의존하면 미리보기와 결과물이 어긋난다.
  */
 export function Camera({ children, disabled }: { children: ReactNode; disabled?: boolean }) {
   const spotlightId = usePlaybackStore((s) => s.spotlightId);
   const spotlightScale = usePlaybackStore((s) => s.spotlightScale);
   const enabled = usePlaybackStore((s) => s.spotlightEnabled);
+  const frameLock = usePlaybackStore((s) => s.frameLock);
   const ref = useRef<HTMLDivElement>(null);
 
   const active = !disabled && enabled && !!spotlightId;
@@ -27,6 +31,7 @@ export function Camera({ children, disabled }: { children: ReactNode; disabled?:
   const originRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
+    if (frameLock) return; // 영상: 원점은 프레임에서 계산돼 style로 들어온다
     let raf = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
@@ -50,7 +55,25 @@ export function Camera({ children, disabled }: { children: ReactNode; disabled?:
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [frameLock]);
+
+  if (frameLock) {
+    const scale = disabled ? 1 : frameLock.camScale;
+    const o = frameLock.camOrigin;
+    return (
+      <div
+        ref={ref}
+        {...{ [CAMERA_LAYER_ATTR]: true }}
+        className="relative h-full w-full"
+        style={{
+          transform: `scale(${scale})`,
+          ...(o ? { transformOrigin: `${o.x}px ${o.y}px` } : null),
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
