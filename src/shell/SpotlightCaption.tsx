@@ -34,6 +34,7 @@ export function SpotlightCaption({ rootRef }: { rootRef?: RefObject<HTMLElement 
   const id = usePlaybackStore((s) => s.spotlightId);
   const caption = usePlaybackStore((s) => s.spotlightCaption);
   const enabled = usePlaybackStore((s) => s.spotlightEnabled);
+  const frameLock = usePlaybackStore((s) => s.frameLock);
   const [rect, setRect] = useState<Rect | null>(null);
 
   const active = enabled && !!id && !!caption;
@@ -51,6 +52,29 @@ export function SpotlightCaption({ rootRef }: { rootRef?: RefObject<HTMLElement 
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [active, rootRef]);
+
+  // 영상 렌더: 등장 진행도를 프레임에서 받아 그대로 그린다(벽시계 fade 금지 — 결과물이 흔들린다).
+  if (frameLock) {
+    if (!active || !rect) return null;
+    const e = frameLock.caption;
+    return (
+      <div
+        className="pointer-events-none fixed z-[90] flex items-end justify-center px-6 pb-6"
+        style={{
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          opacity: e,
+          transform: `translateY(${10 * (1 - e)}px)`,
+        }}
+      >
+        <span className="rounded-2xl bg-black px-7 py-4 text-[24px] font-bold leading-none text-white shadow-[0_14px_48px_-6px_rgba(0,0,0,0.6)]">
+          {caption}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence>

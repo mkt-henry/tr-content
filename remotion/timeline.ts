@@ -1,18 +1,27 @@
 import type { Scenario, Step, StepText } from '../src/engine/types';
-import { CAMERA_ZOOM } from '../src/lib/cameraGeom';
+import { CAMERA_ZOOM } from '../src/lib/cameraGeom.ts';
 
 /**
  * 시나리오(실시간 ms 기반)를 프레임 타임라인으로 변환한다.
  * run.ts의 타이밍을 그대로 프레임으로 환산 — 벽시계 없이 프레임 F의 상태를 순수 계산하기 위함.
  *
  * 각 스텝의 "동작 순간"(store를 바꾸는 run)과 커서 타깃/클릭 펄스 구간을 프레임으로 고정한다.
- * 커서의 부드러운 이동과 컴포넌트 전환은 framer-motion 스프링이 담당하므로, 여기서는
- * "언제 어느 타깃을 가리키고 언제 눌리는가"만 정한다.
+ * 커서 위치와 카메라 줌은 벽시계 스프링에 맡기지 않는다 — 렌더 속도에 따라 프레임 F의 그림이
+ * 달라지기 때문. 대신 "직전 값 / 바뀐 프레임 / 도착 프레임"을 함께 내어주고, DemoVideo가
+ * 프레임 F에서의 값을 직접 보간한다.
  */
 
 const MOVE_MS = 650; // run.ts: click/type의 커서 이동 고정값
 const PRESS_MS = 160; // clickPulse pressed
 const RELEASE_MS = 120; // clickPulse release
+
+/**
+ * 줌 전환에 쓰는 길이(ms). Camera의 스프링(stiffness 150 / damping 22 / mass 0.7, ζ≈1.07 과감쇠)이
+ * 정착하는 데 걸리는 실측 시간에 맞췄다 — 인앱 스프링과 영상의 프레임 보간이 같은 속도로 보이게 한다.
+ */
+export const ZOOM_MS = 550;
+/** 클릭 펄스 링이 퍼져 사라지는 길이(ms) — FakeCursor의 ring transition duration과 같아야 한다. */
+export const PULSE_RING_MS = 450;
 
 function textOf(t: StepText): string {
   return typeof t === 'function' ? t() : t;
@@ -45,6 +54,11 @@ export interface TimelineEntry {
   run?: () => void;
   /** 커서가 가리킬 data-demo-id */
   cursorTarget?: string;
+  /**
+   * 커서 이동이 끝나는 프레임 — run.ts moveCursorTo의 ms에 해당. 이 스텝이 시작 프레임에서
+   * 이전 타깃을 떠나 여기서 새 타깃에 도착한다. 프레임만으로 커서 위치를 보간하기 위해 필요하다.
+   */
+  cursorMoveEnd?: number;
   /** 클릭 펄스(pressed=true) 구간 [pulseStart, pulseEnd) */
   pulseStart?: number;
   pulseEnd?: number;
@@ -94,6 +108,7 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
       case 'cursor':
         span = f(step.ms ?? MOVE_MS);
         e.cursorTarget = step.target;
+        e.cursorMoveEnd = startFrame + span;
         e.spotlightSet = spotlightOf(step);
         break;
       case 'click': {
@@ -102,6 +117,7 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
         const release = f(RELEASE_MS);
         span = move + press + release;
         e.cursorTarget = step.target;
+        e.cursorMoveEnd = startFrame + move;
         e.pulseStart = startFrame + move;
         e.pulseEnd = startFrame + move + press;
         e.actionFrame = startFrame + move + press + release;
@@ -114,7 +130,10 @@ export function buildTimeline(scenario: Scenario, fps: number): Timeline {
         const full = textOf(step.text);
         const typeSpan = f([...full].length * (1000 / (step.cps ?? 16)));
         span = pre + typeSpan;
-        if (step.target) e.cursorTarget = step.target;
+        if (step.target) {
+          e.cursorTarget = step.target;
+          e.cursorMoveEnd = startFrame + f(MOVE_MS);
+        }
         // target 있는 type만 moveCursorTo를 호출 → 강조 상태를 바꾼다 (target 없으면 무변화)
         if (step.target) e.spotlightSet = spotlightOf(step);
         e.progressive = { fromFrame: startFrame + pre, toFrame: startFrame + pre + typeSpan, full, apply: step.set };
@@ -159,14 +178,28 @@ export interface FrameState {
   progressive: Array<{ apply: (s: string) => void; text: string }>;
   /** 커서가 가리킬 타깃 (없으면 초기 위치 유지) */
   cursorTarget?: string;
+  /** 직전에 가리키던 타깃 — 이 프레임의 커서 위치를 두 지점 사이 보간으로 정하기 위함 */
+  cursorPrevTarget?: string;
+  /** 현재 타깃으로 출발한 프레임 */
+  cursorSinceFrame: number;
+  /** 현재 타깃에 도착하는 프레임 (없으면 이동 구간이 아님) */
+  cursorMoveEnd?: number;
   /** 클릭 펄스 여부 */
   pressed: boolean;
+  /** 펄스가 시작된 프레임 — 링 확산 진행도 계산용. 펄스 중이 아니면 null */
+  pulseSinceFrame: number | null;
   /** 현재 강조(줌) 대상 data-demo-id (없으면 null) */
   spotlightId: string | null;
   /** 현재 줌 배율 */
   spotlightScale: number;
   /** 현재 강조 캡션 (없으면 null) */
   spotlightCaption: string | null;
+  /** 직전 강조 대상 — 줌 원점을 두 지점 사이 보간으로 옮기기 위함 */
+  spotlightPrevId: string | null;
+  /** 직전의 실효 배율(줌 없음이면 1) — 배율 보간의 시작값 */
+  spotlightPrevScale: number;
+  /** 현재 강조 상태로 바뀐 프레임 */
+  spotlightSinceFrame: number;
   /**
    * 시나리오의 모든 scroll 스텝을 등장 순서대로, 이 프레임 기준 진행도(0~1, easeInOut 적용)와 함께.
    * 아직 시작 안 한 스텝은 progress=0, 끝난 스텝은 1. 호출 측이 순서대로 적용하면
@@ -185,10 +218,17 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
   const runs: Array<() => void> = [];
   const progressive: Array<{ apply: (s: string) => void; text: string }> = [];
   let cursorTarget: string | undefined;
+  let cursorPrevTarget: string | undefined;
+  let cursorSinceFrame = 0;
+  let cursorMoveEnd: number | undefined;
   let pressed = false;
+  let pulseSinceFrame: number | null = null;
   let spotlightId: string | null = null;
   let spotlightScale = CAMERA_ZOOM;
   let spotlightCaption: string | null = null;
+  let spotlightPrevId: string | null = null;
+  let spotlightPrevScale = 1; // 시작은 줌 없음 → 실효 배율 1
+  let spotlightSinceFrame = 0;
   const scrolls: FrameState['scrolls'] = [];
 
   for (const e of timeline.entries) {
@@ -203,9 +243,17 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
     // 강조 상태: setSpotlight를 부르는 스텝(정의된 spotlightSet)만 startFrame에서 상태를 갈아끼운다.
     // wait/do 등은 건드리지 않아 이전 상태가 유지된다 (run.ts와 동일).
     if (e.spotlightSet && frame >= e.startFrame) {
-      spotlightId = e.spotlightSet.id;
-      spotlightScale = e.spotlightSet.scale;
-      spotlightCaption = e.spotlightSet.caption;
+      const next = e.spotlightSet;
+      // 값이 실제로 바뀔 때만 기준점을 갱신한다 — 같은 상태를 다시 세팅하는 스텝이 줌 전환을
+      // 처음부터 다시 시작하게 만들면 안 된다(인앱 스프링도 타깃이 같으면 움직이지 않는다).
+      if (next.id !== spotlightId || next.scale !== spotlightScale) {
+        spotlightPrevId = spotlightId;
+        spotlightPrevScale = spotlightId ? spotlightScale : 1;
+        spotlightSinceFrame = e.startFrame;
+      }
+      spotlightId = next.id;
+      spotlightScale = next.scale;
+      spotlightCaption = next.caption;
     }
 
     if (e.progressive) {
@@ -219,10 +267,33 @@ export function computeFrameState(frame: number, timeline: Timeline): FrameState
     }
 
     if (e.cursorTarget != null && frame >= e.startFrame) {
+      // 타깃이 바뀔 때만 출발점·출발 프레임을 갱신한다(같은 요소를 연달아 가리키면 커서는 머문다).
+      if (e.cursorTarget !== cursorTarget) {
+        cursorPrevTarget = cursorTarget;
+        cursorSinceFrame = e.startFrame;
+        cursorMoveEnd = e.cursorMoveEnd;
+      }
       cursorTarget = e.cursorTarget;
       pressed = e.pulseStart != null && e.pulseEnd != null && frame >= e.pulseStart && frame < e.pulseEnd;
+      pulseSinceFrame = pressed ? (e.pulseStart ?? null) : null;
     }
   }
 
-  return { runs, progressive, cursorTarget, pressed, spotlightId, spotlightScale, spotlightCaption, scrolls };
+  return {
+    runs,
+    progressive,
+    cursorTarget,
+    cursorPrevTarget,
+    cursorSinceFrame,
+    cursorMoveEnd,
+    pressed,
+    pulseSinceFrame,
+    spotlightId,
+    spotlightScale,
+    spotlightCaption,
+    spotlightPrevId,
+    spotlightPrevScale,
+    spotlightSinceFrame,
+    scrolls,
+  };
 }
