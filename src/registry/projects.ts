@@ -39,8 +39,9 @@ export const projects: ProjectDefinition[] = [
   {
     id: 'treasurer',
     name: 'Treasurer',
-    tagline: '',
-    description: '데모 준비 중입니다.',
+    tagline: 'Adaptive Home',
+    description:
+      '실물자산 투자 앱 트레져러의 데모 스튜디오 — 홈에 쌓여 있던 개인화 모듈을 별도 맞춤 탭으로 분리하고, 같은 모듈을 유저군별로 다시 조립하는 안을 자동 재생으로 확인하세요. 모든 데모는 더미 데이터로 실제처럼 동작합니다.',
   },
   {
     id: 'treazer',
